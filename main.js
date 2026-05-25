@@ -1239,6 +1239,102 @@
     if (e.key === 'Escape') wizardClose();
   });
 
+  // ============ (NOVO) Gerador de prompt "O que o Waz não deve fazer" ============
+  // Seção independente na página (abaixo do botão "Configurar meus agentes").
+  // É 100% opcional: não interfere no fluxo do wizard nem na navegação das páginas.
+  // Junta as situações marcadas + a observação livre e gera um texto pronto pro Waz,
+  // exibido num modal com botão de copiar.
+  const wazGuard = document.getElementById('waz-guard');
+  if (wazGuard) {
+    const outroCheck = document.getElementById('waz-guard-outro-check');
+    const outroInput = document.getElementById('waz-guard-outro');
+    const extraInput = document.getElementById('waz-guard-extra');
+    const genBtn     = document.getElementById('waz-guard-generate');
+    const modal      = document.getElementById('waz-modal');
+    const modalText  = document.getElementById('waz-modal-text');
+    const copyBtn    = document.getElementById('waz-modal-copy');
+    const copyLabel  = copyBtn ? copyBtn.querySelector('.waz-copy-label') : null;
+    const closeBtn   = document.getElementById('waz-modal-close');
+    const backdrop   = document.getElementById('waz-modal-backdrop');
+
+    // "Outro" mostra/esconde o campo de texto livre correspondente
+    if (outroCheck && outroInput) {
+      outroCheck.addEventListener('change', () => {
+        outroInput.classList.toggle('is-hidden', !outroCheck.checked);
+        if (outroCheck.checked) outroInput.focus();
+      });
+    }
+
+    // Monta o prompt no formato pedido, incluindo só o que foi preenchido
+    function buildWazPrompt() {
+      const items = [];
+      wazGuard.querySelectorAll('.waz-check-box:checked').forEach(c => {
+        if (c.value === '__outro__') {
+          const o = (outroInput.value || '').trim();
+          if (o) items.push(o);                 // usa o texto do "Outro", se houver
+        } else {
+          items.push(c.value);
+        }
+      });
+      const extra = (extraInput.value || '').trim();
+
+      let out = 'Waz, por favor siga estas instruções ao me ajudar a atender meus clientes:\n\n';
+      out += 'Assuntos para me consultar antes de responder:\n';
+      out += items.length ? items.map(i => '- ' + i).join('\n') : '- (nenhum por enquanto)';
+      if (extra) out += '\n\nOutras informações importantes:\n' + extra;  // só entra se houver texto
+      return out;
+    }
+
+    function openModal(text) {
+      modalText.textContent = text;
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      copyBtn.classList.remove('is-copied');
+      if (copyLabel) copyLabel.textContent = 'Copiar texto';
+    }
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    if (genBtn)   genBtn.addEventListener('click', () => openModal(buildWazPrompt()));
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (backdrop) backdrop.addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    });
+
+    // Copiar pra área de transferência (com fallback pra execCommand)
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        const text = modalText.textContent;
+        let ok = false;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            ok = true;
+          }
+        } catch (e) { ok = false; }
+        if (!ok) {                              // fallback p/ contextos sem Clipboard API
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { ok = document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+        copyBtn.classList.add('is-copied');     // feedback visual
+        if (copyLabel) copyLabel.textContent = ok ? 'Copiado!' : 'Copie manualmente';
+        setTimeout(() => {
+          copyBtn.classList.remove('is-copied');
+          if (copyLabel) copyLabel.textContent = 'Copiar texto';
+        }, 1800);
+      });
+    }
+  }
+
   /* ---- Testimonial Card Expand/Collapse ---- */
   const tcardOverlay = document.getElementById('tcard-overlay');
   const tcardClose = document.getElementById('tcard-close');

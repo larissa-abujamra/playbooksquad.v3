@@ -2756,3 +2756,168 @@
   .situation-question.is-leaving,
   .situation-content.is-entering { animation: none; }
 }
+
+/* ============================================================
+   (NOVO) "O que o Waz não deve fazer" — gerador de prompt + modal
+   ============================================================ */
+.waz-guard {
+  margin-top: 28px;
+  padding: 24px 26px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-2);
+}
+.waz-guard-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.waz-guard-desc {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0 0 18px;
+  max-width: 62ch;
+}
+/* Lista de checkboxes em 2 colunas (1 no mobile) */
+.waz-guard-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+@media (max-width: 600px) { .waz-guard-options { grid-template-columns: 1fr; } }
+.waz-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--ink);
+  transition: border-color .15s ease, background .15s ease;
+}
+.waz-check:hover { border-color: var(--ink-3); }
+.waz-check:has(.waz-check-box:checked) { border-color: var(--ink); }
+.waz-check-box { position: absolute; opacity: 0; width: 0; height: 0; }
+.waz-check-mark {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--ink-3);
+  border-radius: 5px;
+  flex-shrink: 0;
+  position: relative;
+  transition: background .15s ease, border-color .15s ease;
+}
+.waz-check-box:checked + .waz-check-mark { background: var(--ink); border-color: var(--ink); }
+.waz-check-box:checked + .waz-check-mark::after {
+  content: '';
+  position: absolute;
+  left: 5px; top: 1px;
+  width: 5px; height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.waz-check-box:focus-visible + .waz-check-mark {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ink) 18%, transparent);
+}
+.waz-check-text { line-height: 1.35; }
+/* Campos de texto (Outro + observação livre) */
+.waz-guard-input {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color .15s ease;
+  resize: vertical;
+}
+.waz-guard-input:focus { border-color: var(--ink); }
+.waz-guard-input::placeholder { color: var(--ink-3); }
+.waz-guard-outro { margin-bottom: 14px; }
+.waz-guard-outro.is-hidden { display: none; }
+.waz-guard-field { display: block; margin-bottom: 18px; }
+.waz-guard-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.waz-guard-generate { margin-top: 4px; }
+
+/* Modal do prompt gerado */
+.waz-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;            /* acima do wizard (1000) */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.waz-modal.is-open { display: flex; }
+.waz-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.waz-modal-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: wazModalIn .25s ease both;
+}
+@keyframes wazModalIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.waz-modal-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 34px; height: 34px;
+  border: none; background: none;
+  border-radius: 8px;
+  color: var(--ink-2);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .15s ease, color .15s ease;
+}
+.waz-modal-close:hover { background: var(--bg-2); color: var(--ink); }
+.waz-modal-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 4px; }
+.waz-modal-sub { font-size: 14px; color: var(--ink-2); margin: 0 0 16px; }
+.waz-modal-text {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0 0 16px;
+}
+.waz-modal-actions { display: flex; justify-content: flex-end; }
+.waz-modal-copy.is-copied { background: var(--waz); border-color: var(--waz); }
+@media (prefers-reduced-motion: reduce) { .waz-modal-card { animation: none; } }
