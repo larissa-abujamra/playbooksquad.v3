@@ -182,16 +182,55 @@
   // ============ Wizard: treinamento guiado de agentes ============
   const wizardQuestions = [
     // ===== PARTE 1: SOBRE SEU NEGÓCIO =====
+    // (1) HORÁRIO — antes era texto livre; agora é escolha de opções prontas
+    //     + "Outro (especificar)" que abre um campo de texto livre.
     {
       block: 'Sobre seu negócio',
       sectionIntro: 'Vamos começar com o básico. Essas informações ajudam o Waz a responder suas clientes com precisão.',
       key: 'horario',
       pdfLabel: 'Horário',
       q: 'Qual o horário de funcionamento do seu negócio?',
-      hint: 'Ex: "Segunda a sábado, 9h às 18h" ou "Todos os dias, 10h às 22h"',
-      type: 'text',
-      placeholder: 'Seg a Sáb, 9h às 18h',
+      hint: 'Escolha uma opção ou selecione "Outro" para escrever o seu.',
+      type: 'choice-with-followup',
       recommended: true,
+      options: [
+        { value: 'seg_sex', label: 'Segunda a Sexta, 9h às 18h' },
+        { value: 'seg_sab', label: 'Segunda a Sábado, 8h às 20h' },
+        { value: 'todos',   label: 'Todos os dias, 10h às 22h' },
+        { value: 'outro',   label: 'Outro (especificar)', followup: true },
+      ],
+      followupKey: 'horario_outro',
+      followupHint: 'Descreva o horário de funcionamento.',
+      followupPlaceholder: 'Ex: Terça a Domingo, 11h às 19h',
+    },
+    // (2) PRAZO MÍNIMO — NOVA pergunta: opções de prazo + "Outro (especificar)".
+    {
+      block: 'Sobre seu negócio',
+      key: 'prazo_minimo',
+      pdfLabel: 'Prazo mínimo de encomenda',
+      q: 'Qual o prazo mínimo para encomendar?',
+      hint: 'Quanto tempo de antecedência você precisa para preparar um pedido.',
+      type: 'choice-with-followup',
+      options: [
+        { value: '24h',   label: '24 horas' },
+        { value: '48h',   label: '48 horas' },
+        { value: '3dias', label: '3 dias' },
+        { value: '5dias', label: '5 dias' },
+        { value: 'outro', label: 'Outro (especificar)', followup: true },
+      ],
+      followupKey: 'prazo_minimo_outro',
+      followupHint: 'Descreva o prazo mínimo.',
+      followupPlaceholder: 'Ex: 1 semana para bolos grandes',
+    },
+    // (2) EXCEÇÕES DE PRAZO — NOVO campo de texto livre, complementa o prazo mínimo.
+    {
+      block: 'Sobre seu negócio',
+      key: 'prazo_excecoes',
+      pdfLabel: 'Exceções de prazo',
+      q: 'Exceções de prazo para alguns produtos?',
+      hint: 'Produtos que precisam de mais (ou menos) antecedência. Se não tiver, pode pular.',
+      type: 'textarea',
+      placeholder: 'Ex: Bolos de casamento precisam de 15 dias. Brigadeiros saem no mesmo dia.',
     },
     {
       block: 'Sobre seu negócio',
@@ -203,57 +242,157 @@
       placeholder: 'Rua dos Doces, 42 — Vila Mariana, SP. Entrego na Zona Sul, frete R$ 10.',
       recommended: true,
     },
+    // (5) REGRAS — antes era só texto livre; agora traz sugestões prontas como
+    //     checkboxes (múltipla seleção) + "Outro (especificar)" para texto livre.
     {
       block: 'Sobre seu negócio',
       key: 'regras',
       pdfLabel: 'Regras',
-      q: 'Quais são as regras do seu negócio que os clientes precisam saber?',
-      hint: 'Prazos de encomenda, restrições, pedido mínimo, o que você NÃO faz...',
-      type: 'textarea',
-      placeholder: 'Encomendas com 48h de antecedência. Não faço sem glúten. Pedido mínimo pra entrega: R$ 50.',
+      q: 'Quais as principais regras que seus clientes precisam saber?',
+      hint: 'Marque as que se aplicam e use "Outro" para escrever as suas.',
+      type: 'multi-choice',
+      options: [
+        { value: 'sem_cancelamento', label: 'Não aceitamos cancelamento' },
+        { value: 'cancel_48h',       label: 'Cancelamento com 48h de antecedência' },
+        { value: 'sinal_50',         label: 'Cobramos 50% de sinal para encomendas' },
+        { value: 'sem_gluten',       label: 'Não trabalhamos com produtos sem glúten' },
+        { value: 'sem_feriado',      label: 'Não abrimos em feriados' },
+      ],
+      otherKey: 'regras_outro',
+      otherLabel: 'Outro (especificar)',
+      otherPlaceholder: 'Escreva outras regras importantes do seu negócio...',
+    },
+    // (3) CONSERVAÇÃO E CONSUMO — sub-perguntas agora são múltipla escolha
+    //     (onde guardar / validade / como servir) + instruções livres por produto.
+    {
+      block: 'Sobre seu negócio',
+      key: 'conservar_onde',
+      pdfLabel: 'Conservação — onde guardar',
+      q: 'Como conservar e consumir: onde guardar?',
+      hint: 'Onde a cliente deve guardar o produto depois de comprar.',
+      type: 'single-choice',
+      options: [
+        { value: 'geladeira', label: 'Geladeira' },
+        { value: 'ambiente',  label: 'Temperatura ambiente' },
+        { value: 'freezer',   label: 'Freezer' },
+        { value: 'depende',   label: 'Depende do produto' },
+      ],
     },
     {
       block: 'Sobre seu negócio',
-      key: 'pagamento',
-      pdfLabel: 'Pagamento',
-      q: 'Quais formas de pagamento você aceita?',
-      hint: 'Pix, cartão de crédito/débito, dinheiro, parcelamento...',
-      type: 'text',
-      placeholder: 'Pix, cartão (até 3x sem juros) e dinheiro',
+      key: 'conservar_tempo',
+      pdfLabel: 'Conservação — validade',
+      q: 'Por quanto tempo dura?',
+      hint: 'Validade média dos seus produtos depois de prontos.',
+      type: 'single-choice',
+      options: [
+        { value: '1d',   label: '1 dia' },
+        { value: '2d',   label: '2 dias' },
+        { value: '3d',   label: '3 dias' },
+        { value: '5d',   label: '5 dias' },
+        { value: '7d',   label: '7 dias' },
+        { value: 'mais', label: 'Mais de 7 dias' },
+      ],
     },
+    {
+      block: 'Sobre seu negócio',
+      key: 'conservar_servir',
+      pdfLabel: 'Conservação — como servir',
+      q: 'Como servir melhor?',
+      hint: 'A melhor forma de consumir o produto.',
+      type: 'single-choice',
+      options: [
+        { value: 'gelado',      label: 'Servir gelado' },
+        { value: 'ambiente',    label: 'Servir em temperatura ambiente' },
+        { value: 'micro',       label: 'Aquecer no micro-ondas' },
+        { value: 'forno',       label: 'Aquecer no forno' },
+        { value: 'sem_preparo', label: 'Não precisa de preparo' },
+      ],
+    },
+    {
+      block: 'Sobre seu negócio',
+      key: 'conservar_instrucoes',
+      pdfLabel: 'Conservação — instruções por produto',
+      q: 'Instruções específicas por produto?',
+      hint: 'Cuidados que variam de um produto para outro. Se não tiver, pode pular.',
+      type: 'textarea',
+      placeholder: 'Ex: Bolo gelado dura 5 dias na geladeira. Brigadeiros, 7 dias. Tortas, consumir em 3 dias.',
+    },
+    // (4) PAGAMENTO — antes era texto; agora é múltipla seleção (checkboxes)
+    //     + "Outro", seguido da sub-pergunta de sinal (múltipla escolha).
+    {
+      block: 'Sobre seu negócio',
+      key: 'pagamento',
+      pdfLabel: 'Formas de pagamento',
+      q: 'Quais formas de pagamento você aceita?',
+      hint: 'Selecione todas que se aplicam.',
+      type: 'multi-choice',
+      recommended: true,
+      options: [
+        { value: 'pix',            label: 'Pix' },
+        { value: 'dinheiro',       label: 'Dinheiro' },
+        { value: 'cartao_debito',  label: 'Cartão de débito' },
+        { value: 'cartao_credito', label: 'Cartão de crédito' },
+        { value: 'parcelamento',   label: 'Parcelamento' },
+      ],
+      otherKey: 'pagamento_outro',
+      otherLabel: 'Outra forma de pagamento',
+      otherPlaceholder: 'Ex: vale-alimentação, transferência bancária...',
+    },
+    {
+      block: 'Sobre seu negócio',
+      key: 'pagamento_sinal',
+      pdfLabel: 'Sinal para encomenda',
+      q: 'Exige sinal para confirmar encomenda?',
+      hint: 'Valor pago antecipadamente para garantir o pedido.',
+      type: 'single-choice',
+      options: [
+        { value: 'nao',      label: 'Não exijo sinal' },
+        { value: 'sim_50',   label: 'Sim, 50% do valor' },
+        { value: 'sim_fixo', label: 'Sim, um valor fixo' },
+        { value: 'depende',  label: 'Depende do tamanho do pedido' },
+      ],
+    },
+    // (6) TOM DE VOZ — opções atualizadas, cada uma com uma breve descrição
+    //     mostrada abaixo do título da opção (render já suporta `desc`).
     {
       block: 'Sobre seu negócio',
       key: 'tom_voz',
       pdfLabel: 'Tom de voz',
-      q: 'Qual tom de voz combina mais com seu negócio?',
-      hint: 'Escolha o estilo que mais parece com a forma que você fala com suas clientes.',
+      q: 'Qual o tom de voz da sua marca?',
+      hint: 'Como o Waz deve "falar" com suas clientes.',
       type: 'single-choice',
+      recommended: true,
       options: [
         {
-          value: 'carinhoso',
-          label: '🤗 Carinhoso e próximo',
-          desc: 'Chama pelo nome, pode usar termos como "querida", "flor", tom de conversa entre amigas.',
+          value: 'casual',
+          label: 'Casual e descontraído',
+          desc: 'Comunicação leve, informal e amigável, como se conversasse com um amigo. Linguagem simples, emojis e brincadeiras leves para criar proximidade.',
         },
         {
-          value: 'simpatico',
-          label: '😁 Simpático e profissional',
-          desc: 'Educado e atencioso, mas sem intimidade excessiva. O mais escolhido por confeitarias.',
-          recommended: true,
+          value: 'afetuoso',
+          label: 'Afetuoso e caloroso',
+          desc: 'Comunicação acolhedora e carinhosa. Demonstra cuidado e atenção, fazendo a cliente se sentir querida e bem-vinda.',
         },
         {
-          value: 'direto',
-          label: '📋 Direto e objetivo',
-          desc: 'Responde rápido, sem enrolação. Informação clara e prática.',
+          value: 'formal',
+          label: 'Formal e sóbrio',
+          desc: 'Comunicação profissional, séria e respeitosa. Linguagem correta, sem gírias ou excesso de intimidade. Transmite credibilidade e excelência.',
         },
         {
-          value: 'descolado',
-          label: '😎 Descolado e informal',
-          desc: 'Usa gírias leves, tom jovem, linguagem de rede social.',
+          value: 'tecnico',
+          label: 'Técnico e direto',
+          desc: 'Comunicação objetiva e prática. Vai direto ao ponto, com informações claras e sem rodeios.',
         },
         {
           value: 'elegante',
-          label: '✨ Elegante e formal',
-          desc: 'Linguagem cuidada, tom premium. Pra marcas mais exclusivas.',
+          label: 'Elegante e refinado',
+          desc: 'Comunicação sofisticada e cuidada. Tom premium, vocabulário selecionado, ideal para marcas mais exclusivas.',
+        },
+        {
+          value: 'divertido',
+          label: 'Divertido e bem-humorado',
+          desc: 'Comunicação descontraída e cheia de personalidade. Usa humor leve e criatividade para tornar a conversa memorável.',
         },
       ],
     },
@@ -1041,6 +1180,40 @@
         y += 6;
       });
       y += 14;
+    });
+
+    // (8) SEÇÃO FIXA "INSTRUÇÕES ADICIONAIS" — sempre incluída no fim do documento,
+    //     com campos em branco para o cliente preencher depois (consultar antes de
+    //     responder / outras informações). Não vem de nenhuma pergunta do wizard.
+    if (y > pageHeight - 170) { doc.addPage(); y = margin; }
+    doc.setDrawColor(229, 231, 235);            // separador antes da seção
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 24;
+    doc.setFont('helvetica', 'bold');           // título da seção
+    doc.setFontSize(13);
+    doc.setTextColor(17, 24, 39);
+    doc.text('INSTRUÇÕES ADICIONAIS', margin, y);
+    y += 16;
+    doc.setDrawColor(17, 24, 39);
+    doc.setLineWidth(1.4);
+    doc.line(margin, y - 4, margin + 32, y - 4);
+    doc.setLineWidth(0.5);
+    y += 20;
+    [
+      'Assuntos para me consultar antes de responder:',
+      'Outras informações importantes:',
+    ].forEach(label => {
+      if (y > pageHeight - margin - 30) { doc.addPage(); y = margin; }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(17, 24, 39);
+      doc.text(label, margin, y);
+      y += 16;
+      doc.setFont('helvetica', 'italic');        // placeholder pro cliente preencher
+      doc.setTextColor(156, 163, 175);
+      doc.text('[Deixar em branco para cliente preencher depois]', margin, y);
+      y += 30;
     });
 
     const totalPages = doc.internal.getNumberOfPages();
