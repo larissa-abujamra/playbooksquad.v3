@@ -1293,21 +1293,6 @@
     flowIO.observe(flowExplorer);
   }
 
-  // ============ Spotlight no CTA (Etapa 3 — Integrações) ============
-  // Quando o alvo entra na faixa central da tela, esmaece todo o resto
-  // (menos a sidebar) pra focar no botão. Reverte ao sair da faixa.
-  [
-    { sel: '.integration-hero', cls: 'spotlight-integration' },
-  ].forEach(({ sel, cls }) => {
-    const el = document.querySelector(sel);
-    if (!el) return;
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        document.body.classList.toggle(cls, e.isIntersecting);
-      });
-    }, { rootMargin: '-30% 0px -30% 0px', threshold: 0 });
-    io.observe(el);
-  });
 
   // ============ Fluxo de integração (Etapa 3): intro -> checklist -> agendar ============
   const intStage = document.getElementById('integration-stage');

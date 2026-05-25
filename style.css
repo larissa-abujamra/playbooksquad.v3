@@ -544,37 +544,6 @@
     }
   }
 
-  /* ============ Spotlight: foco no CTA (Etapa 3 — Integrações) ============ */
-  /* Transição suave nos blocos esmaecíveis — vale pros dois sentidos (liga/desliga) */
-  .content > *,
-  .doc > *,
-  #setup > *,
-  #stage-3 > *,
-  #stage-3 > .check-block > * {
-    transition: opacity 0.45s ease;
-  }
-
-  /* Nível externo (fora do .doc/#setup) — esmaece os IRMÃOS em cada nível do
-     caminho até o alvo; nunca os ancestrais, porque opacity num ancestral
-     "vazaria" no próprio alvo. */
-  body.spotlight-integration .content > :not(.doc),
-  body.spotlight-integration .doc > :not(#setup) {
-    opacity: 0.12;
-    pointer-events: none;
-  }
-
-  /* Etapa 3 — mantém só o .integration-hero aceso */
-  body.spotlight-integration #setup > :not(#stage-3),
-  body.spotlight-integration #stage-3 > :not(.check-block),
-  body.spotlight-integration #stage-3 > .check-block > :not(.integration-hero) {
-    opacity: 0.12;
-    pointer-events: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .content > *, .doc > *, #setup > *,
-    #stage-3 > *, #stage-3 > .check-block > * { transition: none; }
-  }
 
   /* ============ Overview screen (home.html) ============ */
   .overview {
@@ -2260,42 +2229,42 @@
   margin: 0;
 }
 
-/* ---- Passo com telefone à direita / texto à esquerda (Etapa 02) ---- */
-.tutorial-step.phone-right { align-items: center; }  /* centra o número junto do texto/telefone */
-.tutorial-step.phone-right .tutorial-step-body {
+/* ---- Passo com telefone à esquerda / texto à direita (Etapa 02) ---- */
+.tutorial-step.phone-left { align-items: center; }  /* centra o número junto do texto/telefone */
+.tutorial-step.phone-left .tutorial-step-body {
   display: flex;
-  justify-content: flex-end;      /* telefone encostado à direita */
+  flex-direction: row-reverse;    /* telefone à esquerda, texto à direita */
   align-items: center;            /* alinha verticalmente texto e telefone */
 }
-.tutorial-step.phone-right .tutorial-step-text {
-  flex: 1 1 auto;                 /* texto cresce/encolhe pra preencher a esquerda */
+.tutorial-step.phone-left .tutorial-step-text {
+  flex: 1 1 auto;                 /* texto cresce/encolhe pra preencher a direita */
   min-width: 0;
   max-width: calc(100% - 240px);  /* reserva o espaço do telefone -> sem lacunas */
-  padding-right: 40px;            /* respiro entre texto e telefone */
+  padding-left: 40px;             /* respiro entre telefone (esq.) e texto (dir.) */
 }
-.tutorial-step.phone-right .phone {
+.tutorial-step.phone-left .phone {
   flex: 0 0 auto;                 /* largura fixa: não cresce nem encolhe */
   width: 240px;
   margin: 0;
 }
 /* Leitura levemente maior no layout lado a lado */
-.tutorial-step.phone-right .tutorial-step-text h4 { font-size: 17px; margin-bottom: 10px; }
-.tutorial-step.phone-right .tutorial-step-text p,
-.tutorial-step.phone-right .tutorial-step-text .tutorial-list li { font-size: 14.5px; }
+.tutorial-step.phone-left .tutorial-step-text h4 { font-size: 17px; margin-bottom: 10px; }
+.tutorial-step.phone-left .tutorial-step-text p,
+.tutorial-step.phone-left .tutorial-step-text .tutorial-list li { font-size: 14.5px; }
 
 /* Telas médias (sidebar oculta): telefone um pouco menor */
 @media (max-width: 860px) {
-  .tutorial-step.phone-right .tutorial-step-text { max-width: calc(100% - 210px); }
-  .tutorial-step.phone-right .phone { width: 210px; }
+  .tutorial-step.phone-left .tutorial-step-text { max-width: calc(100% - 210px); }
+  .tutorial-step.phone-left .phone { width: 210px; }
 }
 /* Mobile: empilha texto em cima, telefone embaixo */
 @media (max-width: 640px) {
-  .tutorial-step.phone-right .tutorial-step-body {
+  .tutorial-step.phone-left .tutorial-step-body {
     flex-direction: column;
     align-items: stretch;
   }
-  .tutorial-step.phone-right .tutorial-step-text { max-width: 100%; padding-right: 0; }
-  .tutorial-step.phone-right .phone { width: 200px; margin-top: 12px; }
+  .tutorial-step.phone-left .tutorial-step-text { max-width: 100%; padding-left: 0; }
+  .tutorial-step.phone-left .phone { width: 200px; margin-top: 12px; }
 }
 
 .tutorial-list {
