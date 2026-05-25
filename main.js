@@ -135,7 +135,9 @@
   }
 
   // Show one page, hide the rest, and (re)trigger the fade-in animation.
-  function showSetupPage(id) {
+  // Pass { scroll: false } to keep the scroll position (used by subsection jumps).
+  function showSetupPage(id, opts) {
+    opts = opts || {};
     let target = null;
     setupPages.forEach(p => {
       if (p.id === id) target = p;
@@ -147,7 +149,7 @@
     void target.offsetWidth;            // reflow so the animation restarts every time
     target.classList.add('page-enter');
     updateSidebarActive(id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (opts.scroll !== false) window.scrollTo({ top: 0, behavior: 'smooth' });
     return true;
   }
 
@@ -177,6 +179,37 @@
       if (nav && isLast) nav.hidden = true; // última etapa não tem navegação
     });
 
+    // ---- Sidebar subsections: jump to a section inside its page ----
+    const subLinks = document.querySelectorAll('.nav-subsections a[href^="#"]');
+    const setActiveSub = (id) => {
+      subLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+    };
+    subLinks.forEach(a => {
+      a.addEventListener('click', (ev) => {
+        const id = a.getAttribute('href').slice(1);
+        const target = document.getElementById(id);
+        if (!target) return;
+        ev.preventDefault();
+        // Switch to the section's page first (without jumping to the top)...
+        const page = target.closest('.page');
+        if (page && !page.classList.contains('is-active')) showSetupPage(page.id, { scroll: false });
+        setActiveSub(id);
+        // ...then smooth-scroll to the section once it's laid out.
+        requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      });
+    });
+
+    // Scroll-spy: highlight the subsection whose section is currently in view.
+    const subTargets = Array.from(subLinks)
+      .map(a => document.getElementById(a.getAttribute('href').slice(1)))
+      .filter(Boolean);
+    if (subTargets.length && 'IntersectionObserver' in window) {
+      const subIO = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) setActiveSub(e.target.id); });
+      }, { rootMargin: '-30% 0px -55% 0px', threshold: 0 });
+      subTargets.forEach(t => subIO.observe(t));
+    }
+
     // Initial state: highlight the page already marked active in the HTML.
     const initial = document.querySelector('.page.is-active') || setupPages[0];
     if (initial) updateSidebarActive(initial.id);
@@ -186,7 +219,8 @@
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', (ev) => {
       const id = a.getAttribute('href').slice(1);
-      if (!id || id.startsWith('page-')) return; // page links handled above
+      if (!id || id.startsWith('page-')) return;   // page links handled above
+      if (a.closest('.nav-subsections')) return;   // subsection links handled above
       const el = document.getElementById(id);
       if (!el) return;
       ev.preventDefault();
@@ -1329,12 +1363,11 @@
     flowIO.observe(flowExplorer);
   }
 
-  // ============ Spotlight nos CTAs (Etapa 2 e Etapa 3) ============
+  // ============ Spotlight no CTA (Etapa 3 — Integrações) ============
   // Quando o alvo entra na faixa central da tela, esmaece todo o resto
   // (menos a sidebar) pra focar no botão. Reverte ao sair da faixa.
   [
-    { sel: '.training-cta-block', cls: 'spotlight-training' },
-    { sel: '.integration-hero',   cls: 'spotlight-integration' },
+    { sel: '.integration-hero', cls: 'spotlight-integration' },
   ].forEach(({ sel, cls }) => {
     const el = document.querySelector(sel);
     if (!el) return;

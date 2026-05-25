@@ -119,6 +119,36 @@
     border-left-color: var(--ink);
   }
   .nav-link.active .ico { color: var(--ink); }
+
+  /* ---------- Sidebar subsections (Etapa 03 / 04) ---------- */
+  .nav-subsections {
+    list-style: none;
+    margin: 2px 0 4px;
+    padding: 0;
+    padding-left: 26px;            /* recuo sob o link da etapa */
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .nav-subsections a {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--ink-3);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    margin-left: -2px;
+    transition: color .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .nav-subsections a:hover { color: var(--ink-2); background: var(--bg-2); }
+  .nav-subsections a.active {
+    color: var(--ink);
+    font-weight: 500;
+    border-left-color: var(--ink);
+  }
+
   .nav-link.featured { font-weight: 600; color: var(--ink); font-size: 14px; }
   .nav-link.featured.active {
     border-left-width: 3px;
@@ -276,35 +306,8 @@
   .btn:hover .arr { transform: translateX(2px); }
 
   /* Setup checklist */
-  .stage { margin-top: 28px; }
-  .stage + .stage {
-    margin-top: 56px;
-    padding-top: 48px;
-  }
-  @media (min-width: 900px) {
-    .stage + .stage {
-      margin-top: 72px;
-      padding-top: 56px;
-    }
-  }
-  .stage-head {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    margin-bottom: 10px;
-  }
-  #stage-2,
-  #stage-3,
-  #stage-4 { border-top: 1px solid var(--line); }
-  #stage-4 { padding-top: 72px; } /* mais respiro entre a linha e "Etapa 04" */
-  .stage-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px; letter-spacing: .08em; color: var(--ink-3);
-  }
-  .stage-title {
-    font-size: 20px; font-weight: 600; letter-spacing: -0.02em;
-  }
+  /* Cada etapa é uma .page isolada — sem margens/bordas herdadas do layout de scroll. */
+  .stage { margin-top: 0; }
 
   .check-block {
     padding: 0;
@@ -542,31 +545,21 @@
     }
   }
 
-  /* ============ Spotlight: foco nos CTAs (Etapa 1 e Etapa 3) ============ */
+  /* ============ Spotlight: foco no CTA (Etapa 3 — Integrações) ============ */
   /* Transição suave nos blocos esmaecíveis — vale pros dois sentidos (liga/desliga) */
   .content > *,
   .doc > *,
   #setup > *,
-  #stage-1 > *,
   #stage-3 > *,
   #stage-3 > .check-block > * {
     transition: opacity 0.45s ease;
   }
 
-  /* Nível externo (fora do .doc/#setup) — esmaece igual pros dois spotlights.
-     Esmaecemos só os IRMÃOS em cada nível do caminho até o alvo — nunca os
-     ancestrais, porque opacity num ancestral "vazaria" no próprio alvo. */
-  body.spotlight-training .content > :not(.doc),
+  /* Nível externo (fora do .doc/#setup) — esmaece os IRMÃOS em cada nível do
+     caminho até o alvo; nunca os ancestrais, porque opacity num ancestral
+     "vazaria" no próprio alvo. */
   body.spotlight-integration .content > :not(.doc),
-  body.spotlight-training .doc > :not(#setup),
   body.spotlight-integration .doc > :not(#setup) {
-    opacity: 0.12;
-    pointer-events: none;
-  }
-
-  /* Etapa 1 — mantém só o .training-cta-block aceso */
-  body.spotlight-training #setup > :not(#stage-1),
-  body.spotlight-training #stage-1 > :not(.training-cta-block) {
     opacity: 0.12;
     pointer-events: none;
   }
@@ -581,7 +574,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .content > *, .doc > *, #setup > *,
-    #stage-1 > *, #stage-3 > *, #stage-3 > .check-block > * { transition: none; }
+    #stage-3 > *, #stage-3 > .check-block > * { transition: none; }
   }
 
   /* ============ Overview screen (home.html) ============ */
@@ -2804,6 +2797,30 @@
    ============================================================ */
 .page { display: none; }
 .page.is-active { display: block; }
+
+/* Page header: "Etapa XX" eyebrow + título (h1) */
+.page .section-eyebrow { margin-bottom: 8px; }
+.page h1 {
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0 0 24px;
+}
+
+/* Alvos das subseções da sidebar — respiro sob o tracker fixo ao rolar */
+#int-instagram,
+#int-pagamento,
+#integration-hero,
+#auto-copiloto,
+#auto-piloto { scroll-margin-top: 100px; }
+@media (max-width: 900px) {
+  #int-instagram,
+  #int-pagamento,
+  #integration-hero,
+  #auto-copiloto,
+  #auto-piloto { scroll-margin-top: 140px; }
+}
 
 /* Fade-in applied (via JS) to a page when it becomes active */
 @keyframes pageFade {
