@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Playbook squad.com — Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ============ APP (setup paginado) ============ -->
+<div class="app">
+
+  <!-- ============ SIDEBAR (desktop) ============ -->
+  <aside class="sidebar" aria-label="Navegação">
+    <a href="home.html" class="brand"><span class="dot" aria-hidden="true"></span>squad.com</a>
+    <div class="brand-sub">Playbook · Confeitarias</div>
+
+    <a class="nav-link back-link" href="home.html">
+      <span class="ico"><svg viewBox="0 0 16 16" fill="none"><path d="M9.5 3.5L5.5 8l4 4.5M5.5 8h7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      Voltar à home
+    </a>
+
+    <div class="label" style="margin-top: 18px;">Setup</div>
+    <a class="nav-link" href="#page-1">Treine seus agentes</a>
+    <a class="nav-link" href="#page-2">Monte seu catálogo</a>
+    <a class="nav-link" href="#page-3">Integrações</a>
+    <a class="nav-link" href="#page-4">Piloto automático</a>
+
+    <div class="label" style="margin-top: 18px;">Mais</div>
+    <a class="nav-link" href="faq.html">Dúvidas comuns</a>
+    <a class="nav-link" href="suporte.html">Suporte</a>
+  </aside>
+
+  <!-- Personagens espiando -->
+  <img class="waz-peek" src="imgs/wazcharacter.png" alt="" aria-hidden="true">
+  <img class="maky-peek" src="imgs/makycharacter.png" alt="" aria-hidden="true">
+
+  <!-- ============ MAIN CONTENT ============ -->
+  <main class="content" id="top">
+
+    <!-- Mobile header -->
+    <header class="mobile-header">
+      <a href="home.html" class="brand"><span class="dot" aria-hidden="true"></span>squad.com</a>
+      <select id="mobile-nav" aria-label="Ir para etapa">
+        <optgroup label="Setup">
+          <option value="#page-1">① Treine seus agentes</option>
+          <option value="#page-2">② Monte seu catálogo</option>
+          <option value="#page-3">③ Integrações</option>
+          <option value="#page-4">④ Piloto automático</option>
+        </optgroup>
+        <optgroup label="Mais">
+          <option value="faq.html">Dúvidas comuns</option>
+          <option value="suporte.html">Suporte</option>
+        </optgroup>
+      </select>
+    </header>
+
+    <div class="progress-tracker" id="progress-tracker" aria-label="Progresso do setup">
+      <div class="tracker-inner">
+        <div class="tracker-steps">
+
+          <div class="tracker-node" data-stage="1" style="--stage-color: var(--maky);">
+            <button class="node-circle" type="button" aria-label="Ir para Etapa 1: Treine seus agentes">
+              <svg class="node-check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="node-label">Agentes</div>
+          </div>
+
+          <div class="tracker-line" data-stage="1"><div class="tracker-line-fill"></div></div>
+
+          <div class="tracker-node" data-stage="2" style="--stage-color: var(--fin);">
+            <button class="node-circle" type="button" aria-label="Ir para Etapa 2: Monte seu catálogo">
+              <svg class="node-check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="node-label">Catálogo</div>
+          </div>
+
+          <div class="tracker-line" data-stage="2"><div class="tracker-line-fill"></div></div>
+
+          <div class="tracker-node" data-stage="3" style="--stage-color: var(--waz);">
+            <button class="node-circle" type="button" aria-label="Ir para Etapa 3: Integrações">
+              <svg class="node-check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="node-label">Integrações</div>
+          </div>
+
+          <div class="tracker-line" data-stage="3"><div class="tracker-line-fill"></div></div>
+
+          <div class="tracker-node" data-stage="4" style="--stage-color: #8B5CF6;">
+            <button class="node-circle" type="button" aria-label="Ir para Etapa 4: Ative o piloto automático">
+              <svg class="node-check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="node-label">Automático</div>
+          </div>
+
+        </div>
+
+        <div class="tracker-summary">
+          <span class="tracker-pct" id="tracker-pct">0%</span>
+        </div>
+      </div>
+
+      <div class="tracker-toast" id="tracker-toast" role="status" aria-live="polite"></div>
+      <div class="tracker-banner" id="tracker-banner" role="status" aria-live="polite">
+        Setup completo! 🎉 Seu squad está pronto.
+      </div>
+    </div>
+
+    <div class="doc">
+
+      <!-- ============ SETUP ============ -->
+      <section class="section" id="setup" style="margin-top: 8px;">
+        <div class="section-eyebrow">Setup</div>
+        <h2>Configure seu Squad</h2>
+
+        <!-- ETAPA 1 -->
+        <div class="page is-active" id="page-1">
+          <div class="stage" id="stage-1">
+            <div class="stage-head">
+              <span class="stage-num">Etapa 01</span>
+              <span class="stage-title">Treine seus agentes</span>
+            </div>
+
+            <p class="stage-intro">É como contratar funcionários novos! Quanto mais você ensinar, melhores os resultados. No final, você baixa um PDF prontinho e envia pro Waz na conversa dele. Essa etapa tem dois momentos:</p>
+
+            <!-- Dois fluxos visuais (spotlight rotativo) -->
+            <div class="flow-explorer" role="tablist" aria-label="Partes do treinamento">
+
+              <!-- Card 1: Sobre seu negócio -->
+              <div class="flow-item is-active is-running" role="tab" aria-selected="true" tabindex="0">
+                <div class="flow-bar">
+                  <div class="flow-bar-fill"></div>
+                </div>
+                <div class="flow-item-content">
+                  <div class="flow-item-header">
+                    <div class="flow-item-number">1</div>
+                    <div>
+                      <div class="flow-item-title">Conte sobre seu negócio</div>
+                    </div>
+                  </div>
+                  <div class="flow-item-details">
+                    <p class="flow-item-desc">Informações que o Waz precisa pra responder suas clientes: horário, localização, regras, formas de pagamento e tom de voz.</p>
+                    <div class="flow-item-tags">
+                      <span>Horário</span><span>·</span>
+                      <span>Localização</span><span>·</span>
+                      <span>Tom de voz</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2: Como a IA pode te ajudar -->
+              <div class="flow-item" role="tab" aria-selected="false" tabindex="0">
+                <div class="flow-bar">
+                  <div class="flow-bar-fill"></div>
+                </div>
+                <div class="flow-item-content">
+                  <div class="flow-item-header">
+                    <div class="flow-item-number">2</div>
+                    <div>
+                      <div class="flow-item-title">Diga como a IA pode te ajudar</div>
+                    </div>
+                  </div>
+                  <div class="flow-item-details">
+                    <p class="flow-item-desc">O que te toma mais tempo no dia a dia? O que você quer que os agentes façam, e o que prefere continuar fazendo.</p>
+                    <div class="flow-item-tags">
+                      <span>Rotina</span><span>·</span>
+                      <span>Prioridades</span><span>·</span>
+                      <span>Limites</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+         
+
+            <!-- ====== BOTÃO PRA ABRIR O WIZARD ====== -->
+            <div class="training-cta-block">
+              <p class="training-cta-label">Pronto pra treinar seu time?</p>
+              <button type="button" id="start-wizard-btn" class="btn-glow btn-glow-xl">
+                <span class="btn-glow-bg"></span>
+                <span class="btn-glow-content">
+                  Configurar meus agentes
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3.5 8h9M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              </button>
+            </div>
+
+          </div>
+          <div class="page-nav">
+            <button class="page-prev" type="button">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Anterior
+            </button>
+            <button class="page-next" type="button">
+              Próximo
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ETAPA 2 -->
+        <div class="page" id="page-2">
+          <div class="stage" id="stage-2">
+            <div class="stage-head">
+              <span class="stage-num">Etapa 02</span>
+              <span class="stage-title">Monte seu catálogo</span>
+            </div>
+
+            <p class="stage-intro">O catálogo é a base de tudo — é de onde o Waz puxa informações pra responder clientes e o Fin pra gerar links de pagamento. Existem duas formas de cadastrar:</p>
+
+            <div class="situation-stage" id="catalog-stage">
+              <!-- Pergunta situacional -->
+              <div class="situation-question" id="catalog-question">
+                <h4 class="situation-q">Você já tem seu cardápio ou lista de produtos em algum formato?</h4>
+
+                <div class="situation-options">
+                  <!-- Opção Sim (recomendada) -->
+                  <button class="situation-opt is-recommended" data-shows="catalog-waz" type="button">
+                    <div class="situation-opt-header">
+                      <span class="situation-opt-check">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <strong>Sim, tenho algo pronto</strong>
+                      <span class="tag-recommended">recomendado</span>
+                    </div>
+                    <p class="situation-opt-desc">PDF, foto do cardápio, lista no bloco de notas, planilha, ou até mensagem do WhatsApp com os produtos.</p>
+                    <span class="situation-opt-time">~4 min</span>
+                  </button>
+
+                  <!-- Opção Não -->
+                  <button class="situation-opt" data-shows="catalog-manual" type="button">
+                    <div class="situation-opt-header">
+                      <span class="situation-opt-check">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                      </span>
+                      <strong>Não, vou criar do zero</strong>
+                    </div>
+                    <p class="situation-opt-desc">Cadastrar produto por produto direto no app.</p>
+                    <span class="situation-opt-time">~20 min</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tutorial: Caminho Manual -->
+              <div class="situation-content" id="catalog-manual">
+                <div class="tutorial-steps">
+
+                  <div class="tutorial-step">
+                    <div class="tutorial-step-number">1</div>
+                    <div class="tutorial-step-body">
+                      <h4>Abra "Produtos e Serviços" no app</h4>
+                      <p>Na tela inicial do Squad, toque em <strong>Produtos e Serviços</strong>. É o ícone com a etiqueta verde.</p>
+                    </div>
+                  </div>
+
+                  <div class="tutorial-step">
+                    <div class="tutorial-step-number">2</div>
+                    <div class="tutorial-step-body">
+                      <h4>Toque no + e preencha os dados</h4>
+                      <p>Pra cada produto, preencha:</p>
+                      <ul class="tutorial-list">
+                        <li><strong>Nome</strong> — ex: "Bolo de chocolate"</li>
+                        <li><strong>Preço</strong> — ex: R$ 85,00</li>
+                        <li><strong>Descrição</strong> — ex: "Bolo inteiro com cobertura de ganache, serve 15 fatias"</li>
+                        <li><strong>Foto</strong> <span class="tag-recommended">recomendado</span> — uma foto boa do produto ajuda muito na venda</li>
+                      </ul>
+                      <div class="phone" aria-hidden="true">
+                        <div class="phone-notch"></div>
+                        <div class="phone-screen">
+                          <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
+                          <div class="phone-body has-shot">
+                            <video class="phone-shot" autoplay loop muted playsinline preload="metadata">
+                              <source src="./imgs/produtos.mp4" type="video/mp4">
+                            </video>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tutorial-step">
+                    <div class="tutorial-step-number">3</div>
+                    <div class="tutorial-step-body">
+                      <h4>Repita pros seus principais produtos</h4>
+                      <p>Não precisa cadastrar tudo de uma vez. Comece com os <strong>5 mais vendidos</strong> — você pode adicionar o resto depois.</p>
+                      <p style="margin-top: 10px; font-size: 14px; color: var(--ink-3);">Exemplos pra confeitaria:</p>
+                      <div class="product-examples">
+                        <div class="product-item">
+                          <img class="product-img" src="imgs/bolo.png" alt="Bolo de chocolate" onerror="this.style.visibility='hidden'">
+                          <div class="product-info">
+                            <span class="product-name">Bolo de chocolate</span>
+                            <span class="product-desc">Inteiro, cobertura de ganache</span>
+                          </div>
+                          <span class="product-price">R$ 85,00</span>
+                        </div>
+                        <div class="product-item">
+                          <img class="product-img" src="imgs/brigadeiro.png" alt="Caixa de brigadeiros" onerror="this.style.visibility='hidden'">
+                          <div class="product-info">
+                            <span class="product-name">Caixa de brigadeiros</span>
+                            <span class="product-desc">20 unidades, sabores variados</span>
+                          </div>
+                          <span class="product-price">R$ 45,00</span>
+                        </div>
+                        <div class="product-item">
+                          <img class="product-img" src="imgs/ovo.png" alt="Ovo de Páscoa" onerror="this.style.visibility='hidden'">
+                          <div class="product-info">
+                            <span class="product-name">Ovo de Páscoa 250g</span>
+                            <span class="product-desc">Chocolate ao leite, recheio trufado</span>
+                          </div>
+                          <span class="product-price">R$ 65,00</span>
+                        </div>
+                        <div class="product-item">
+                          <img class="product-img" src="imgs/pote.png" alt="Bolo de pote" onerror="this.style.visibility='hidden'">
+                          <div class="product-info">
+                            <span class="product-name">Bolo de pote</span>
+                            <span class="product-desc">Unidade, vários sabores</span>
+                          </div>
+                          <span class="product-price">R$ 12,00</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <button class="situation-switch" data-shows="catalog-waz" type="button">
+                  ← Tenho um arquivo pronto, quero enviar pro Waz
+                </button>
+              </div>
+
+              <!-- Tutorial: Caminho Waz (recomendado) -->
+              <div class="situation-content" id="catalog-waz">
+                <div class="tutorial-steps">
+
+                  <div class="tutorial-step">
+                    <div class="tutorial-step-number">1</div>
+                    <div class="tutorial-step-body">
+                      <h4>Prepare seu arquivo</h4>
+                      <p>Junte as informações dos seus produtos em qualquer formato que você já tenha:</p>
+                      <ul class="tutorial-list">
+                        <li><strong>PDF</strong> do cardápio</li>
+                        <li><strong>Foto</strong> de uma tabela de preços (pode ser do caderno mesmo)</li>
+                        <li><strong>Planilha</strong> com nome e preço</li>
+                        <li><strong>Lista no bloco de notas</strong> do celular</li>
+                        <li><strong>Print de conversa</strong> do WhatsApp onde você listou os produtos</li>
+                      </ul>
+                      <p style="margin-top: 8px; color: var(--ink-3); font-size: 13px;">Não precisa ser bonito — o Waz entende qualquer formato.</p>
+                    </div>
+                  </div>
+
+                  <div class="tutorial-step">
+                    <div class="tutorial-step-number">2</div>
+                    <div class="tutorial-step-body">
+                      <h4>Abra a conversa com o Waz</h4>
+                      <p>No app, toque em <strong>Assistentes</strong> na barra inferior e abra a conversa com o <strong>Waz</strong>.</p>
+                      <div class="phone" aria-hidden="true">
+                        <div class="phone-notch"></div>
+                        <div class="phone-screen">
+                          <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
+                          <div class="phone-body has-shot">
+                            <video class="phone-shot" autoplay loop muted playsinline preload="metadata">
+                              <source src="./imgs/abrirconv.mov" type="video/mp4">
+                            </video>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tutorial-step">
+                    <div class="tutorial-step-number">3</div>
+                    <div class="tutorial-step-body">
+                      <h4>Envie o arquivo e deixe o Waz trabalhar</h4>
+                      <p>Mande o PDF, foto ou planilha direto na conversa. O Waz lê o arquivo, extrai os produtos e cadastra pra você. Depois é só conferir e ajustar se precisar.</p>
+                      <div class="phone" aria-hidden="true">
+                        <div class="phone-notch"></div>
+                        <div class="phone-screen">
+                          <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
+                          <div class="phone-body has-shot">
+                            <video class="phone-shot" autoplay loop muted playsinline preload="metadata">
+                              <source src="./imgs/wazpdf.mp4" type="video/mp4">
+                            </video>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <button class="situation-switch" data-shows="catalog-manual" type="button">
+                  Prefiro cadastrar manualmente →
+                </button>
+              </div>
+            </div>
+
+          </div>
+          <div class="page-nav">
+            <button class="page-prev" type="button">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Anterior
+            </button>
+            <button class="page-next" type="button">
+              Próximo
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ETAPA 3 -->
+        <div class="page" id="page-3">
+          <div class="stage" id="stage-3">
+            <div class="stage-head">
+              <span class="stage-num">Etapa 03</span>
+              <span class="stage-title">Integrações</span>
+            </div>
+          
+
+
+            <div class="check-block">
+              <div class="task">
+                <div class="task-row with-phone">
+                  <div class="task-main">
+                    <div class="task-text">Conecte seu Instagram</div>
+                    <div class="details" id="d-3-1">
+                      <div class="details-inner">
+                        <p>Abra o app Squad, vá nas configurações (ícone de engrenagem) e toque em <strong>Redes Sociais &gt; Instagram</strong>. Siga as instruções na tela pra conectar.</p>
+                        <p style="margin-top: 8px;">Você vai precisar do <strong>login do Facebook</strong> conectado ao Instagram do seu negócio. Se tiver dificuldade, não se preocupe — a gente resolve isso na call de integração.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-phone-wrap">
+                    <div class="phone" aria-hidden="true">
+                      <div class="phone-notch"></div>
+                      <div class="phone-screen">
+                        <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
+                        <div class="phone-body has-shot">
+                          <img class="phone-shot" src="./imgs/integrarinsta.png" alt="Tela de conexão com Instagram">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="task">
+                <div class="task-row with-phone">
+                  <div class="task-main">
+                    <div class="task-text">Configure seus dados de pagamento</div>
+                    <div class="details" id="d-3-2">
+                      <div class="details-inner">
+                        <p>Na tela inicial, clique em <strong>modulos, link de pagamento</strong> e <strong>configurar dados de recebimento</strong>. Assim o Fin consegue gerar links de pagamento e mandá-los direto para os seus clientes.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-phone-wrap">
+                    <div class="phone" aria-hidden="true">
+                      <div class="phone-notch"></div>
+                      <div class="phone-screen">
+                        <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
+                        <div class="phone-body has-shot">
+                          <img class="phone-shot" src="./imgs/linkdepagamento.png" alt="Tela de configuração de pagamentos">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+            <div class="integration-hero" id="integration-hero">
+              <span class="training-eyebrow">Etapa 03 - Parte 2</span>
+              <div class="integration-hero-glow" aria-hidden="true"></div>
+
+              <div class="integration-stage" id="integration-stage">
+
+                <!-- Slide 1: intro + gatilho -->
+                <div class="integration-slide slide-intro">
+                  <div class="integration-hero-content">
+                    <h3 class="integration-headline">Agora, vamos conectar<br>seus canais de atendimento.</h3>
+                    <p class="integration-body">A integração do WhatsApp Business precisa ser feita junto com nosso time! É rápido, mas tem detalhes técnicos que a gente resolve pra você.</p>
+                  </div>
+                  <button type="button" class="btn-glow" id="integration-start">
+                    <span class="btn-glow-bg"></span>
+                    <span class="btn-glow-content">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M2 6.5h12" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                      </svg>
+                      Agendar call de integração
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M3.5 8h9M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </button>
+                </div>
+
+                <!-- Slide 2: checklist (entra com swipe) -->
+                <div class="integration-slide slide-checklist">
+                  <div class="integration-hero-content">
+                    <h3 class="integration-headline">Antes de agendar,<br>confira se tem tudo em mãos.</h3>
+                    <p class="integration-body">Marque cada item. Quando tudo estiver pronto, o botão de agendamento libera.</p>
+                  </div>
+                  <div class="integration-checklist">
+                    <label class="int-check">
+                      <input type="checkbox" class="int-check-box" id="chk-int-1">
+                      <span class="int-check-mark" aria-hidden="true"></span>
+                      <span class="int-check-text">Acesso ao Facebook/Meta do seu negócio (email e senha)</span>
+                    </label>
+                    <label class="int-check">
+                      <input type="checkbox" class="int-check-box" id="chk-int-2">
+                      <span class="int-check-mark" aria-hidden="true"></span>
+                      <span class="int-check-text">Login e senha da sua conta do Instagram e Meta (perfil comercial)</span>
+                    </label>
+                    <label class="int-check">
+                      <input type="checkbox" class="int-check-box" id="chk-int-3">
+                      <span class="int-check-mark" aria-hidden="true"></span>
+                      <span class="int-check-text">Documento com foto e CNPJ — pro processo de verificação do número</span>
+                    </label>
+                    <label class="int-check">
+                      <input type="checkbox" class="int-check-box" id="chk-int-4">
+                      <span class="int-check-mark" aria-hidden="true"></span>
+                      <span class="int-check-text">Seu catálogo e tom de voz já configurados (Etapas 1 e 2)</span>
+                    </label>
+                  </div>
+                  <a href="https://wa.me/SEUNUMERO" target="_blank" rel="noopener" class="btn-glow integration-schedule is-locked" id="integration-schedule">
+                    <span class="btn-glow-bg"></span>
+                    <span class="btn-glow-content">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M2 6.5h12" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                      </svg>
+                      Agendar call de integração
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M3.5 8h9M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </a>
+                  <p class="integration-locked-hint" id="integration-locked-hint">Marque todos os itens acima pra liberar o agendamento.</p>
+                </div>
+
+              </div>
+            </div>
+            </div>
+
+         
+
+          </div>
+          <div class="page-nav">
+            <button class="page-prev" type="button">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Anterior
+            </button>
+            <button class="page-next" type="button">
+              Próximo
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ETAPA 4 -->
+        <div class="page" id="page-4">
+          <div class="stage" id="stage-4">
+            <div class="stage-head">
+              <span class="stage-num">Etapa 04</span>
+              <span class="stage-title">Ative o piloto automático</span>
+            </div>
+
+            <div class="check-block">
+              <div class="task">
+                <div class="task-row with-phone">
+                  <div class="task-main">
+                    <div class="task-text">Comece no modo Co-Piloto</div>
+                    <div class="details" id="d-4-1">
+                      <div class="details-inner">
+                        <p>Depois da call de integração, o Waz começa no modo <strong>Co-Piloto</strong>: quando uma cliente manda mensagem, ele prepara <strong>3 sugestões de resposta</strong> e te notifica. Você escolhe a melhor, edita se quiser, e só então a resposta é enviada.</p>
+                        <p style="margin-top: 8px;">Esse modo já vem ativo por padrão — é só acompanhar as notificações.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-phone-wrap">
+                    <div class="phone" aria-hidden="true">
+                      <div class="phone-notch"></div>
+                      <div class="phone-screen">
+                        <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
+                        <div class="phone-body has-shot">
+                          <video class="phone-shot" autoplay loop muted playsinline preload="metadata">
+                            <source src="./imgs/copiloto.mp4" type="video/mp4">
+                          </video>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="task">
+                <div class="task-row">
+                  <div class="task-main">
+                    <div class="task-text">Acompanhe as primeiras conversas</div>
+                    <div class="details" id="d-4-2">
+                      <div class="details-inner">
+                        <p>Nos primeiros dias, fique de olho nas sugestões do Waz. Ele tá respondendo com o tom certo? As informações estão corretas? Se algo estiver estranho, é só <strong>mandar uma mensagem pro Waz corrigindo</strong> na aba Assistentes — ele aprende na hora.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="task">
+                <div class="task-row with-phone">
+                  <div class="task-main">
+                    <div class="task-text">Ative o Piloto Automático quando se sentir confortável</div>
+                    <div class="details" id="d-4-3">
+                      <div class="details-inner">
+                        <p>Quando sentir confiança, vá em <strong>Assistentes</strong>, toque no Waz e mude pra <strong>Piloto Automático</strong>. A partir daí, ele responde sozinho e só te notifica quando não sabe algo ou quando a cliente pede pra falar com você.</p>
+                        <p style="margin-top: 8px;">Você pode voltar pro Co-Piloto a qualquer momento.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-phone-wrap">
+                    <div class="phone" aria-hidden="true">
+                      <div class="phone-notch"></div>
+                      <div class="phone-screen">
+                        <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
+                        <div class="phone-body has-shot">
+                          <video class="phone-shot" autoplay loop muted playsinline preload="metadata">
+                            <source src="./imgs/pilotoauto.mp4" type="video/mp4">
+                          </video>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout waz">
+              <span class="ico" aria-hidden="true">💡</span>
+              <span>A maioria das confeitarias ativa o piloto automático <strong>entre 3 e 4 dias</strong>.</span>
+            </div>
+          </div>
+          <div class="page-nav">
+            <button class="page-prev" type="button">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Anterior
+            </button>
+            <button class="page-next" type="button">
+              Próximo
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ============ WIZARD (treinamento guiado de agentes) ============ -->
+<div class="wizard" id="wizard" role="dialog" aria-modal="true" aria-labelledby="wizard-question-text" aria-hidden="true">
+  <header class="wizard-header">
+    <button class="wizard-close" type="button" id="wizard-close" aria-label="Fechar treinamento">
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3l-5 5 5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="wizard-progress" aria-live="polite">
+      <div class="wizard-progress-track"><div class="wizard-progress-fill" id="wizard-progress-fill"></div></div>
+      <span class="wizard-progress-text" id="wizard-progress-text">1 de 13</span>
+    </div>
+    <button class="wizard-skip" type="button" id="wizard-skip">Pular</button>
+  </header>
+  <main class="wizard-stage">
+    <div class="wizard-card" id="wizard-card"></div>
+  </main>
+</div>
+
+<script src="main.js"></script>
+
+</body>
+</html>

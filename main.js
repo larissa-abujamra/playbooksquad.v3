@@ -109,6 +109,10 @@
   const mobileNav = document.getElementById('mobile-nav');
   if (mobileNav) {
     mobileNav.addEventListener('change', () => {
+      // Options ending in .html are other pages (FAQ/Suporte) — navigate to them.
+      if (/\.html$/.test(mobileNav.value)) { window.location.href = mobileNav.value; return; }
+      // On setup.html the options are #page-X — switch page instead of scrolling.
+      if (mobileNav.value.startsWith('#page-') && showSetupPage(mobileNav.value.slice(1))) return;
       const el = document.querySelector(mobileNav.value);
       if (el) {
         const top = el.getBoundingClientRect().top + window.scrollY - 70;
@@ -117,11 +121,72 @@
     });
   }
 
+  // ============ Setup paging (setup.html): show one .page at a time ============
+  // The 4 etapas live in #page-1..#page-4. Sidebar links (#page-X) and the
+  // Anterior/Próximo buttons switch the active page (with a fade-in) instead of
+  // scrolling through one long document.
+  const setupPages = document.querySelectorAll('.page');
+
+  // Highlight the sidebar link matching the visible page.
+  function updateSidebarActive(id) {
+    document.querySelectorAll('.sidebar a[href^="#page-"]').forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+    });
+  }
+
+  // Show one page, hide the rest, and (re)trigger the fade-in animation.
+  function showSetupPage(id) {
+    let target = null;
+    setupPages.forEach(p => {
+      if (p.id === id) target = p;
+      else p.classList.remove('is-active', 'page-enter');
+    });
+    if (!target) return false;
+    target.classList.add('is-active');
+    target.classList.remove('page-enter');
+    void target.offsetWidth;            // reflow so the animation restarts every time
+    target.classList.add('page-enter');
+    updateSidebarActive(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return true;
+  }
+
+  if (setupPages.length) {
+    // Sidebar / in-page links to #page-X
+    document.querySelectorAll('a[href^="#page-"]').forEach(a => {
+      a.addEventListener('click', (ev) => {
+        if (showSetupPage(a.getAttribute('href').slice(1))) ev.preventDefault();
+      });
+    });
+
+    // "Anterior" / "Próximo" buttons inside each page
+    setupPages.forEach((page, i) => {
+      const isFirst = i === 0;
+      const isLast = i === setupPages.length - 1;
+      const prev = page.querySelector('.page-prev');
+      const next = page.querySelector('.page-next');
+      const nav = page.querySelector('.page-nav');
+      if (prev) {
+        prev.hidden = isFirst || isLast;   // visível só nas etapas do meio
+        prev.addEventListener('click', () => showSetupPage(setupPages[i - 1].id));
+      }
+      if (next) {
+        next.hidden = isLast;              // some na última etapa
+        next.addEventListener('click', () => showSetupPage(setupPages[i + 1].id));
+      }
+      if (nav && isLast) nav.hidden = true; // última etapa não tem navegação
+    });
+
+    // Initial state: highlight the page already marked active in the HTML.
+    const initial = document.querySelector('.page.is-active') || setupPages[0];
+    if (initial) updateSidebarActive(initial.id);
+  }
+
   // ============ Smooth-scroll offset for in-page anchors ============
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', (ev) => {
       const id = a.getAttribute('href').slice(1);
-      if (!id) return;
+      if (!id || id.startsWith('page-')) return; // page links handled above
       const el = document.getElementById(id);
       if (!el) return;
       ev.preventDefault();
@@ -1117,23 +1182,62 @@
     });
   }
 
-  /* ---- Situation Question (Catálogo: já tem arquivo vs criar do zero) ---- */
+  /* ---- Situation Question (Catálogo): pick a path, animate the swap ---- */
+  // First pick: the picker (.situation-question) slides out to the right, then
+  // the chosen path (.situation-content) slides in from the left. Switching
+  // paths afterwards just slides the newly chosen one in.
+  const motionReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function revealSituationPath(scope, target) {
+    scope.querySelectorAll('.situation-content').forEach(c => {
+      c.classList.remove('is-visible', 'is-entering');
+    });
+    target.classList.add('is-visible');
+    void target.offsetWidth;            // reflow so the slide-in restarts
+    target.classList.add('is-entering');
+  }
+
   function showSituationContent(scope, targetId) {
-    // Atualiza seleção das opções
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    // Mark the chosen option.
     scope.querySelectorAll('.situation-opt').forEach(o => {
       o.classList.toggle('is-selected', o.dataset.shows === targetId);
     });
-    // Troca o conteúdo visível
-    scope.querySelectorAll('.situation-content').forEach(c => {
-      c.classList.remove('is-visible');
-    });
-    const target = document.getElementById(targetId);
-    if (target) {
-      target.classList.add('is-visible');
-      setTimeout(() => {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+
+    const stage = scope.querySelector('.situation-stage') || scope;
+    const question = scope.querySelector('.situation-question');
+    const pickerVisible = question &&
+      !question.classList.contains('is-leaving') &&
+      getComputedStyle(question).display !== 'none';
+
+    if (!pickerVisible) {
+      // Already past the picker (switching paths) — just slide the new one in.
+      revealSituationPath(scope, target);
+      return;
     }
+
+    if (motionReduced) {
+      question.style.display = 'none';
+      revealSituationPath(scope, target);
+      return;
+    }
+
+    // Lock the height so the stage doesn't collapse while the picker is absolute.
+    stage.style.minHeight = stage.offsetHeight + 'px';
+    question.classList.add('is-leaving');
+
+    let swapped = false;
+    const afterLeave = () => {
+      if (swapped) return;
+      swapped = true;
+      question.style.display = 'none';
+      revealSituationPath(scope, target);
+      target.addEventListener('animationend', () => { stage.style.minHeight = ''; }, { once: true });
+    };
+    question.addEventListener('animationend', afterLeave, { once: true });
+    setTimeout(afterLeave, 600); // fallback if animationend doesn't fire
   }
 
   document.querySelectorAll('.situation-opt, .situation-switch').forEach(el => {

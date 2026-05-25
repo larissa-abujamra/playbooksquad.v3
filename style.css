@@ -2388,9 +2388,10 @@
 }
 
 /* ---- Situation Content (tutorial que aparece após escolha) ---- */
+/* Visibilidade controlada por JS; a entrada animada vem de .is-entering
+   (ver "Etapa 02 path animation" mais abaixo). */
 .situation-content {
   display: none;
-  animation: fadeSlideIn 0.35s ease both;
 }
 
 .situation-content.is-visible {
@@ -2796,4 +2797,107 @@
   .btn-glow-xl .btn-glow-content {
     font-size: 17px;
   }
+}
+
+/* ============================================================
+   Paged setup (setup.html) — one .page visible at a time
+   ============================================================ */
+.page { display: none; }
+.page.is-active { display: block; }
+
+/* Fade-in applied (via JS) to a page when it becomes active */
+@keyframes pageFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter { animation: pageFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ---- Page navigation (Anterior / Próximo) ---- */
+.page-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.page-prev,
+.page-next {
+  appearance: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.page-prev {
+  background: var(--bg);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+}
+.page-prev:hover {
+  background: var(--bg-2);
+  color: var(--ink);
+  border-color: var(--ink-3);
+}
+.page-next {
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid var(--ink);
+  margin-left: auto; /* push to the right when "Anterior" is hidden */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+.page-next:hover {
+  background: #000;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+.page-prev svg,
+.page-next svg { transition: transform 0.15s ease; }
+.page-prev:hover svg { transform: translateX(-2px); }
+.page-next:hover svg { transform: translateX(2px); }
+.page-prev[hidden],
+.page-next[hidden] { display: none; }
+
+/* ============================================================
+   Etapa 02 path animation — picker slides out right,
+   chosen path slides in from the left
+   ============================================================ */
+.situation-stage {
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes pathSlideOutRight {
+  from { transform: translateX(0);     opacity: 1; }
+  to   { transform: translateX(110%);  opacity: 0; }
+}
+@keyframes pathSlideInLeft {
+  from { transform: translateX(-110%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+/* While leaving, the picker is lifted out of flow so it can slide off
+   without affecting the height the chosen path will occupy. */
+.situation-question.is-leaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  animation: pathSlideOutRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.situation-content.is-entering {
+  animation: pathSlideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .situation-question.is-leaving,
+  .situation-content.is-entering { animation: none; }
 }
