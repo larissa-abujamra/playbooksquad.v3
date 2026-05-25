@@ -69,65 +69,6 @@
       </select>
     </header>
 
-    <div class="progress-tracker" id="progress-tracker" aria-label="Progresso do setup">
-      <div class="tracker-inner">
-        <div class="tracker-steps">
-
-          <div class="tracker-node" data-stage="1" style="--stage-color: var(--maky);">
-            <button class="node-circle" type="button" aria-label="Ir para Etapa 1: Treine seus agentes">
-              <svg class="node-check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <div class="node-label">Agentes</div>
-          </div>
-
-          <div class="tracker-line" data-stage="1"><div class="tracker-line-fill"></div></div>
-
-          <div class="tracker-node" data-stage="2" style="--stage-color: var(--fin);">
-            <button class="node-circle" type="button" aria-label="Ir para Etapa 2: Monte seu catálogo">
-              <svg class="node-check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <div class="node-label">Catálogo</div>
-          </div>
-
-          <div class="tracker-line" data-stage="2"><div class="tracker-line-fill"></div></div>
-
-          <div class="tracker-node" data-stage="3" style="--stage-color: var(--waz);">
-            <button class="node-circle" type="button" aria-label="Ir para Etapa 3: Integrações">
-              <svg class="node-check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <div class="node-label">Integrações</div>
-          </div>
-
-          <div class="tracker-line" data-stage="3"><div class="tracker-line-fill"></div></div>
-
-          <div class="tracker-node" data-stage="4" style="--stage-color: #8B5CF6;">
-            <button class="node-circle" type="button" aria-label="Ir para Etapa 4: Ative o piloto automático">
-              <svg class="node-check" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <div class="node-label">Automático</div>
-          </div>
-
-        </div>
-
-        <div class="tracker-summary">
-          <span class="tracker-pct" id="tracker-pct">0%</span>
-        </div>
-      </div>
-
-      <div class="tracker-toast" id="tracker-toast" role="status" aria-live="polite"></div>
-      <div class="tracker-banner" id="tracker-banner" role="status" aria-live="polite">
-        Setup completo! 🎉 Seu squad está pronto.
-      </div>
-    </div>
-
     <div class="doc">
 
       <!-- ============ SETUP ============ -->
@@ -272,17 +213,19 @@
                     </div>
                   </div>
 
-                  <div class="tutorial-step">
+                  <div class="tutorial-step phone-right">
                     <div class="tutorial-step-number">2</div>
                     <div class="tutorial-step-body">
-                      <h4>Toque no + e preencha os dados</h4>
-                      <p>Pra cada produto, preencha:</p>
-                      <ul class="tutorial-list">
-                        <li><strong>Nome</strong> — ex: "Bolo de chocolate"</li>
-                        <li><strong>Preço</strong> — ex: R$ 85,00</li>
-                        <li><strong>Descrição</strong> — ex: "Bolo inteiro com cobertura de ganache, serve 15 fatias"</li>
-                        <li><strong>Foto</strong> <span class="tag-recommended">recomendado</span> — uma foto boa do produto ajuda muito na venda</li>
-                      </ul>
+                      <div class="tutorial-step-text">
+                        <h4>Toque no + e preencha os dados</h4>
+                        <p>Pra cada produto, preencha:</p>
+                        <ul class="tutorial-list">
+                          <li><strong>Nome</strong> — ex: "Bolo de chocolate"</li>
+                          <li><strong>Preço</strong> — ex: R$ 85,00</li>
+                          <li><strong>Descrição</strong> — ex: "Bolo inteiro com cobertura de ganache, serve 15 fatias"</li>
+                          <li><strong>Foto</strong> <span class="tag-recommended">recomendado</span> — uma foto boa do produto ajuda muito na venda</li>
+                        </ul>
+                      </div>
                       <div class="phone" aria-hidden="true">
                         <div class="phone-notch"></div>
                         <div class="phone-screen">
@@ -371,25 +314,16 @@
                     <div class="tutorial-step-body">
                       <h4>Abra a conversa com o Waz</h4>
                       <p>No app, toque em <strong>Assistentes</strong> na barra inferior e abra a conversa com o <strong>Waz</strong>.</p>
-                      <div class="phone" aria-hidden="true">
-                        <div class="phone-notch"></div>
-                        <div class="phone-screen">
-                          <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
-                          <div class="phone-body has-shot">
-                            <video class="phone-shot" autoplay loop muted playsinline preload="metadata">
-                              <source src="./imgs/abrirconv.mov" type="video/mp4">
-                            </video>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
 
-                  <div class="tutorial-step">
+                  <div class="tutorial-step phone-right">
                     <div class="tutorial-step-number">3</div>
                     <div class="tutorial-step-body">
-                      <h4>Envie o arquivo e deixe o Waz trabalhar</h4>
-                      <p>Mande o PDF, foto ou planilha direto na conversa. O Waz lê o arquivo, extrai os produtos e cadastra pra você. Depois é só conferir e ajustar se precisar.</p>
+                      <div class="tutorial-step-text">
+                        <h4>Envie o arquivo e deixe o Waz trabalhar</h4>
+                        <p>Mande o PDF, foto ou planilha direto na conversa. O Waz lê o arquivo, extrai os produtos e cadastra pra você. Depois é só conferir e ajustar se precisar.</p>
+                      </div>
                       <div class="phone" aria-hidden="true">
                         <div class="phone-notch"></div>
                         <div class="phone-screen">

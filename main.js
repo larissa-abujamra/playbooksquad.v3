@@ -1,76 +1,3 @@
-  // ============ Progress Tracker (preenchido por SCROLL, não por checkbox) ============
-  const tracker = document.getElementById('progress-tracker');
-  if (tracker) {
-    const trackerPct = document.getElementById('tracker-pct');
-    const stageEls = [...document.querySelectorAll('#setup .stage[id]')];
-
-    // Clicar num node rola até a etapa correspondente
-    tracker.querySelectorAll('.tracker-node').forEach(node => {
-      const btn = node.querySelector('.node-circle');
-      if (!btn) return;
-      btn.addEventListener('click', () => {
-        const target = stageEls[parseInt(node.dataset.stage, 10) - 1];
-        if (!target) return;
-        const isMobile = window.matchMedia('(max-width: 900px)').matches;
-        const offset = isMobile ? 130 : 80;
-        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth' });
-      });
-    });
-
-    // Linha de leitura = base do tracker fixo. A etapa "preenche" conforme passa por ela.
-    const READ = () => tracker.getBoundingClientRect().bottom + 24;
-    const stageProgress = (el) => {
-      const r = el.getBoundingClientRect();
-      return Math.max(0, Math.min(1, (READ() - r.top) / Math.max(1, r.height)));
-    };
-
-    // Node ativo = etapa no centro da tela
-    let activeStage = 1;
-    const applyActive = () => {
-      tracker.querySelectorAll('.tracker-node').forEach(n => n.classList.remove('is-active'));
-      const n = tracker.querySelector('.tracker-node[data-stage="' + activeStage + '"]');
-      if (n) n.classList.add('is-active');
-    };
-    if ('IntersectionObserver' in window && stageEls.length) {
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (!e.isIntersecting) return;
-          const id = parseInt(e.target.id.replace('stage-', ''), 10);
-          if (id) { activeStage = id; applyActive(); }
-        });
-      }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
-      stageEls.forEach(el => io.observe(el));
-    }
-
-    const updateTrackerScroll = () => {
-      stageEls.forEach((el, i) => {
-        const stageId = i + 1;
-        const p = stageProgress(el);
-        const node = tracker.querySelector('.tracker-node[data-stage="' + stageId + '"]');
-        const lineFill = tracker.querySelector('.tracker-line[data-stage="' + stageId + '"] .tracker-line-fill');
-        if (lineFill) lineFill.style.width = (p * 100) + '%';      // linha entre etapas
-        if (node) node.classList.toggle('is-done', p >= 0.999);    // etapa já percorrida
-      });
-      if (trackerPct && stageEls.length) {
-        const first = stageEls[0].getBoundingClientRect();
-        const last = stageEls[stageEls.length - 1].getBoundingClientRect();
-        const total = Math.max(1, last.bottom - first.top);
-        const pct = Math.max(0, Math.min(1, (READ() - first.top) / total));
-        trackerPct.textContent = Math.round(pct * 100) + '%';
-      }
-    };
-    window.addEventListener('scroll', updateTrackerScroll, { passive: true });
-    window.addEventListener('resize', updateTrackerScroll);
-    window.addEventListener('load', updateTrackerScroll);
-    // recalcula quando o layout muda (vídeos carregando, app aparecendo, etc.)
-    if ('ResizeObserver' in window) {
-      const content = document.querySelector('.content');
-      if (content) new ResizeObserver(updateTrackerScroll).observe(content);
-    }
-    updateTrackerScroll();
-    applyActive();
-  }
-
   // ============ Sidebar sub-nav (scroll spy — destaca a etapa visível) ============
   {
     const stageEls = document.querySelectorAll('.stage[id]');
@@ -88,29 +15,13 @@
     }
   }
 
-  // ============ Sidebar active state on scroll ============
-  const navLinks = document.querySelectorAll('.sidebar .nav-link');
-  const sections = [...document.querySelectorAll('.doc .section')];
-
-  function setActive() {
-    const y = window.scrollY + 120;
-    let current = sections[0];
-    for (const s of sections) { if (s.offsetTop <= y) current = s; }
-    navLinks.forEach(a => {
-      const id = a.getAttribute('href').slice(1);
-      a.classList.toggle('active', current && current.id === id);
-    });
-  }
-  setActive();
-  window.addEventListener('scroll', setActive, { passive: true });
-  window.addEventListener('resize', setActive);
 
   // ============ Mobile dropdown nav ============
   const mobileNav = document.getElementById('mobile-nav');
   if (mobileNav) {
     mobileNav.addEventListener('change', () => {
-      // Options ending in .html are other pages (FAQ/Suporte) — navigate to them.
-      if (/\.html$/.test(mobileNav.value)) { window.location.href = mobileNav.value; return; }
+      // Options pointing at another page (FAQ/Suporte, or setup.html#anchor) — navigate.
+      if (/\.html(?:#|$)/.test(mobileNav.value)) { window.location.href = mobileNav.value; return; }
       // On setup.html the options are #page-X — switch page instead of scrolling.
       if (mobileNav.value.startsWith('#page-') && showSetupPage(mobileNav.value.slice(1))) return;
       const el = document.querySelector(mobileNav.value);
@@ -213,6 +124,25 @@
     // Initial state: highlight the page already marked active in the HTML.
     const initial = document.querySelector('.page.is-active') || setupPages[0];
     if (initial) updateSidebarActive(initial.id);
+
+    // Deep link: open the page (and scroll to the section) referenced by the URL
+    // hash — lets the navbar links on faq.html/suporte.html land in the right spot.
+    function applyHash() {
+      const id = location.hash.slice(1);
+      if (!id) return;
+      const target = document.getElementById(id);
+      if (!target) return;
+      if (target.classList.contains('page')) {
+        showSetupPage(id);
+        return;
+      }
+      const page = target.closest('.page');
+      if (page) showSetupPage(page.id, { scroll: false });
+      setActiveSub(id);
+      requestAnimationFrame(() => target.scrollIntoView({ behavior: 'auto', block: 'start' }));
+    }
+    applyHash();
+    window.addEventListener('hashchange', applyHash);
   }
 
   // ============ Smooth-scroll offset for in-page anchors ============

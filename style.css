@@ -9,14 +9,13 @@
        5. iPhone mockup
        6. Spotlight (CTA focus)
        7. Overview screen (hero, timeline, CTA, footer)
-       8. Progress tracker
-       9. Wizard (guided agent training overlay)
-      10. Product examples list
-      11. Integration hero (Etapa 3)
-      12. Glow buttons
-      13. Testimonial cards & overlay
-      14. Catalog tutorial (situation question + steps)
-      15. Training flow explorer
+       8. Wizard (guided agent training overlay)
+       9. Product examples list
+      10. Integration hero (Etapa 3)
+      11. Glow buttons
+      12. Testimonial cards & overlay
+      13. Catalog tutorial (situation question + steps)
+      14. Training flow explorer
      ============================================================ */
 
   :root {
@@ -816,210 +815,6 @@
 
   .back-link { color: var(--ink-2) !important; }
   .back-link:hover { color: var(--ink) !important; background: var(--bg-2); }
-
-  /* ---------- Progress Tracker (sticky no topo do .content) ---------- */
-  .progress-tracker {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: saturate(140%) blur(10px);
-    -webkit-backdrop-filter: saturate(140%) blur(10px);
-    border-bottom: 1px solid var(--line);
-    padding: 18px clamp(20px, 5vw, 56px) 14px;
-    margin: -36px calc(-1 * clamp(20px, 5vw, 56px)) 28px;
-  }
-  .tracker-inner {
-    max-width: var(--content-max);
-    margin: 0 auto;
-    display: flex;
-    align-items: flex-start;
-    gap: 24px;
-  }
-  .tracker-steps {
-    flex: 1;
-    display: flex;
-    align-items: flex-start;
-    gap: 0;
-  }
-  .tracker-node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-    position: relative;
-  }
-  .node-circle {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    border: 2px solid var(--line);
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: transform .2s ease, border-color .3s ease, background .3s ease, box-shadow .3s ease;
-    position: relative;
-    padding: 0;
-    outline: none;
-  }
-  .node-circle:hover { transform: scale(1.1); }
-  .node-circle:focus-visible {
-    outline: 2px solid var(--ink);
-    outline-offset: 3px;
-  }
-  .node-check {
-    width: 14px; height: 14px;
-    opacity: 0;
-    color: #fff;
-    transition: opacity .2s ease;
-  }
-  .tracker-node.is-active .node-circle {
-    border-color: var(--stage-color);
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--stage-color) 15%, transparent);
-    animation: node-pulse 2s ease-in-out infinite;
-  }
-  .tracker-node.is-done .node-circle {
-    border-color: var(--stage-color);
-    background: var(--stage-color);
-  }
-  /* Etapa 4 (automático): dot preenchido com gradiente só quando concluída (todas as boxes marcadas) */
-  .tracker-node[data-stage="4"].is-done .node-circle {
-    background: linear-gradient(135deg, #E91E8C, #8B5CF6, #2563EB, #2DB67D);
-    border-color: transparent;
-  }
-  .tracker-node.is-done .node-check { opacity: 1; }
-  @keyframes node-pulse {
-    0%, 100% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--stage-color) 15%, transparent); }
-    50%      { box-shadow: 0 0 0 6px color-mix(in oklab, var(--stage-color) 8%, transparent); }
-  }
-  .node-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--ink-3);
-    transition: color .3s ease;
-    white-space: nowrap;
-  }
-  .tracker-node.is-active .node-label,
-  .tracker-node.is-done .node-label { color: var(--ink); }
-
-  .tracker-line {
-    flex: 1;
-    height: 3px;
-    background: var(--line);
-    border-radius: 999px;
-    margin-top: 12.5px;
-    position: relative;
-    overflow: hidden;
-    min-width: 20px;
-  }
-  .tracker-line-fill {
-    position: absolute;
-    top: 0; left: 0;
-    height: 100%;
-    width: 0%;
-    border-radius: 999px;
-    background: var(--stage-color, var(--ink));
-    transition: width .5s ease;
-  }
-  .tracker-line[data-stage="1"] { --stage-color: var(--maky); }
-  .tracker-line[data-stage="2"] { --stage-color: var(--fin); }
-  .tracker-line[data-stage="3"] { --stage-color: var(--waz); }
-
-  .tracker-summary {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-    flex-shrink: 0;
-    padding-top: 2px;
-  }
-  .tracker-pct {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-    line-height: 1;
-  }
-  
-
-  .tracker-toast {
-    position: absolute;
-    left: 50%;
-    bottom: -42px;
-    transform: translateX(-50%) translateY(6px);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: #fff;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .25s ease, transform .25s ease;
-    z-index: 25;
-    box-shadow: 0 4px 12px rgba(0,0,0,.12);
-  }
-  .tracker-toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  .tracker-banner {
-    display: none;
-    width: 100%;
-    padding: 12px 20px;
-    border-radius: 10px;
-    margin-top: 12px;
-    background: linear-gradient(90deg, var(--maky), var(--waz) 50%, var(--fin));
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
-    text-align: center;
-    box-sizing: border-box;
-  }
-  .tracker-banner.show {
-    display: block;
-    animation: banner-in .45s ease both;
-  }
-  @keyframes banner-in {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  @media (max-width: 900px) {
-    .progress-tracker {
-      top: 53px;
-      padding: 12px 16px 10px;
-      margin: 0 -16px 18px;
-    }
-    .tracker-inner {
-      flex-direction: column;
-      gap: 10px;
-    }
-    .tracker-steps {
-      width: 100%;
-      justify-content: space-between;
-    }
-    .tracker-summary {
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-    }
-    .tracker-pct { font-size: 16px; }
-    .node-circle { width: 24px; height: 24px; }
-    .node-check { width: 12px; height: 12px; }
-    .tracker-line { margin-top: 10.5px; min-width: 12px; flex: 1; }
-    .node-label { font-size: 10px; }
-  }
-  @media (max-width: 400px) {
-    .node-label { display: none; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .tracker-node.is-active .node-circle { animation: none; }
-    .tracker-line-fill { transition: none; }
-  }
 
   /* ---------- Training eyebrow (retido: usado no integration-hero da Etapa 03) ---------- */
   .training-eyebrow {
@@ -2465,6 +2260,44 @@
   margin: 0;
 }
 
+/* ---- Passo com telefone à direita / texto à esquerda (Etapa 02) ---- */
+.tutorial-step.phone-right { align-items: center; }  /* centra o número junto do texto/telefone */
+.tutorial-step.phone-right .tutorial-step-body {
+  display: flex;
+  justify-content: flex-end;      /* telefone encostado à direita */
+  align-items: center;            /* alinha verticalmente texto e telefone */
+}
+.tutorial-step.phone-right .tutorial-step-text {
+  flex: 1 1 auto;                 /* texto cresce/encolhe pra preencher a esquerda */
+  min-width: 0;
+  max-width: calc(100% - 240px);  /* reserva o espaço do telefone -> sem lacunas */
+  padding-right: 40px;            /* respiro entre texto e telefone */
+}
+.tutorial-step.phone-right .phone {
+  flex: 0 0 auto;                 /* largura fixa: não cresce nem encolhe */
+  width: 240px;
+  margin: 0;
+}
+/* Leitura levemente maior no layout lado a lado */
+.tutorial-step.phone-right .tutorial-step-text h4 { font-size: 17px; margin-bottom: 10px; }
+.tutorial-step.phone-right .tutorial-step-text p,
+.tutorial-step.phone-right .tutorial-step-text .tutorial-list li { font-size: 14.5px; }
+
+/* Telas médias (sidebar oculta): telefone um pouco menor */
+@media (max-width: 860px) {
+  .tutorial-step.phone-right .tutorial-step-text { max-width: calc(100% - 210px); }
+  .tutorial-step.phone-right .phone { width: 210px; }
+}
+/* Mobile: empilha texto em cima, telefone embaixo */
+@media (max-width: 640px) {
+  .tutorial-step.phone-right .tutorial-step-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tutorial-step.phone-right .tutorial-step-text { max-width: 100%; padding-right: 0; }
+  .tutorial-step.phone-right .phone { width: 200px; margin-top: 12px; }
+}
+
 .tutorial-list {
   margin: 8px 0;
   padding-left: 0;
@@ -2808,7 +2641,7 @@
   margin: 0 0 24px;
 }
 
-/* Alvos das subseções da sidebar — respiro sob o tracker fixo ao rolar */
+/* Alvos das subseções da sidebar — respiro ao rolar (e sob o header fixo no mobile) */
 #int-instagram,
 #int-pagamento,
 #integration-hero,

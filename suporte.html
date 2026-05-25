@@ -11,36 +11,85 @@
 </head>
 <body>
 
-<main class="content">
-  <div class="doc">
+<div class="app">
 
-    <a class="back-link" href="home.html" style="display:inline-flex; align-items:center; gap:8px; text-decoration:none; font-size:14px; font-weight:500; margin-bottom:8px;">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M9.5 3.5L5.5 8l4 4.5M5.5 8h7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <!-- ============ SIDEBAR (desktop) ============ -->
+  <aside class="sidebar" aria-label="Navegação">
+    <a href="home.html" class="brand"><span class="dot" aria-hidden="true"></span>squad.com</a>
+    <div class="brand-sub">Playbook · Confeitarias</div>
+
+    <a class="nav-link back-link" href="home.html">
+      <span class="ico"><svg viewBox="0 0 16 16" fill="none"><path d="M9.5 3.5L5.5 8l4 4.5M5.5 8h7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       Voltar à home
     </a>
 
-    <section class="section" id="suporte">
-      <div class="section-eyebrow">Suporte</div>
-      <h2>Precisa de ajuda?</h2>
-      <p class="sub">Se travou em algum passo, a gente resolve rápido. Nosso time está no WhatsApp.</p>
+    <div class="label" style="margin-top: 18px;">Setup</div>
+    <a class="nav-link" href="setup.html#page-1">Treine seus agentes</a>
+    <a class="nav-link" href="setup.html#page-2">Monte seu catálogo</a>
+    <a class="nav-link" href="setup.html#page-3">Integrações</a>
+    <ul class="nav-subsections">
+      <li><a href="setup.html#int-instagram">Instagram</a></li>
+      <li><a href="setup.html#int-pagamento">Links de Pagamento</a></li>
+      <li><a href="setup.html#integration-hero">WhatsApp</a></li>
+    </ul>
+    <a class="nav-link" href="setup.html#page-4">Piloto automático</a>
+    <ul class="nav-subsections">
+      <li><a href="setup.html#auto-copiloto">Co-piloto</a></li>
+      <li><a href="setup.html#auto-piloto">Piloto Automático</a></li>
+    </ul>
 
-      <div class="block" style="margin-top: 22px;">
-        <p style="color: var(--ink); font-size: 16px;">Sem fila! Mande uma mensagem e a gente te responde direto no WhatsApp.</p>
-        <div style="margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-          <a class="btn" href="https://wa.me/SEUNUMERO">
-            Falar com o time
-            <svg class="arr" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
+    <div class="label" style="margin-top: 18px;">Mais</div>
+    <a class="nav-link" href="faq.html">Dúvidas comuns</a>
+    <a class="nav-link active" href="suporte.html">Suporte</a>
+  </aside>
+
+  <!-- ============ MAIN CONTENT ============ -->
+  <main class="content" id="top">
+
+    <!-- Mobile header -->
+    <header class="mobile-header">
+      <a href="home.html" class="brand"><span class="dot" aria-hidden="true"></span>squad.com</a>
+      <select id="mobile-nav" aria-label="Ir para seção">
+        <optgroup label="Setup">
+          <option value="setup.html#page-1">① Treine seus agentes</option>
+          <option value="setup.html#page-2">② Monte seu catálogo</option>
+          <option value="setup.html#page-3">③ Integrações</option>
+          <option value="setup.html#page-4">④ Piloto automático</option>
+        </optgroup>
+        <optgroup label="Mais">
+          <option value="faq.html">Dúvidas comuns</option>
+          <option value="suporte.html" selected>Suporte</option>
+        </optgroup>
+      </select>
+    </header>
+
+    <div class="doc">
+
+      <section class="section" id="suporte">
+        <div class="section-eyebrow">Suporte</div>
+        <h2>Precisa de ajuda?</h2>
+        <p class="sub">Se travou em algum passo, a gente resolve rápido. Nosso time está no WhatsApp.</p>
+
+        <div class="block" style="margin-top: 22px;">
+          <p style="color: var(--ink); font-size: 16px;">Sem fila! Mande uma mensagem e a gente te responde direto no WhatsApp.</p>
+          <div style="margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <a class="btn" href="https://wa.me/SEUNUMERO">
+              Falar com o time
+              <svg class="arr" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
         </div>
-      </div>
 
-      <p style="margin-top: 38px; color: var(--ink-3); font-size: 13px; text-align: center;">
-        squad.com · Playbook para Confeitarias · 2026
-      </p>
-    </section>
+        <p style="margin-top: 38px; color: var(--ink-3); font-size: 13px; text-align: center;">
+          squad.com · Playbook para Confeitarias · 2026
+        </p>
+      </section>
 
-  </div>
-</main>
+    </div>
+  </main>
+</div>
+
+<script src="main.js"></script>
 
 </body>
 </html>
