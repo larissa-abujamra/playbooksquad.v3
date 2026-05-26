@@ -182,15 +182,32 @@
   // ============ Wizard: treinamento guiado de agentes ============
   const wizardQuestions = [
     // ===== PARTE 1: SOBRE SEU NEGÓCIO =====
-    // (1) HORÁRIO — antes era texto livre; agora é escolha de opções prontas
-    //     + "Outro (especificar)" que abre um campo de texto livre.
+    // (operação básica — nome, marca, horário, localização e delivery)
     {
       block: 'Sobre seu negócio',
-      sectionIntro: 'Vamos começar com o básico. Essas informações ajudam o Waz a responder suas clientes com precisão.',
+      sectionIntro: 'Vamos começar com o básico. Nada longo — só o suficiente pra o agente entender sua operação.',
+      key: 'nome_confeitaria',
+      pdfLabel: 'Nome da confeitaria',
+      q: 'Qual o nome da sua confeitaria?',
+      type: 'text',
+      placeholder: 'Ex: Doce Encanto',
+      recommended: true,
+    },
+    {
+      block: 'Sobre seu negócio',
+      key: 'descricao_marca',
+      pdfLabel: 'Descrição da marca',
+      q: 'Como você descreveria sua marca?',
+      hint: 'Uma frase curta que capture a essência do seu negócio.',
+      type: 'text',
+      placeholder: 'Ex: Uma confeitaria artesanal, acolhedora e elegante.',
+    },
+    {
+      block: 'Sobre seu negócio',
       key: 'horario',
       pdfLabel: 'Horário',
-      q: 'Qual o horário de funcionamento do seu negócio?',
-      hint: 'Escolha uma opção ou selecione "Outro" para escrever o seu.',
+      q: 'Qual o horário de funcionamento?',
+      hint: 'Escolha uma opção ou selecione "Outro" pra escrever o seu.',
       type: 'choice-with-followup',
       recommended: true,
       options: [
@@ -203,87 +220,117 @@
       followupHint: 'Descreva o horário de funcionamento.',
       followupPlaceholder: 'Ex: Terça a Domingo, 11h às 19h',
     },
-    // (2) PRAZO MÍNIMO — NOVA pergunta: opções de prazo + "Outro (especificar)".
     {
       block: 'Sobre seu negócio',
-      key: 'prazo_minimo',
-      pdfLabel: 'Prazo mínimo de encomenda',
-      q: 'Qual o prazo mínimo para encomendar?',
-      hint: 'Quanto tempo de antecedência você precisa para preparar um pedido.',
+      key: 'localizacao',
+      pdfLabel: 'Localização',
+      q: 'Onde fica seu negócio?',
+      hint: 'Bairro e cidade — e onde você atende, se faz entrega.',
+      type: 'text',
+      placeholder: 'Ex: Vila Mariana, São Paulo. Delivery pra Zona Sul.',
+      recommended: true,
+    },
+    // Delivery: choice-with-followup com "Sim" abrindo uma TEXTAREA pra regiões, taxa e pedido mínimo
+    {
+      block: 'Sobre seu negócio',
+      key: 'delivery',
+      pdfLabel: 'Delivery',
+      q: 'Vocês fazem delivery?',
+      hint: 'Se "Sim", conte sobre regiões, taxa e pedido mínimo.',
       type: 'choice-with-followup',
       options: [
-        { value: '24h',   label: '24 horas' },
-        { value: '48h',   label: '48 horas' },
-        { value: '3dias', label: '3 dias' },
-        { value: '5dias', label: '5 dias' },
-        { value: 'outro', label: 'Outro (especificar)', followup: true },
+        { value: 'sim',          label: 'Sim', followup: true },
+        { value: 'nao',          label: 'Não' },
+        { value: 'so_retirada',  label: 'Apenas retirada' },
       ],
-      followupKey: 'prazo_minimo_outro',
-      followupHint: 'Descreva o prazo mínimo.',
-      followupPlaceholder: 'Ex: 1 semana para bolos grandes',
+      followupKey: 'delivery_detalhes',
+      followupType: 'textarea',
+      followupHint: 'Quais regiões você atende? Qual a taxa? Tem pedido mínimo?',
+      followupPlaceholder: 'Ex: Atendo a Zona Sul de SP. Taxa R$ 12. Pedido mínimo R$ 50.',
     },
-    // (2) EXCEÇÕES DE PRAZO — NOVO campo de texto livre, complementa o prazo mínimo.
+
+    // ===== PARTE 2: PEDIDOS E ENCOMENDAS =====
+    // (faz o agente vender sem depender do humano)
     {
-      block: 'Sobre seu negócio',
-      key: 'prazo_excecoes',
-      pdfLabel: 'Exceções de prazo',
-      q: 'Exceções de prazo para alguns produtos?',
-      hint: 'Produtos que precisam de mais (ou menos) antecedência. Se não tiver, pode pular.',
+      block: 'Pedidos e encomendas',
+      key: 'prazo_minimo',
+      pdfLabel: 'Prazo mínimo de encomenda',
+      q: 'Qual o prazo mínimo para encomendas?',
+      hint: 'Quanto tempo de antecedência você precisa.',
+      type: 'single-choice',
+      options: [
+        { value: '24h',     label: '24 horas' },
+        { value: '48h',     label: '48 horas' },
+        { value: '3dias',   label: '3 dias' },
+        { value: '5dias',   label: '5 dias' },
+        { value: '1semana', label: '1 semana' },
+        { value: 'depende', label: 'Depende do produto' },
+      ],
+    },
+    {
+      block: 'Pedidos e encomendas',
+      key: 'prazo_detalhes',
+      pdfLabel: 'Detalhes de prazo',
+      q: 'Algum detalhe ou exceção sobre o prazo?',
+      hint: 'Produtos que precisam de mais (ou menos) tempo. Se não tiver, pode pular.',
       type: 'textarea',
       placeholder: 'Ex: Bolos de casamento precisam de 15 dias. Brigadeiros saem no mesmo dia.',
     },
     {
-      block: 'Sobre seu negócio',
-      key: 'localizacao',
-      pdfLabel: 'Localização e entrega',
-      q: 'Onde fica seu negócio? Você faz entrega?',
-      hint: 'Endereço, bairro/região, se faz entrega e pra onde, valor do frete.',
-      type: 'textarea',
-      placeholder: 'Rua dos Doces, 42 — Vila Mariana, SP. Entrego na Zona Sul, frete R$ 10.',
-      recommended: true,
-    },
-    // (5) REGRAS — antes era só texto livre; agora traz sugestões prontas como
-    //     checkboxes (múltipla seleção) + "Outro (especificar)" para texto livre.
-    {
-      block: 'Sobre seu negócio',
-      key: 'regras',
-      pdfLabel: 'Regras',
-      q: 'Quais as principais regras que seus clientes precisam saber?',
-      hint: 'Marque as que se aplicam e use "Outro" para escrever as suas.',
+      block: 'Pedidos e encomendas',
+      key: 'personalizacao',
+      pdfLabel: 'Personalização',
+      q: 'O que pode ser personalizado?',
+      hint: 'Marque tudo que vocês aceitam personalizar.',
       type: 'multi-choice',
       options: [
-        { value: 'sem_cancelamento', label: 'Não aceitamos cancelamento' },
-        { value: 'cancel_48h',       label: 'Cancelamento com 48h de antecedência' },
-        { value: 'sinal_50',         label: 'Cobramos 50% de sinal para encomendas' },
-        { value: 'sem_gluten',       label: 'Não trabalhamos com produtos sem glúten' },
-        { value: 'sem_feriado',      label: 'Não abrimos em feriados' },
+        { value: 'escrita',   label: 'Escrita no bolo' },
+        { value: 'tema',      label: 'Tema/decoração' },
+        { value: 'recheio',   label: 'Recheio' },
+        { value: 'cobertura', label: 'Cobertura' },
+        { value: 'formato',   label: 'Formato' },
+        { value: 'tamanho',   label: 'Tamanho' },
+        { value: 'nenhuma',   label: 'Não fazemos personalização' },
       ],
-      otherKey: 'regras_outro',
-      otherLabel: 'Outro (especificar)',
-      otherPlaceholder: 'Escreva outras regras importantes do seu negócio...',
     },
-    // (3) CONSERVAÇÃO E CONSUMO — sub-perguntas agora são múltipla escolha
-    //     (onde guardar / validade / como servir) + instruções livres por produto.
+
+    // ===== PARTE 3: PRODUTOS =====
+    // (faz o agente recomendar produtos corretamente)
     {
-      block: 'Sobre seu negócio',
-      key: 'conservar_onde',
-      pdfLabel: 'Conservação — onde guardar',
-      q: 'Como conservar e consumir: onde guardar?',
-      hint: 'Onde a cliente deve guardar o produto depois de comprar.',
-      type: 'single-choice',
+      block: 'Produtos',
+      key: 'produto_top',
+      pdfLabel: 'Produto mais vendido',
+      q: 'Qual o produto mais vendido?',
+      hint: 'Conte o nome, a faixa de preço e o diferencial.',
+      type: 'textarea',
+      placeholder: 'Ex: Bolo Red Velvet — R$ 90 a R$ 120. Cobertura de cream cheese feita na hora, muito pedido pra aniversário.',
+      recommended: true,
+    },
+    {
+      block: 'Produtos',
+      key: 'restricoes',
+      pdfLabel: 'Restrições alimentares',
+      q: 'Vocês possuem opções para restrições alimentares?',
+      hint: 'Marque todas que você atende.',
+      type: 'multi-choice',
       options: [
-        { value: 'geladeira', label: 'Geladeira' },
-        { value: 'ambiente',  label: 'Temperatura ambiente' },
-        { value: 'freezer',   label: 'Freezer' },
-        { value: 'depende',   label: 'Depende do produto' },
+        { value: 'sem_lactose', label: 'Sem lactose' },
+        { value: 'sem_gluten',  label: 'Sem glúten' },
+        { value: 'vegano',      label: 'Vegano' },
+        { value: 'sem_acucar',  label: 'Sem açúcar' },
+        { value: 'low_carb',    label: 'Low carb' },
+        { value: 'nenhuma',     label: 'Nenhuma' },
       ],
     },
+
+    // ===== PARTE 4: CONSERVAÇÃO E CONSUMO =====
+    // (diminui reclamação pós-venda)
     {
-      block: 'Sobre seu negócio',
-      key: 'conservar_tempo',
-      pdfLabel: 'Conservação — validade',
-      q: 'Por quanto tempo dura?',
-      hint: 'Validade média dos seus produtos depois de prontos.',
+      block: 'Conservação e consumo',
+      key: 'validade',
+      pdfLabel: 'Validade média',
+      q: 'Qual a validade média dos produtos?',
+      hint: 'Tempo médio que os produtos duram depois de prontos.',
       type: 'single-choice',
       options: [
         { value: '1d',   label: '1 dia' },
@@ -295,246 +342,145 @@
       ],
     },
     {
-      block: 'Sobre seu negócio',
-      key: 'conservar_servir',
-      pdfLabel: 'Conservação — como servir',
-      q: 'Como servir melhor?',
-      hint: 'A melhor forma de consumir o produto.',
-      type: 'single-choice',
-      options: [
-        { value: 'gelado',      label: 'Servir gelado' },
-        { value: 'ambiente',    label: 'Servir em temperatura ambiente' },
-        { value: 'micro',       label: 'Aquecer no micro-ondas' },
-        { value: 'forno',       label: 'Aquecer no forno' },
-        { value: 'sem_preparo', label: 'Não precisa de preparo' },
-      ],
-    },
-    {
-      block: 'Sobre seu negócio',
-      key: 'conservar_instrucoes',
-      pdfLabel: 'Conservação — instruções por produto',
-      q: 'Instruções específicas por produto?',
-      hint: 'Cuidados que variam de um produto para outro. Se não tiver, pode pular.',
+      block: 'Conservação e consumo',
+      key: 'instrucoes_especiais',
+      pdfLabel: 'Instruções de consumo',
+      q: 'Existe alguma instrução especial?',
+      hint: 'Cuidados ou dicas pra consumir melhor o produto.',
       type: 'textarea',
-      placeholder: 'Ex: Bolo gelado dura 5 dias na geladeira. Brigadeiros, 7 dias. Tortas, consumir em 3 dias.',
+      placeholder: 'Ex: Retirar da geladeira 30 minutos antes de servir.',
     },
-    // (4) PAGAMENTO — antes era texto; agora é múltipla seleção (checkboxes)
-    //     + "Outro", seguido da sub-pergunta de sinal (múltipla escolha).
+
+    // ===== PARTE 5: PAGAMENTO =====
+    // (reduz atrito no fechamento)
     {
-      block: 'Sobre seu negócio',
+      block: 'Pagamento',
       key: 'pagamento',
       pdfLabel: 'Formas de pagamento',
-      q: 'Quais formas de pagamento você aceita?',
-      hint: 'Selecione todas que se aplicam.',
+      q: 'Quais formas de pagamento vocês aceitam?',
+      hint: 'Selecione todas que você aceita.',
       type: 'multi-choice',
       recommended: true,
       options: [
         { value: 'pix',            label: 'Pix' },
         { value: 'dinheiro',       label: 'Dinheiro' },
-        { value: 'cartao_debito',  label: 'Cartão de débito' },
-        { value: 'cartao_credito', label: 'Cartão de crédito' },
+        { value: 'cartao_debito',  label: 'Cartão débito' },
+        { value: 'cartao_credito', label: 'Cartão crédito' },
         { value: 'parcelamento',   label: 'Parcelamento' },
       ],
-      otherKey: 'pagamento_outro',
-      otherLabel: 'Outra forma de pagamento',
-      otherPlaceholder: 'Ex: vale-alimentação, transferência bancária...',
     },
+
+    // ===== PARTE 6: REGRAS IMPORTANTES =====
+    // (evita problemas operacionais — checkboxes prontas + campo livre)
     {
-      block: 'Sobre seu negócio',
-      key: 'pagamento_sinal',
-      pdfLabel: 'Sinal para encomenda',
-      q: 'Exige sinal para confirmar encomenda?',
-      hint: 'Valor pago antecipadamente para garantir o pedido.',
-      type: 'single-choice',
+      block: 'Regras importantes',
+      key: 'regras',
+      pdfLabel: 'Regras',
+      q: 'Quais regras seus clientes precisam saber?',
+      hint: 'Marque as que se aplicam e use "Outras regras" pra acrescentar.',
+      type: 'multi-choice',
       options: [
-        { value: 'nao',      label: 'Não exijo sinal' },
-        { value: 'sim_50',   label: 'Sim, 50% do valor' },
-        { value: 'sim_fixo', label: 'Sim, um valor fixo' },
-        { value: 'depende',  label: 'Depende do tamanho do pedido' },
+        { value: 'sem_cancelamento',  label: 'Não aceitamos cancelamento' },
+        { value: 'cancel_com_antec',  label: 'Cancelamento apenas com antecedência' },
+        { value: 'sem_feriado',       label: 'Não abrimos em feriados' },
+        { value: 'so_encomenda',      label: 'Trabalhamos apenas sob encomenda' },
+        { value: 'sem_alteracao',     label: 'Não fazemos alterações após confirmação' },
       ],
+      otherKey: 'regras_outras',
+      otherLabel: 'Outras regras importantes',
+      otherPlaceholder: 'Escreva outras regras importantes do seu negócio...',
     },
-    // (6) TOM DE VOZ — opções atualizadas, cada uma com uma breve descrição
-    //     mostrada abaixo do título da opção (render já suporta `desc`).
+
+    // ===== PARTE 7: TOM DE VOZ DA MARCA =====
+    // (faz o agente parecer humano e alinhado com a marca)
     {
-      block: 'Sobre seu negócio',
+      block: 'Tom de voz',
       key: 'tom_voz',
       pdfLabel: 'Tom de voz',
-      q: 'Qual o tom de voz da sua marca?',
-      hint: 'Como o Waz deve "falar" com suas clientes.',
+      q: 'Como o agente deve conversar com os clientes?',
+      hint: 'Escolha o estilo que mais combina com sua marca.',
       type: 'single-choice',
       recommended: true,
       options: [
-        {
-          value: 'casual',
-          label: 'Casual e descontraído',
-          desc: 'Comunicação leve, informal e amigável, como se conversasse com um amigo. Linguagem simples, emojis e brincadeiras leves para criar proximidade.',
-        },
-        {
-          value: 'afetuoso',
-          label: 'Afetuoso e caloroso',
-          desc: 'Comunicação acolhedora e carinhosa. Demonstra cuidado e atenção, fazendo a cliente se sentir querida e bem-vinda.',
-        },
-        {
-          value: 'formal',
-          label: 'Formal e sóbrio',
-          desc: 'Comunicação profissional, séria e respeitosa. Linguagem correta, sem gírias ou excesso de intimidade. Transmite credibilidade e excelência.',
-        },
-        {
-          value: 'tecnico',
-          label: 'Técnico e direto',
-          desc: 'Comunicação objetiva e prática. Vai direto ao ponto, com informações claras e sem rodeios.',
-        },
-        {
-          value: 'elegante',
-          label: 'Elegante e refinado',
-          desc: 'Comunicação sofisticada e cuidada. Tom premium, vocabulário selecionado, ideal para marcas mais exclusivas.',
-        },
-        {
-          value: 'divertido',
-          label: 'Divertido e bem-humorado',
-          desc: 'Comunicação descontraída e cheia de personalidade. Usa humor leve e criatividade para tornar a conversa memorável.',
-        },
+        { value: 'casual',    label: 'Casual e descontraído',
+          desc: 'Conversa leve e amigável, como entre amigos. Linguagem simples e próxima do dia a dia.' },
+        { value: 'afetuoso',  label: 'Afetuoso e acolhedor',
+          desc: 'Tom carinhoso e cuidadoso. Faz a cliente se sentir querida — bom pra marcas com clima de casa.' },
+        { value: 'elegante',  label: 'Elegante e sofisticado',
+          desc: 'Tom premium e refinado. Vocabulário cuidado, ideal pra marcas mais exclusivas.' },
+        { value: 'formal',    label: 'Profissional e formal',
+          desc: 'Comunicação séria e respeitosa. Linguagem correta, sem intimidade — transmite credibilidade.' },
+        { value: 'divertido', label: 'Divertido e bem-humorado',
+          desc: 'Cheio de personalidade. Usa humor leve e criatividade pra tornar a conversa memorável.' },
+        { value: 'direto',    label: 'Direto e objetivo',
+          desc: 'Vai direto ao ponto. Informações claras, sem rodeios — bom pra cliente apressado.' },
       ],
     },
     {
-      block: 'Sobre seu negócio',
-      key: 'uso_emojis',
+      block: 'Tom de voz',
+      key: 'emojis',
       pdfLabel: 'Uso de emojis',
-      q: 'Com que frequência o Waz deve usar emojis?',
-      hint: 'Emojis deixam a conversa mais leve, mas nem todo negócio combina.',
+      q: 'O agente deve usar emojis?',
+      hint: 'Emojis deixam a conversa mais leve — mas nem toda marca combina.',
       type: 'choice-with-followup',
-      recommended: false,
       options: [
-        {
-          value: 'sempre',
-          label: 'Sempre',
-          desc: 'Em quase toda mensagem.',
-          followup: true,
-        },
-        {
-          value: 'as_vezes',
-          label: 'Às vezes',
-          desc: 'Só pra dar um tom simpático, sem exagerar.',
-          followup: true,
-          recommended: true,
-        },
-        {
-          value: 'nunca',
-          label: 'Nunca',
-          desc: 'Prefiro texto limpo, sem emojis.',
-          followup: false,
-        },
+        { value: 'sempre',   label: 'Sempre',   desc: 'Em quase toda mensagem.', followup: true },
+        { value: 'as_vezes', label: 'Às vezes', desc: 'Só pra dar um tom simpático, sem exagerar.', followup: true, recommended: true },
+        { value: 'nunca',    label: 'Nunca',    desc: 'Prefiro texto limpo, sem emojis.' },
       ],
       followupKey: 'emojis_preferidos',
-      followupHint: 'Quais emojis combinam com seu negócio? Ex: 🎂💕🍫😊✨',
-      followupPlaceholder: '🎂💕😊',
+      followupHint: 'Quais emojis combinam com sua marca?',
+      followupPlaceholder: '🎂💕🍫😊✨',
     },
     {
-      block: 'Sobre seu negócio',
-      key: 'produto_top',
-      pdfLabel: 'Produto mais vendido',
-      q: 'Me conta sobre seu produto ou serviço mais vendido.',
-      hint: 'Nome, preço, o que tem de especial, por que as clientes amam.',
+      block: 'Tom de voz',
+      key: 'frase_marca',
+      pdfLabel: 'Frase ou jeito de falar',
+      q: 'Existe alguma frase ou jeito de falar que representa sua marca?',
+      hint: 'Saudação típica, bordão, jeito de fechar uma conversa. Se não tiver, pode pular.',
       type: 'textarea',
-      placeholder: 'Bolo Red Velvet (R$ 95) — é o mais pedido, a cobertura de cream cheese é feita na hora. As clientes pedem pra aniversário e casamento.',
+      placeholder: 'Ex: "Bem-vinda à Doce Encanto. Que alegria receber seu contato 💕"',
     },
+
+    // ===== PARTE 8: PERGUNTAS FREQUENTES =====
+    // (acelera respostas automáticas)
     {
-      block: 'Sobre seu negócio',
+      block: 'Perguntas frequentes',
       key: 'perguntas_frequentes',
-      pdfLabel: 'Perguntas frequentes dos clientes',
-      q: 'Quais dessas perguntas suas clientes mais fazem?',
-      hint: 'Selecione todas que se aplicam. O Waz vai preparar respostas pra cada uma.',
+      pdfLabel: 'Perguntas mais comuns',
+      q: 'Quais perguntas os clientes mais fazem?',
+      hint: 'Marque as mais comuns — o agente vai preparar respostas pra cada uma.',
       type: 'multi-choice',
       recommended: true,
       options: [
-        { value: 'cardapio',         label: 'Quais sabores / opções vocês têm?' },
-        { value: 'entrega',          label: 'Vocês fazem entrega? Pra onde?' },
-        { value: 'prazo_encomenda',  label: 'Qual o prazo pra encomenda?' },
-        { value: 'pagamento',        label: 'Quais formas de pagamento?' },
-        { value: 'personalizado',    label: 'Fazem bolo personalizado / temático?' },
-        { value: 'sem_restricao',    label: 'Tem opção sem glúten / sem lactose / vegano?' },
-        { value: 'festa',            label: 'Fazem encomenda pra festa / evento?' },
-        { value: 'desconto',         label: 'Tem desconto pra quantidade grande?' },
-        { value: 'frete',            label: 'Quanto custa o frete / entrega?' },
-        { value: 'disponibilidade',  label: 'Tem disponível pra hoje / amanhã?' },
+        { value: 'prazo',         label: 'Prazo de encomenda' },
+        { value: 'sabores',       label: 'Sabores disponíveis' },
+        { value: 'delivery',      label: 'Delivery' },
+        { value: 'frete',         label: 'Frete' },
+        { value: 'pagamento',     label: 'Formas de pagamento' },
+        { value: 'personalizado', label: 'Produtos personalizados' },
+        { value: 'hoje',          label: 'Disponibilidade para hoje' },
+        { value: 'restricoes',    label: 'Opções veganas / sem lactose' },
+        { value: 'desconto',      label: 'Desconto para quantidade' },
       ],
-      otherKey: 'perguntas_frequentes_outras',
-      otherLabel: 'Outras perguntas que recebo',
-      otherPlaceholder: 'Escreva outras perguntas que suas clientes fazem e não apareceram na lista acima...',
     },
     {
-      block: 'Sobre seu negócio',
-      key: 'extra_negocio',
-      pdfLabel: 'Extra',
-      q: 'Tem mais alguma coisa que você acha importante o Waz saber?',
-      hint: 'Qualquer detalhe que não coube nas perguntas anteriores. Se não tiver nada, pode pular.',
+      block: 'Perguntas frequentes',
+      key: 'faq_outra',
+      pdfLabel: 'Outras perguntas frequentes',
+      q: 'Tem alguma pergunta frequente que não apareceu acima?',
+      hint: 'Pode listar várias — uma por linha. Se não tiver, pode pular.',
       type: 'textarea',
-      placeholder: 'A gente fecha em feriados. Em dezembro o prazo de encomenda sobe pra 5 dias.',
+      placeholder: 'Ex: Vocês fazem brigadeiros gourmet para casamento?',
     },
 
-    // ===== PARTE 2: COMO A IA PODE TE AJUDAR =====
+    // ===== PARTE 9: FINALIZAÇÃO =====
     {
-      block: 'Como a IA pode te ajudar',
-      sectionIntro: 'Agora vamos entender sua rotina. Isso ajuda os agentes a priorizarem o que mais importa pra você.',
-      key: 'gasta_tempo',
-      pdfLabel: 'O que mais toma tempo',
-      q: 'O que te toma mais tempo no dia a dia?',
-      hint: 'Selecione tudo que pesa na sua rotina. Seus agentes vão focar nisso primeiro.',
-      type: 'multi-choice',
-      recommended: true,
-      options: [
-        { value: 'responder_whatsapp',     label: 'Responder mensagens no WhatsApp' },
-        { value: 'responder_instagram',    label: 'Responder DMs e comentários no Instagram' },
-        { value: 'criar_conteudo',         label: 'Criar posts e conteúdo pro Instagram' },
-        { value: 'cobrar_clientes',        label: 'Cobrar clientes / correr atrás de pagamento' },
-        { value: 'controle_financeiro',    label: 'Organizar o financeiro (fluxo de caixa, notas)' },
-        { value: 'agendar_entregas',       label: 'Organizar entregas e agendamentos' },
-        { value: 'mesmas_perguntas',       label: 'Responder as mesmas perguntas toda hora' },
-        { value: 'orcamentos',             label: 'Fazer orçamentos e montar propostas' },
-        { value: 'reativar_clientes',      label: 'Lembrar de clientes que sumiram' },
-        { value: 'marketing_geral',        label: 'Pensar em promoções e campanhas' },
-      ],
-      otherKey: 'gasta_tempo_outros',
-      otherLabel: 'Outra coisa que toma meu tempo',
-      otherPlaceholder: 'Descreva o que mais consome seu tempo e não apareceu na lista...',
-    },
-    {
-      block: 'Como a IA pode te ajudar',
-      key: 'ia_ajuda',
-      pdfLabel: 'Como a IA ajuda',
-      q: 'Como você imagina que a IA poderia te ajudar?',
-      hint: 'Não precisa ser técnico. Descreva o resultado que quer, como se tivesse contratando um assistente.',
-      type: 'textarea',
-      placeholder: 'Queria que respondesse o WhatsApp com as informações certas e só me chamasse quando fosse algo que eu preciso resolver pessoalmente.',
-    },
-    {
-      block: 'Como a IA pode te ajudar',
-      key: 'nao_delegar',
-      pdfLabel: 'Não delegar pra IA',
-      q: 'Quais tarefas você acha que NÃO dá pra delegar?',
-      hint: 'Selecione tudo que só você pode fazer. Seus agentes vão respeitar esses limites.',
-      type: 'multi-choice',
-      recommended: false,
-      options: [
-        { value: 'precificar_grandes',    label: 'Decidir preço de encomendas grandes / personalizadas' },
-        { value: 'reclamacoes',           label: 'Resolver reclamações e problemas' },
-        { value: 'negociar_desconto',     label: 'Negociar descontos com clientes' },
-        { value: 'fornecedores',          label: 'Negociar com fornecedores' },
-        { value: 'clientes_vip',          label: 'Atender clientes especiais / VIP' },
-        { value: 'decisoes_negocio',      label: 'Decisões estratégicas do negócio' },
-      ],
-      otherKey: 'nao_delegar_outros',
-      otherLabel: 'Outra tarefa que só eu faço',
-      otherPlaceholder: 'Descreva outras tarefas que você não quer que a IA faça...',
-    },
-
- 
-    {
-      block: 'Quando chamar você',
-      key: 'extra_agentes',
-      pdfLabel: 'Observações extras',
-      q: 'Última pergunta: tem algo mais que queira dizer pros seus agentes?',
-      hint: 'Campo livre. Qualquer coisa que não foi coberta. Se não tiver, pode finalizar.',
+      block: 'Finalização',
+      key: 'extra_final',
+      pdfLabel: 'Observações finais',
+      q: 'Tem mais alguma coisa importante que o agente precisa saber?',
+      hint: 'Qualquer detalhe que não coube nas perguntas anteriores. Se não tiver, pode finalizar.',
       type: 'textarea',
       placeholder: '',
     },
@@ -673,7 +619,13 @@
       const fpValue = escapeAttr(wizardState.answers[q.followupKey] || '');
       html += '<div class="wizard-followup' + (showFollowup ? '' : ' is-hidden') + '">';
       if (q.followupHint) html += '<p class="wizard-followup-hint">' + escapeHtml(q.followupHint) + '</p>';
-      html += '<input type="text" class="wizard-input wizard-followup-input" placeholder="' + escapeAttr(q.followupPlaceholder || '') + '" value="' + fpValue + '" />';
+      // O follow-up pode ser um textarea quando a opção pede uma resposta mais longa
+      // (ex: "Sim" em "Vocês fazem delivery?" -> regiões + taxa + pedido mínimo).
+      if (q.followupType === 'textarea') {
+        html += '<textarea class="wizard-textarea wizard-followup-input" placeholder="' + escapeAttr(q.followupPlaceholder || '') + '" rows="3">' + fpValue + '</textarea>';
+      } else {
+        html += '<input type="text" class="wizard-input wizard-followup-input" placeholder="' + escapeAttr(q.followupPlaceholder || '') + '" value="' + fpValue + '" />';
+      }
       html += '</div>';
     }
     html += '</div>';
@@ -1233,6 +1185,20 @@
   if (startWizardBtn) startWizardBtn.addEventListener('click', wizardOpen);
   if (wizardCloseBtn) wizardCloseBtn.addEventListener('click', wizardClose);
   if (wizardSkipBtn) wizardSkipBtn.addEventListener('click', skip);
+
+  // Sub-itens da sidebar ("Tom de voz", "Restrições") abrem o wizard direto
+  // na pergunta correspondente — definida pelo atributo data-wiz-key.
+  document.querySelectorAll('.sidebar a[data-wiz-key]').forEach(a => {
+    a.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const idx = wizardQuestions.findIndex(q => q.key === a.dataset.wizKey);
+      if (idx < 0) return;
+      wizardState.currentIndex = idx;
+      wizardState.completed = false;
+      wizardSave();                 // persiste antes de abrir (wizardOpen lê do storage)
+      wizardOpen();
+    });
+  });
 
   document.addEventListener('keydown', (e) => {
     if (!document.body.classList.contains('in-wizard')) return;
