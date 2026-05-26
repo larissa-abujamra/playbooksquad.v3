@@ -1551,3 +1551,20 @@
       if (content) ro.observe(content);
     }
   }
+
+  // ============ FAQ accordion (apenas 1 aberto por vez) ============
+  // O atributo `name=""` no <details> já faz isso nativamente em browsers
+  // modernos (Chrome 120+, Safari 17.4+, Firefox 130+). Este bloco serve
+  // como fallback para garantir o comportamento em qualquer browser:
+  // ao abrir um <details name="X">, fecha todos os outros com mesmo nome.
+  {
+    document.querySelectorAll('details[name]').forEach(d => {
+      d.addEventListener('toggle', () => {
+        if (!d.open) return;                  // só age quando o usuário ABRE um
+        const groupName = d.getAttribute('name');
+        document.querySelectorAll('details[name="' + groupName + '"]').forEach(other => {
+          if (other !== d && other.open) other.open = false;
+        });
+      });
+    });
+  }

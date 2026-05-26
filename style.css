@@ -449,6 +449,9 @@
   }
   .faq {
     border-bottom: 1px solid var(--line);
+    /* Permite que `block-size: auto` seja interpolado em transitions.
+       Sem isto a transição block-size 0 → auto não anima — fica salto. */
+    interpolate-size: allow-keywords;
   }
   .faq summary {
     list-style: none; cursor: pointer;
@@ -459,12 +462,37 @@
   .faq summary::-webkit-details-marker { display: none; }
   .faq .chev {
     width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
-    color: var(--ink-3); transition: transform .2s ease;
+    /* easing alinhado ao do conteúdo abaixo para chev e caixa terminarem juntos */
+    color: var(--ink-3); transition: transform .32s cubic-bezier(0.32, 0.72, 0, 1);
   }
   .faq[open] .chev { transform: rotate(180deg); color: var(--ink); }
   .faq-a {
     padding: 0 4px 18px; color: var(--ink-2); font-size: 15px; line-height: 1.6;
     max-width: 64ch;
+  }
+
+  /* Animação suave de expandir/colapsar via `::details-content`
+     (Chrome 131+, Safari 18.2+). Browsers sem suporte ignoram o pseudo
+     e o <details> volta a abrir/fechar instantaneamente — degradação OK.
+     `content-visibility` é `allow-discrete` para o pseudo participar da
+     transição mesmo sendo uma propriedade não-interpolável por natureza. */
+  .faq::details-content {
+    block-size: 0;
+    opacity: 0;
+    overflow: clip;
+    transition:
+      block-size .32s cubic-bezier(0.32, 0.72, 0, 1),
+      opacity .22s ease-out,
+      content-visibility .32s allow-discrete;
+  }
+  .faq[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq .chev,
+    .faq::details-content { transition: none; }
   }
 
   /* Helpers */
