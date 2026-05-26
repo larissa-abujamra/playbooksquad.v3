@@ -1437,6 +1437,36 @@
     box-shadow: 0 6px 16px rgba(0,0,0,.12);
   }
   .wizard-download svg { width: 16px; height: 16px; }
+
+  /* Botão "Copiar prompt" — secundário entre o primário "Baixar PDF"
+     e o terciário "Revisar respostas". Mesmo formato/altura do PDF
+     pra parecerem um par, mas com borda + texto escuro em vez de fill.
+     Estado .is-copied: pisca verde por 1.8s ao concluir a cópia. */
+  .wizard-copy {
+    appearance: none;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    padding: 14px 22px;
+    border-radius: 10px;
+    font: inherit; font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: background .18s ease, color .18s ease, border-color .18s ease, transform .15s ease;
+  }
+  .wizard-copy:hover {
+    background: var(--ink);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .wizard-copy svg { width: 16px; height: 16px; }
+  .wizard-copy.is-copied {
+    background: var(--waz);          /* verde do design system */
+    color: #fff;
+    border-color: var(--waz);
+    transform: none;
+  }
+
   .wizard-review {
     appearance: none;
     background: transparent;

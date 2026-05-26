@@ -323,54 +323,12 @@
       ],
     },
 
-    // ===== PARTE 4: CONSERVAÇÃO E CONSUMO =====
-    // (diminui reclamação pós-venda)
-    {
-      block: 'Conservação e consumo',
-      key: 'validade',
-      pdfLabel: 'Validade média',
-      q: 'Qual a validade média dos produtos?',
-      hint: 'Tempo médio que os produtos duram depois de prontos.',
-      type: 'single-choice',
-      options: [
-        { value: '1d',   label: '1 dia' },
-        { value: '2d',   label: '2 dias' },
-        { value: '3d',   label: '3 dias' },
-        { value: '5d',   label: '5 dias' },
-        { value: '7d',   label: '7 dias' },
-        { value: 'mais', label: 'Mais de 7 dias' },
-      ],
-    },
-    {
-      block: 'Conservação e consumo',
-      key: 'instrucoes_especiais',
-      pdfLabel: 'Instruções de consumo',
-      q: 'Existe alguma instrução especial?',
-      hint: 'Cuidados ou dicas pra consumir melhor o produto.',
-      type: 'textarea',
-      placeholder: 'Ex: Retirar da geladeira 30 minutos antes de servir.',
-    },
+    // Removidos (a pedido):
+    //  · bloco "Conservação e consumo" (validade + instruções de consumo)
+    //  · bloco "Pagamento" (formas de pagamento aceitas)
+    //  · bloco "Perguntas frequentes" (perguntas comuns + outras FAQ livres)
 
-    // ===== PARTE 5: PAGAMENTO =====
-    // (reduz atrito no fechamento)
-    {
-      block: 'Pagamento',
-      key: 'pagamento',
-      pdfLabel: 'Formas de pagamento',
-      q: 'Quais formas de pagamento vocês aceitam?',
-      hint: 'Selecione todas que você aceita.',
-      type: 'multi-choice',
-      recommended: true,
-      options: [
-        { value: 'pix',            label: 'Pix' },
-        { value: 'dinheiro',       label: 'Dinheiro' },
-        { value: 'cartao_debito',  label: 'Cartão débito' },
-        { value: 'cartao_credito', label: 'Cartão crédito' },
-        { value: 'parcelamento',   label: 'Parcelamento' },
-      ],
-    },
-
-    // ===== PARTE 6: REGRAS IMPORTANTES =====
+    // ===== PARTE 4: REGRAS IMPORTANTES =====
     // (evita problemas operacionais — checkboxes prontas + campo livre)
     {
       block: 'Regras importantes',
@@ -391,7 +349,7 @@
       otherPlaceholder: 'Escreva outras regras importantes do seu negócio...',
     },
 
-    // ===== PARTE 7: TOM DE VOZ DA MARCA =====
+    // ===== PARTE 5: TOM DE VOZ DA MARCA =====
     // (faz o agente parecer humano e alinhado com a marca)
     {
       block: 'Tom de voz',
@@ -442,39 +400,7 @@
       placeholder: 'Ex: "Bem-vinda à Doce Encanto. Que alegria receber seu contato 💕"',
     },
 
-    // ===== PARTE 8: PERGUNTAS FREQUENTES =====
-    // (acelera respostas automáticas)
-    {
-      block: 'Perguntas frequentes',
-      key: 'perguntas_frequentes',
-      pdfLabel: 'Perguntas mais comuns',
-      q: 'Quais perguntas os clientes mais fazem?',
-      hint: 'Marque as mais comuns — o agente vai preparar respostas pra cada uma.',
-      type: 'multi-choice',
-      recommended: true,
-      options: [
-        { value: 'prazo',         label: 'Prazo de encomenda' },
-        { value: 'sabores',       label: 'Sabores disponíveis' },
-        { value: 'delivery',      label: 'Delivery' },
-        { value: 'frete',         label: 'Frete' },
-        { value: 'pagamento',     label: 'Formas de pagamento' },
-        { value: 'personalizado', label: 'Produtos personalizados' },
-        { value: 'hoje',          label: 'Disponibilidade para hoje' },
-        { value: 'restricoes',    label: 'Opções veganas / sem lactose' },
-        { value: 'desconto',      label: 'Desconto para quantidade' },
-      ],
-    },
-    {
-      block: 'Perguntas frequentes',
-      key: 'faq_outra',
-      pdfLabel: 'Outras perguntas frequentes',
-      q: 'Tem alguma pergunta frequente que não apareceu acima?',
-      hint: 'Pode listar várias — uma por linha. Se não tiver, pode pular.',
-      type: 'textarea',
-      placeholder: 'Ex: Vocês fazem brigadeiros gourmet para casamento?',
-    },
-
-    // ===== PARTE 9: FINALIZAÇÃO =====
+    // ===== PARTE 6: FINALIZAÇÃO =====
     {
       block: 'Finalização',
       key: 'extra_final',
@@ -989,6 +915,11 @@
             '<svg viewBox="0 0 16 16" fill="none"><path d="M8 2v9m0 0l-3-3m3 3l3-3M3 14h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             'Baixar PDF' +
           '</button>' +
+          // Botão "Copiar prompt" — copia o MESMO conteúdo do PDF em texto plano
+          '<button class="wizard-copy" type="button" id="wizard-copy">' +
+            '<svg class="wizard-copy-ico" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1A1.5 1.5 0 0 1 1 9V2.5A1.5 1.5 0 0 1 2.5 1H9a1.5 1.5 0 0 1 1.5 1.5v1" stroke="currentColor" stroke-width="1.4"/></svg>' +
+            '<span class="wizard-copy-label">Copiar prompt</span>' +
+          '</button>' +
           '<button class="wizard-review" type="button" id="wizard-review">Revisar respostas</button>' +
         '</div>' +
         '<p class="wizard-done-aux">Agora envie esse PDF na conversa com o <b>Waz</b> em <b>Assistentes</b>. Ele lê e distribui as informações pra Maky e Fin automaticamente.</p>' +
@@ -1008,6 +939,40 @@
       '</div>';
 
     document.getElementById('wizard-download').addEventListener('click', downloadPDF);
+
+    // Botão "Copiar prompt" — escreve o texto do PDF no clipboard,
+    // com feedback visual ("Copiado ✓") por 1.8s. Fallback execCommand
+    // para HTTP/older browsers onde navigator.clipboard pode falhar.
+    const copyBtn = document.getElementById('wizard-copy');
+    const copyLabel = copyBtn.querySelector('.wizard-copy-label');
+    copyBtn.addEventListener('click', () => {
+      const text = buildPromptText();
+      const flashCopied = () => {
+        copyBtn.classList.add('is-copied');
+        if (copyLabel) copyLabel.textContent = 'Copiado ✓';
+        setTimeout(() => {
+          copyBtn.classList.remove('is-copied');
+          if (copyLabel) copyLabel.textContent = 'Copiar prompt';
+        }, 1800);
+      };
+      const fallbackCopy = () => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); flashCopied(); }
+        catch (_) { alert('Não foi possível copiar — copie manualmente.'); }
+        document.body.removeChild(ta);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(flashCopied, fallbackCopy);
+      } else {
+        fallbackCopy();
+      }
+    });
+
     document.getElementById('wizard-review').addEventListener('click', () => {
       wizardState.completed = false;
       wizardState.currentIndex = 0;
@@ -1066,6 +1031,46 @@
       return label;
     }
     return ans ? String(ans) : '';
+  }
+
+  // ----------------------------------------------------------------
+  //  Gera o MESMO conteúdo do PDF, só que em texto plano copiável.
+  //  Estrutura: header → mini-prompt → blocos com bullets → instruções
+  //  adicionais (placeholders). Pula blocos sem respostas — igual ao PDF.
+  //  Não remove emoji (texto plano aceita; quem não quer emoji pode editar
+  //  depois de colar). Usado pelo botão "Copiar prompt" na tela final.
+  // ----------------------------------------------------------------
+  function buildPromptText() {
+    const lines = [];
+    const today = new Date().toLocaleDateString('pt-BR');
+
+    lines.push('Perfil do Negócio — Gerado pelo Playbook Squad');
+    lines.push('');
+    lines.push('Waz, preciso que siga essas diretrizes para atender os clientes do meu negócio:');
+    lines.push('');
+
+    const blocks = groupQuestionsByBlock();
+    blocks.forEach(block => {
+      const filledRows = block.rows.filter(q => !!formatAnswer(q));
+      if (!filledRows.length) return;                  // pula bloco vazio (igual ao PDF)
+
+      lines.push('## ' + block.name.toUpperCase());
+      filledRows.forEach(q => {
+        const label = q.pdfLabel || q.q;
+        const answer = formatAnswer(q).replace(/\s*\n\s*/g, ' / ');
+        lines.push('• ' + label + ': ' + answer);
+      });
+      lines.push('');
+    });
+
+    // Seção fixa — mesmas duas linhas do final do PDF
+    lines.push('## INSTRUÇÕES ADICIONAIS');
+    lines.push('• Assuntos para me consultar antes de responder: [Deixar em branco para cliente preencher depois]');
+    lines.push('• Outras informações importantes: [Deixar em branco para cliente preencher depois]');
+    lines.push('');
+    lines.push('Gerado em ' + today);
+
+    return lines.join('\n');
   }
 
   // O font padrão do jsPDF não suporta emoji — remove pra não quebrar o texto do PDF
@@ -1550,21 +1555,4 @@
       const content = document.querySelector('.content');
       if (content) ro.observe(content);
     }
-  }
-
-  // ============ FAQ accordion (apenas 1 aberto por vez) ============
-  // O atributo `name=""` no <details> já faz isso nativamente em browsers
-  // modernos (Chrome 120+, Safari 17.4+, Firefox 130+). Este bloco serve
-  // como fallback para garantir o comportamento em qualquer browser:
-  // ao abrir um <details name="X">, fecha todos os outros com mesmo nome.
-  {
-    document.querySelectorAll('details[name]').forEach(d => {
-      d.addEventListener('toggle', () => {
-        if (!d.open) return;                  // só age quando o usuário ABRE um
-        const groupName = d.getAttribute('name');
-        document.querySelectorAll('details[name="' + groupName + '"]').forEach(other => {
-          if (other !== d && other.open) other.open = false;
-        });
-      });
-    });
   }
