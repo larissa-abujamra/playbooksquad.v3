@@ -307,13 +307,20 @@
                     </div>
                   </div>
 
-                  <div class="tutorial-step phone-left">
-                    <div class="tutorial-step-number">3</div>
+                  <!-- Passo 3 do "Waz": número "3" foi movido pra DENTRO do body,
+                       entre .tutorial-step-text e .phone. Com row-reverse no body,
+                       o source [text, number, phone] renderiza [phone, number, text] —
+                       ou seja, o "3" fica à direita do celular, ao lado do texto.
+                       A classe `number-inside` isola os ajustes de espaçamento desse
+                       layout para não afetar o passo 2 do "Manual", que também é phone-left. -->
+                  <div class="tutorial-step phone-left number-inside">
                     <div class="tutorial-step-body">
+
                       <div class="tutorial-step-text">
                         <h4>Envie o arquivo e deixe o Waz trabalhar</h4>
                         <p>Mande o PDF, foto ou planilha direto na conversa. O Waz lê o arquivo, extrai os produtos e cadastra pra você. Depois é só conferir e ajustar se precisar.</p>
                       </div>
+                      <div class="tutorial-step-number">3</div>
                       <div class="phone" aria-hidden="true">
                         <div class="phone-notch"></div>
                         <div class="phone-screen">
@@ -416,7 +423,7 @@
                 <!-- Slide 1: intro + gatilho -->
                 <div class="integration-slide slide-intro">
                   <div class="integration-hero-content">
-                    <h3 class="integration-headline">Agora, vamos conectar<br>seus canais de atendimento.</h3>
+                    <h3 class="integration-headline">Agora, vamos conectar seu WhatsApp.</h3>
                     <p class="integration-body">A integração do WhatsApp Business precisa ser feita junto com nosso time! É rápido, mas tem detalhes técnicos que a gente resolve pra você.</p>
                   </div>
                   <button type="button" class="btn-glow" id="integration-start">
@@ -445,17 +452,13 @@
                     <label class="int-check">
                       <input type="checkbox" class="int-check-box" id="chk-int-1">
                       <span class="int-check-mark" aria-hidden="true"></span>
-                      <span class="int-check-text">Acesso ao Facebook/Meta do seu negócio (email e senha)</span>
+                      <span class="int-check-text">Acesso ao Facebook do seu negócio (email e senha)</span>
                     </label>
-                    <label class="int-check">
-                      <input type="checkbox" class="int-check-box" id="chk-int-2">
-                      <span class="int-check-mark" aria-hidden="true"></span>
-                      <span class="int-check-text">Login e senha da sua conta do Instagram e Meta (perfil comercial)</span>
-                    </label>
+                    
                     <label class="int-check">
                       <input type="checkbox" class="int-check-box" id="chk-int-3">
                       <span class="int-check-mark" aria-hidden="true"></span>
-                      <span class="int-check-text">Documento com foto e CNPJ — pro processo de verificação do número</span>
+                      <span class="int-check-text">Documento CNPJ para o processo de verificação do número</span>
                     </label>
                     <label class="int-check">
                       <input type="checkbox" class="int-check-box" id="chk-int-4">

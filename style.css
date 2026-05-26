@@ -2169,6 +2169,32 @@
   .tutorial-step.phone-left .phone { width: 200px; margin-top: 12px; }
 }
 
+/* ---- Variante: número POSICIONADO entre o phone e o texto ----
+   Aplicada no passo 3 do "Waz" via classe extra .number-inside.
+   Source: [text, number, phone]; render (row-reverse): [phone, number, text].
+   Os ajustes ficam isolados pra não interferir nos outros .phone-left. */
+.tutorial-step.phone-left.number-inside .tutorial-step-body {
+  gap: 18px;                       /* respiro entre phone, número e texto */
+}
+.tutorial-step.phone-left.number-inside .tutorial-step-text {
+  padding-left: 0;                 /* respiro vem do `gap`, não do padding */
+  /* phone (240px) + number (28px) + 2 gaps (36px) = 304px reservado */
+  max-width: calc(100% - 304px);
+}
+@media (max-width: 860px) {
+  .tutorial-step.phone-left.number-inside .tutorial-step-text {
+    /* phone 210 + number 28 + 2 gaps 36 = 274 */
+    max-width: calc(100% - 274px);
+  }
+}
+@media (max-width: 640px) {
+  /* Mobile: empilha [number, text, phone] de cima pra baixo */
+  .tutorial-step.phone-left.number-inside .tutorial-step-body { gap: 8px; }
+  .tutorial-step.phone-left.number-inside .tutorial-step-number { order: 1; }
+  .tutorial-step.phone-left.number-inside .tutorial-step-text   { order: 2; }
+  .tutorial-step.phone-left.number-inside .phone                { order: 3; margin-top: 4px; }
+}
+
 .tutorial-list {
   margin: 8px 0;
   padding-left: 0;
