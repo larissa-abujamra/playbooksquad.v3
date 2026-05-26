@@ -1524,29 +1524,45 @@
     });
   }
 
-  // ============ Personagens espiando (Waz e Maky) alinhados ao .training-cta-block ============
-  // Ficam nas bordas (Waz na sidebar/esquerda, Maky na direita) e rolam junto com a seção.
+  // ============ Personagens espiando (Waz, Maky e Fin) ============
+  // Waz e Fin na esquerda (borda da sidebar), Maky na direita.
+  // Ancorados ao `.training-cta-block` (versões antigas da página) ou,
+  // como fallback, ao `.steps-grid` do novo hub da Etapa 01. Sem esse
+  // fallback os peeks ficavam com top:0 → grudados no topo da tela.
   const wazPeek = document.querySelector('.waz-peek');
   const makyPeek = document.querySelector('.maky-peek');
+  const finPeek = document.querySelector('.fin-peek');
   const peekApp = document.querySelector('.app');
-  const peekCta = document.querySelector('.training-cta-block');
-  if (peekApp && peekCta && (wazPeek || makyPeek)) {
+  const peekAnchor = document.querySelector('.training-cta-block')
+                  || document.querySelector('.steps-grid');
+  if (peekApp && peekAnchor && (wazPeek || makyPeek || finPeek)) {
     const placePeeks = () => {
       const a = peekApp.getBoundingClientRect();
-      const c = peekCta.getBoundingClientRect();
+      const c = peekAnchor.getBoundingClientRect();
       if (!c.height) return; // app escondido / sem layout ainda
       const centerInApp = (c.top - a.top) + c.height / 2;
+      let wazTop = 0;
       if (wazPeek) {
-        wazPeek.style.top = Math.round(centerInApp - wazPeek.offsetHeight / 2) + 'px';
+        wazTop = Math.round(centerInApp - wazPeek.offsetHeight / 2);
+        wazPeek.style.top = wazTop + 'px';
       }
       if (makyPeek) {
         // Maky um pouco acima da linha do Waz
         makyPeek.style.top = Math.round(centerInApp - makyPeek.offsetHeight / 2 - 70) + 'px';
       }
+      if (finPeek) {
+        // Fin logo abaixo do Waz, com leve sobreposição (-30) pra parecerem
+        // um trio empilhado. Fallback para centro+offset se não houver Waz.
+        const finTop = wazPeek
+          ? wazTop + wazPeek.offsetHeight - 30
+          : Math.round(centerInApp + finPeek.offsetHeight / 2 + 20);
+        finPeek.style.top = finTop + 'px';
+      }
     };
     placePeeks();
-    if (wazPeek) wazPeek.addEventListener('load', placePeeks);
+    if (wazPeek)  wazPeek.addEventListener('load', placePeeks);
     if (makyPeek) makyPeek.addEventListener('load', placePeeks);
+    if (finPeek)  finPeek.addEventListener('load', placePeeks);
     window.addEventListener('load', placePeeks);
     window.addEventListener('resize', placePeeks);
     if ('ResizeObserver' in window) {

@@ -2469,16 +2469,38 @@
   position: absolute;
   right: -10px;
   top: 0;
-  width: 165px;
+  width: 175px;
   height: auto;
   pointer-events: none;
   user-select: none;
   z-index: 40;
   filter: drop-shadow(0 8px 18px rgba(0,0,0,0.22));
 }
+/* Fin espiando do mesmo lado que o Waz (esquerda), logo ABAIXO dele.
+   `top` calculado em main.js como `wazTop + wazHeight - 30` para uma
+   leve sobreposição que faz parecer um trio empilhado. */
+.fin-peek {
+  position: absolute;
+  left: calc(var(--sidebar-w) - 24px);   /* 3px mais à esquerda que o Waz */
+  top: 0;
+  width: 185px;          /* ligeiramente menor que o Waz pra dar variação visual */
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  z-index: 39;           /* atrás do Waz quando houver sobreposição */
+  /* `fin.png` é o personagem "inteiro" com fundo branco (não a versão
+     -character recortada). `mix-blend-mode: multiply` faz branco × fundo
+     = fundo, então o branco do PNG some sobre a sidebar (#f0f0f0) e
+     sobre o conteúdo (branco). Preto e cores escuras das sombras
+     são preservadas (preto × X = preto). drop-shadow removido —
+     com multiply ele aplicaria mesmo ao branco antes do blend e cria
+     um halo escuro indesejado em volta do recorte. */
+  mix-blend-mode: multiply;
+}
 @media (max-width: 900px) {
   .waz-peek,
-  .maky-peek { display: none; } /* sidebar some / tela estreita no mobile */
+  .maky-peek,
+  .fin-peek { display: none; } /* sidebar some / tela estreita no mobile */
 }
 
 /* Label discreto acima do botão gigante */
