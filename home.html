@@ -68,77 +68,32 @@
     </section>
 
 
-    <!-- CASES / TESTIMONIALS -->
-    <section class="ov-cases" id="cases">
-      <div class="ov-section-head">
+    <!-- LOGOS — slider infinito de confeitarias que confiam no Squad
+         (substitui a antiga seção de cases/testimonials).
+         O efeito de "progressive blur" das pontas é feito com mask-image
+         em .ov-logos-fade-left/right; o loop é puro CSS via @keyframes
+         ov-logos-scroll na .ov-logos-track, que duplica os logos no HTML
+         para o reinício passar despercebido. -->
+    <section class="ov-logos" id="cases" aria-label="Confeitarias que confiam no Squad">
+      <div class="ov-section-head ov-logos-head">
         <div>
           <div class="ov-eyebrow">Cases</div>
-          <h2>Confeitarias que já usam o Squad.</h2>
+          <h2>Confeitarias que confiam no Squad.</h2>
         </div>
-        <p>Clique pra ler a história completa.</p>
       </div>
 
-      <div class="testimonials-row">
-
-        <!-- Card 1: Brigadayros -->
-        <button class="tcard" data-index="0" aria-label="Ler depoimento da Brigadayros">
-          <div class="tcard-inner">
-            <div class="tcard-accent" style="background: #2DB67D;"></div>
-            <div class="tcard-photo">
-              <img src="imgs/brigadayros.png" alt="Brigadayros" />
-            </div>
-            <p class="tcard-quote">"Antes do Squad, eu passava 4 horas por dia só respondendo WhatsApp. Agora o Waz cuida de tudo..."</p>
-            <p class="tcard-name">Brigadayros.</p>
-            <p class="tcard-role">Confeitaria artesanal</p>
-          </div>
-        </button>
-
-        <!-- Card 2: Doguh -->
-        <button class="tcard" data-index="1" aria-label="Ler depoimento da Doguh Confeitaria">
-          <div class="tcard-inner">
-            <div class="tcard-accent" style="background: #E91E8C;"></div>
-            <div class="tcard-photo">
-              <img src="imgs/doguh.png" alt="Doguh Confeitaria" />
-            </div>
-            <p class="tcard-quote">"A Maky mudou meu Instagram completamente. Eu não tinha tempo pra criar conteúdo e postava uma vez..."</p>
-            <p class="tcard-name">Doguh Confeitaria.</p>
-            <p class="tcard-role">Doces finos & bolos</p>
-          </div>
-        </button>
-
-        <!-- Card 3: Oito Oitenta -->
-        <button class="tcard" data-index="2" aria-label="Ler depoimento da Oito Oitenta Cookies">
-          <div class="tcard-inner">
-            <div class="tcard-accent" style="background: #2563EB;"></div>
-            <div class="tcard-photo">
-              <img src="imgs/oitooitenta.png" alt="Oito Oitenta Cookies" />
-            </div>
-            <p class="tcard-quote">"O Fin me salvou. Eu não sabia quanto tava lucrando de verdade porque não controlava nada..."</p>
-            <p class="tcard-name">Oito Oitenta.</p>
-            <p class="tcard-role">Cookies artesanais</p>
-          </div>
-        </button>
-
-      </div>
-
-      <!-- Overlay expandido (escondido por padrão) -->
-      <div class="tcard-overlay" id="tcard-overlay" role="dialog" aria-modal="true" aria-labelledby="tcard-o-name" aria-hidden="true">
-        <div class="tcard-overlay-backdrop"></div>
-        <div class="tcard-overlay-content" id="tcard-overlay-content">
-          <button class="tcard-overlay-close" id="tcard-close" aria-label="Fechar">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-          <p class="tcard-overlay-role" id="tcard-o-role"></p>
-          <p class="tcard-overlay-name" id="tcard-o-name"></p>
-          <div class="tcard-overlay-body">
-            <svg class="tcard-overlay-quotemark" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M10 11H6C6 7.686 8.686 5 12 5V7C9.79 7 8 8.79 8 11H10V17H4V11H10ZM22 11H18C18 7.686 20.686 5 24 5V7C21.79 7 20 8.79 20 11H22V17H16V11H22Z" fill="currentColor"/>
-            </svg>
-            <p class="tcard-overlay-text" id="tcard-o-text"></p>
-          </div>
-          <div class="tcard-overlay-result" id="tcard-o-result"></div>
+      <div class="ov-logos-viewport">
+        <div class="ov-logos-track" role="list">
+          <!-- 1ª passada -->
+          <div class="ov-logo-item" role="listitem"><img src="imgs/brigadayros.png" alt="Brigadayros" /></div>
+          <div class="ov-logo-item" role="listitem"><img src="imgs/cookiesnola.png" alt="Cookies Nola" /></div>
+          <div class="ov-logo-item" role="listitem"><img src="imgs/oitooitenta.png" alt="Oito Oitenta" /></div>
+          <div class="ov-logo-item" role="listitem"><img src="imgs/doguh.png" alt="Doguh Confeitaria" /></div>
+          <!-- 2ª passada (clone, aria-hidden p/ leitores de tela não duplicarem) -->
+          <div class="ov-logo-item" role="listitem" aria-hidden="true"><img src="imgs/brigadayros.png" alt="" /></div>
+          <div class="ov-logo-item" role="listitem" aria-hidden="true"><img src="imgs/cookiesnola.png" alt="" /></div>
+          <div class="ov-logo-item" role="listitem" aria-hidden="true"><img src="imgs/oitooitenta.png" alt="" /></div>
+          <div class="ov-logo-item" role="listitem" aria-hidden="true"><img src="imgs/doguh.png" alt="" /></div>
         </div>
       </div>
     </section>
