@@ -2688,6 +2688,7 @@
   padding: 12px 20px;
   border-radius: 10px;
   cursor: pointer;
+  text-decoration: none;   /* funciona pra <button> e também pra <a> (sem sublinhado) */
   transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .page-prev {

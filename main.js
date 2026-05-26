@@ -992,6 +992,19 @@
           '<button class="wizard-review" type="button" id="wizard-review">Revisar respostas</button>' +
         '</div>' +
         '<p class="wizard-done-aux">Agora envie esse PDF na conversa com o <b>Waz</b> em <b>Assistentes</b>. Ele lê e distribui as informações pra Maky e Fin automaticamente.</p>' +
+        // (NOVO) Navegação Anterior/Próximo no fim do wizard:
+        // - Anterior: fecha o wizard e volta pra Etapa 01 (hub "Treine seus agentes")
+        // - Próximo:  fecha o wizard e leva pra restricoes.html ("Defina as restrições")
+        '<div class="page-nav">' +
+          '<button class="page-prev" type="button" id="wizard-done-prev">' +
+            '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            'Anterior' +
+          '</button>' +
+          '<button class="page-next" type="button" id="wizard-done-next">' +
+            'Próximo' +
+            '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</button>' +
+        '</div>' +
       '</div>';
 
     document.getElementById('wizard-download').addEventListener('click', downloadPDF);
@@ -1000,6 +1013,14 @@
       wizardState.currentIndex = 0;
       wizardSave();
       renderQuestion(0, 'back');
+    });
+    // Handlers dos botões Anterior/Próximo da tela final
+    document.getElementById('wizard-done-prev').addEventListener('click', () => {
+      wizardClose();                              // só fecha o wizard — fica no hub da Etapa 01
+    });
+    document.getElementById('wizard-done-next').addEventListener('click', () => {
+      wizardClose();
+      window.location.href = 'restricoes.html';   // vai pro Passo 02
     });
     wizardCard.querySelectorAll('button[data-edit]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1186,14 +1207,21 @@
   if (wizardCloseBtn) wizardCloseBtn.addEventListener('click', wizardClose);
   if (wizardSkipBtn) wizardSkipBtn.addEventListener('click', skip);
 
-  // Sub-itens da sidebar ("Tom de voz", "Restrições") abrem o wizard direto
-  // na pergunta correspondente — definida pelo atributo data-wiz-key.
+  // Abre o wizard automaticamente quando a URL chega com #wizard
+  // (vindo, por ex., do botão "Anterior" em restricoes.html -> setup.html#wizard)
+  if (wizard && location.hash === '#wizard') {
+    history.replaceState(null, '', location.pathname);  // limpa o hash pra não reabrir no F5
+    wizardOpen();
+  }
+
+  // Sub-itens da sidebar com data-wiz-key (ex.: "Tom de voz") abrem o wizard
+  // SEMPRE na primeira pergunta — não no meio. O usuário vê a intro da seção
+  // "Sobre seu negócio" e segue dali. O data-wiz-key fica só como referência
+  // semântica de qual tópico motivou o clique.
   document.querySelectorAll('.sidebar a[data-wiz-key]').forEach(a => {
     a.addEventListener('click', (ev) => {
       ev.preventDefault();
-      const idx = wizardQuestions.findIndex(q => q.key === a.dataset.wizKey);
-      if (idx < 0) return;
-      wizardState.currentIndex = idx;
+      wizardState.currentIndex = 0;
       wizardState.completed = false;
       wizardSave();                 // persiste antes de abrir (wizardOpen lê do storage)
       wizardOpen();
