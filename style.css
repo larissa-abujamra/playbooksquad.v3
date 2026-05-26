@@ -37,11 +37,22 @@
     --r: 12px;
   }
 
+  /* Registra um custom-property tipado para que o ângulo do conic-gradient
+     usado no glow animado dos step-cards possa ser *interpolado* pela
+     engine de animação. Sem @property o browser trata var() como string
+     opaca e a animação fica em 0deg eterno. Inherits=true para que os
+     pseudo-elementos consumam o valor que o .step-card está animando. */
+  @property --step-glow-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: true;
+  }
+
   *, *::before, *::after { box-sizing: border-box; }
   html { scroll-behavior: smooth; overflow-x: clip; }
   body {
     margin: 0;
-    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Fustat', system-ui, -apple-system, sans-serif;
     background: var(--bg);
     color: var(--ink);
     font-size: 16px;
@@ -52,9 +63,9 @@
   }
   a { color: inherit; }
   button { font: inherit; cursor: pointer; }
-  h1, h2, h3, h4 { margin: 0; font-family: 'DM Sans', sans-serif; letter-spacing: -0.02em; }
+  h1, h2, h3, h4 { margin: 0; font-family: 'Fustat', sans-serif; letter-spacing: -0.02em; }
   p { margin: 0; }
-  code { font-family: 'DM Mono', ui-monospace, monospace; }
+  code { font-family: 'Fustat', ui-monospace, monospace; }
 
   /* ---------- App shell ---------- */
   .app {
@@ -85,13 +96,13 @@
   }
   .sidebar .brand-sub {
     padding: 0 10px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
     font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
     color: var(--ink-3); margin-bottom: 22px;
   }
   .sidebar .label {
     padding: 0 12px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
     font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
     color: var(--ink-3); font-weight: 500;
     margin: 20px 0 8px;
@@ -250,7 +261,7 @@
     display: inline-flex; align-items: center; gap: 6px;
     padding: 4px 10px; border-radius: 999px;
     background: var(--bg-2); border: 1px solid var(--line);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
     font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
     color: var(--ink-2);
   }
@@ -264,7 +275,7 @@
   }
   @media (max-width: 900px) { .section { scroll-margin-top: 72px; } }
   .section-eyebrow {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
     font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
     color: var(--ink-3); margin-bottom: 10px;
   }
@@ -356,7 +367,7 @@
   }
   .task-main { min-width: 0; }
   .task .meta {
-    font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-3);
+    font-family: 'Fustat', monospace; font-size: 11px; color: var(--ink-3);
     letter-spacing: .06em; margin-top: 2px;
   }
   .details-inner { padding-top: 10px; }
@@ -476,13 +487,27 @@
   /* Phone toggle button: oculto no desktop por padrão */
   .phone-toggle { display: none; }
 
-  /* Brand (logo): shared gradient dot + hover, used in sidebar, mobile header and overview nav */
-  .brand { transition: opacity .15s ease; }
+  /* Brand (logo): agora é uma imagem (squad.png — wordmark completo).
+     Antes era um "dot" gradiente + texto "squad.com" em sans-serif.
+     Tamanhos contextuais ficam abaixo, em cada uso de .brand. */
+  .brand { transition: opacity .15s ease; display: inline-flex; align-items: center; }
   .brand:hover { opacity: .7; }
-  .brand .dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--maky), var(--fin) 55%, var(--waz));
+  .brand .brand-logo {
+    display: block;
+    width: auto;
+    /* tamanho default; sobrescrito por contexto (sidebar/mobile/ov-nav) */
+    height: 20px;
+    object-fit: contain;
+    /* O squad.png tem fundo branco. multiply faz branco × qualquer-cor = a-cor-de-baixo,
+       então o fundo do PNG "vira" o background do container (#f0f0f0 no sidebar,
+       branco no mobile-header e na hero — onde fica no-op visual). O traço preto do
+       wordmark é preservado (preto × X = preto). */
+    mix-blend-mode: multiply;
   }
+  /* Tamanhos por contexto — proporcionais ao font-size que estava em cada .brand */
+  .sidebar       .brand .brand-logo { height: 22px; }
+  .mobile-header .brand .brand-logo { height: 18px; }
+  .ov-nav        .brand .brand-logo { height: 24px; }
 
   /* ---------- Mobile: phone mockup escondido com toggle ---------- */
   @media (max-width: 900px) {
@@ -731,7 +756,7 @@
   }
 
   .ov-eyebrow {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
     font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
     color: var(--ink-3);
     display: inline-flex; align-items: center; gap: 8px;
@@ -831,7 +856,7 @@
     letter-spacing: 0.1em;
     color: rgba(255, 255, 255, 0.4);
     margin-bottom: 12px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
   }
 
   /* ---------- Wizard (treinamento guiado, full-screen overlay) ---------- */
@@ -898,7 +923,7 @@
     transition: width .4s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .wizard-progress-text {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
     font-size: 12px;
     color: var(--ink-3);
     letter-spacing: .04em;
@@ -951,7 +976,7 @@
   }
 
   .wizard-eyebrow {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
     font-size: 11px;
     letter-spacing: .14em;
     text-transform: uppercase;
@@ -1031,7 +1056,7 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--ink-3);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
   }
   .wizard-section-title {
     font-size: 28px;
@@ -1087,7 +1112,7 @@
     color: var(--ink-2);
     cursor: pointer;
     transition: border-color 0.15s ease, background 0.15s ease;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Fustat', sans-serif;
   }
   .wizard-chip:hover {
     border-color: var(--ink-3);
@@ -1338,7 +1363,7 @@
   .wizard-summary-block { padding: 8px 0; }
   .wizard-summary-block + .wizard-summary-block { border-top: 1px solid var(--line); }
   .wizard-summary-eyebrow {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
     font-size: 10px;
     letter-spacing: .12em;
     text-transform: uppercase;
@@ -1358,7 +1383,7 @@
   .wizard-summary-row .edit { grid-column: 2; align-self: start; padding-top: 2px; }
   .wizard-summary-row .edit {
     background: none; border: none; padding: 0 0 0 8px;
-    font-family: 'DM Mono', monospace; font-size: 11px;
+    font-family: 'Fustat', monospace; font-size: 11px;
     color: var(--ink-3); cursor: pointer;
   }
   .wizard-summary-row .edit:hover { color: var(--ink); }
@@ -1652,7 +1677,7 @@
     font-size: 13px;
     color: rgba(255, 255, 255, 0.45);
     margin: 2px 0 0;
-    font-family: 'DM Mono', monospace;
+    font-family: 'Fustat', monospace;
     letter-spacing: 0.02em;
   }
   @media (max-width: 640px) {
@@ -1983,7 +2008,7 @@
 /* Tempo estimado */
 .situation-opt-time {
   font-size: 11px;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fustat', monospace;
   color: var(--ink-3);
   letter-spacing: 0.02em;
   margin-top: auto;
@@ -2022,7 +2047,7 @@
   padding: 8px 0;
   margin-top: 8px;
   transition: color 0.15s ease;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Fustat', sans-serif;
 }
 
 .situation-switch:hover {
@@ -2148,7 +2173,7 @@
   padding: 2px 6px;
   border-radius: 4px;
   margin-left: 4px;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fustat', monospace;
   vertical-align: middle;
 }
 
@@ -2326,7 +2351,7 @@
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fustat', monospace;
   color: #8B5CF6;
 }
 
@@ -2720,7 +2745,7 @@
 .waz-modal-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 4px; }
 .waz-modal-sub { font-size: 14px; color: var(--ink-2); margin: 0 0 16px; }
 .waz-modal-text {
-  font-family: 'DM Mono', ui-monospace, monospace;
+  font-family: 'Fustat', ui-monospace, monospace;
   font-size: 13px;
   line-height: 1.6;
   color: var(--ink);
@@ -2750,6 +2775,19 @@
 @media (max-width: 760px) {
   .steps-grid { grid-template-columns: 1fr; }   /* empilha no mobile */
 }
+/* ------------------------------------------------------------
+   Step-cards com BRILHO ANIMADO nas bordas no hover.
+   Técnica "gradient border via mask-composite":
+     - `::after` é uma camada do tamanho do card +2px em volta
+     - background = conic-gradient(maky → waz → fin → maky) que
+       gira porque --step-glow-angle (registrado via @property) é
+       animado pelo .step-card e herdado pelo pseudo
+     - dois mask layers (`content-box` + caixa cheia) com
+       `mask-composite: exclude` recortam o miolo, deixando só
+       uma moldura de 2px visível
+   O glow radial interno (rosa/azul) que vivia no antigo ::before
+   foi movido para o `background:` multi-layer do .step-card.
+   ------------------------------------------------------------ */
 .step-card {
   display: flex;
   flex-direction: column;
@@ -2757,27 +2795,70 @@
   padding: 28px 26px;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: var(--bg);
+  background:
+    radial-gradient(80% 80% at 0% 0%, color-mix(in oklab, var(--maky) 5%, transparent), transparent 55%),
+    radial-gradient(80% 80% at 100% 100%, color-mix(in oklab, var(--fin) 5%, transparent), transparent 55%),
+    var(--bg);
   position: relative;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  /* overflow:hidden removido — a moldura precisa extravasar via inset:-2px */
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  /* Animação fica SEMPRE atribuída ao card, pausada até o hover.
+     Hover só troca o play-state, evitando "saltos" no reinício. */
+  animation: step-card-glow-spin 2s linear infinite paused;
 }
+
+/* A moldura colorida animada — efeito "cometa":
+   ~3/4 do conic é transparente; só um arco de ~120° tem cor, com
+   pico em #fff bem no meio. Como o ângulo (--step-glow-angle)
+   roda, o arco varre o perímetro e parece um "ponto brilhante"
+   percorrendo a borda do card. */
+.step-card::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;           /* radius do card (16) + inset (2) */
+  padding: 2px;                  /* espessura da moldura */
+  background: conic-gradient(
+    from var(--step-glow-angle),
+    transparent 0deg,
+    transparent 240deg,           /* 2/3 do perímetro sem nada */
+    var(--maky)   295deg,         /* entrada do "cometa" */
+    #395ff5       325deg,         /* núcleo brilhante (o "ponto forte") */
+    var(--waz)    350deg,         /* cauda saindo */
+    transparent   360deg
+  );
+  /* mask: tira o miolo (content-box) e mantém só o "anel" do padding */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+          mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
 .step-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
-  border-color: var(--ink-3);
+  border-color: var(--ink-3);    /* borda sutil no resto do perímetro,
+                                    enquanto o cometa não está passando */
+  animation-play-state: running;
 }
-/* Glow sutil de fundo (idêntico ao restante do produto) */
-.step-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(80% 80% at 0% 0%, color-mix(in oklab, var(--maky) 5%, transparent), transparent 55%),
-    radial-gradient(80% 80% at 100% 100%, color-mix(in oklab, var(--fin) 5%, transparent), transparent 55%);
-  pointer-events: none;
+.step-card:hover::after { opacity: 1; }
+
+@keyframes step-card-glow-spin {
+  to { --step-glow-angle: 360deg; }
 }
-.step-card > * { position: relative; z-index: 1; }
+
+/* Acessibilidade — desliga a rotação para quem pediu menos movimento.
+   A moldura colorida ainda aparece no hover, só não roda. */
+@media (prefers-reduced-motion: reduce) {
+  .step-card { animation: none; }
+}
 .step-icon {
   width: 52px;
   height: 52px;
@@ -2791,7 +2872,7 @@
 }
 .step-icon svg { display: block; }
 .step-num {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fustat', monospace;
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
