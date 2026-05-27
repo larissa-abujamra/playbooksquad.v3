@@ -83,10 +83,10 @@
         <article class="tip-block" id="tip-imagens">
           <div class="tip-eyebrow">Dica 01</div>
           <h2 class="tip-title">Adicionando imagens aos seus produtos</h2>
-          <p class="tip-desc">Produtos com foto vendem muito mais. O cliente decide em segundos no WhatsApp, e uma boa imagem responde antes mesmo da pergunta. Pra cada produto cadastrado, é só anexar uma foto direto no app — Squad &gt; Produtos e Serviços &gt; toque no produto &gt; adicionar foto.</p>
-
-          <!-- Comparativo visual com vs sem foto -->
-          <div class="tip-example tip-example-compare" aria-label="Comparativo: produto sem foto vs com foto">
+          <p class="tip-desc">Produtos com foto vendem muito mais. O cliente decide em segundos no WhatsApp, e uma boa imagem responde antes mesmo da pergunta. O processo no app é rápido — veja o passo a passo abaixo.</p>
+        
+           <!-- Comparativo visual com vs sem foto -->
+           <div class="tip-example tip-example-compare" aria-label="Comparativo: produto sem foto vs com foto">
             <div class="tip-example-card tip-example-card--bad">
               <div class="tip-example-tag">Sem foto</div>
               <div class="tip-example-thumb tip-example-thumb--empty" aria-hidden="true">
@@ -96,32 +96,77 @@
                   <path d="M21 17l-5-5-4 4-3-3-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
-              <div class="tip-example-name">Bolo Red Velvet</div>
-              <div class="tip-example-price">R$ 90</div>
+              <div class="tip-example-name">Bolo Chocolate com Calda</div>
+              <div class="tip-example-price">R$ 120</div>
             </div>
             <div class="tip-example-card tip-example-card--good">
               <div class="tip-example-tag tip-example-tag--good">Com foto</div>
               <div class="tip-example-thumb">
                 <img src="imgs/bolo.png" alt="Foto do Bolo Red Velvet" />
               </div>
-              <div class="tip-example-name">Bolo Red Velvet</div>
-              <div class="tip-example-price">R$ 90</div>
+              <div class="tip-example-name">Bolo Chocolate com Calda</div>
+              <div class="tip-example-price">R$ 120</div>
             </div>
           </div>
 
-          <ul class="tip-list">
-            <li>Use foto do <strong>produto real</strong>, feita por você. Foto de banco de imagens entrega que não é seu.</li>
-            <li>Luz natural perto da janela é melhor que flash.</li>
-            <li>Fundo neutro (uma toalha clara, uma tábua de madeira) destaca o produto.</li>
-            <li>Vertical (formato celular) funciona melhor que horizontal no WhatsApp.</li>
-          </ul>
+          <!-- Passo a passo de adicionar foto no app, com vídeo no último passo
+               (mostra o fluxo todo até o check de confirmação).
+               Mesmo padrão dos tutoriais da Etapa 02: `.tutorial-step` simples
+               nos passos sem vídeo; `.tutorial-step.phone-left.number-inside`
+               no último, com o frame de celular mock à esquerda. -->
+          <h3 class="tip-subtitle">Como fazer no app</h3>
+          <div class="tutorial-steps">
 
-          <a class="tip-more" href="https://blog.squad.com/imagens-de-produtos" target="_blank" rel="noopener">
-            Saiba mais sobre fotos que vendem
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8h9M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-        </article>
+            <div class="tutorial-step">
+              <div class="tutorial-step-number">1</div>
+              <div class="tutorial-step-body">
+                <h4>Clique no produto</h4>
+                <p>Na aba <strong>Produtos e Serviços</strong>, toque no produto que você quer adicionar foto.</p>
+              </div>
+            </div>
 
+            <div class="tutorial-step">
+              <div class="tutorial-step-number">2</div>
+              <div class="tutorial-step-body">
+                <h4>Clique em "Editar produto"</h4>
+                <p>Vai abrir a tela com todos os dados do produto: nome, preço, descrição e a área da foto.</p>
+              </div>
+            </div>
+
+            <div class="tutorial-step">
+              <div class="tutorial-step-number">3</div>
+              <div class="tutorial-step-body">
+                <h4>Selecione a foto desejada</h4>
+                <p>Toque no espaço da foto e escolha uma imagem da galeria do celular ou tire uma na hora.</p>
+              </div>
+            </div>
+
+            <!-- Último passo: vídeo do fluxo completo no frame de celular.
+                 phone-left renderiza [phone, number, text] (row-reverse). -->
+            <div class="tutorial-step phone-left number-inside">
+              <div class="tutorial-step-body">
+                <div class="tutorial-step-text">
+                  <h4>Confirme no check</h4>
+                  <p>Clique no ✓ no topo da tela pra salvar. A foto já aparece pros clientes na próxima conversa que o Waz puxar esse produto.</p>
+                </div>
+                <div class="tutorial-step-number">4</div>
+                <div class="phone" aria-hidden="true">
+                  <div class="phone-notch"></div>
+                  <div class="phone-screen">
+                    <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
+                    <div class="phone-body has-shot">
+                      <video class="phone-shot" autoplay loop muted playsinline preload="metadata">
+                        <source src="./imgs/fotoprod.mov.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+         
         <!-- =============== DICA 2: VARIAÇÕES =============== -->
         <article class="tip-block" id="tip-variacoes">
           <div class="tip-eyebrow">Dica 02</div>
