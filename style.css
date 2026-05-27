@@ -2218,8 +2218,16 @@
   }
 }
 @media (max-width: 640px) {
-  /* Mobile: empilha [number, text, phone] de cima pra baixo */
-  .tutorial-step.phone-left.number-inside .tutorial-step-body { gap: 8px; }
+  /* Mobile: empilha [number, text, phone] de cima pra baixo.
+     IMPORTANTE: o `max-width: calc(100% - 274px)` definido na regra de
+     860px continua aplicado aqui (seletor com 3 classes vence o reset
+     `max-width: 100%` do .phone-left). Precisamos resetar explicitamente
+     — sem isso o texto fica espremido em ~100px no mobile. */
+  .tutorial-step.phone-left.number-inside .tutorial-step-body { gap: 12px; }
+  .tutorial-step.phone-left.number-inside .tutorial-step-text {
+    max-width: 100%;
+    width: 100%;
+  }
   .tutorial-step.phone-left.number-inside .tutorial-step-number { order: 1; }
   .tutorial-step.phone-left.number-inside .tutorial-step-text   { order: 2; }
   .tutorial-step.phone-left.number-inside .phone                { order: 3; margin-top: 4px; }
