@@ -34,9 +34,10 @@
     <a class="nav-link" href="#page-2">Monte seu catálogo</a>
     <a class="nav-link" href="#page-3">Integrações</a>
     <ul class="nav-subsections">
-      <li><a href="#int-instagram">Instagram</a></li>
-      <li><a href="#int-pagamento">Links de Pagamento</a></li>
-      <li><a href="#integration-hero">WhatsApp</a></li>
+      <!-- Apenas Instagram fica como sub-item: é a única integração que o
+           usuário faz sozinho. WhatsApp e Links de Pagamento são configurados
+           na call com nosso time (cobertos pelo bloco "Próximos passos"). -->
+      <li><a href="#int-instagram">Conecte seu Instagram</a></li>
     </ul>
   
 
@@ -347,9 +348,11 @@
           <div class="stage" id="stage-3">
             <div class="section-eyebrow">Etapa 03</div>
             <h1>Integrações</h1>
-          
+            <p class="stage-intro">Você só precisa conectar o Instagram aqui. As outras integrações (WhatsApp Business e links de pagamento) a gente resolve junto na call de integração — são mais técnicas e o nosso time te guia em ~20 minutos.</p>
 
-
+            <!-- Conecte seu Instagram — única integração feita pelo usuário sozinho.
+                 Tudo o mais (WhatsApp + pagamento) foi consolidado no bloco
+                 .integracao-proximos-passos no fim desta seção. -->
             <div class="check-block">
               <div class="task" id="int-instagram">
                 <div class="task-row with-phone">
@@ -357,8 +360,14 @@
                     <div class="task-text">Conecte seu Instagram</div>
                     <div class="details" id="d-3-1">
                       <div class="details-inner">
-                        <p>Abra o app Squad, vá nas configurações (ícone de engrenagem) e toque em <strong>Redes Sociais &gt; Instagram</strong>. Siga as instruções na tela pra conectar.</p>
-                        <p style="margin-top: 8px;">Você vai precisar do <strong>login do Facebook</strong> conectado ao Instagram. Se tiver dificuldade, não se preocupe, a gente resolve isso na call de integração.</p>
+                        <p>Abra o app Squad, toque no ícone de engrenagem (configurações) e entre em <strong>Redes Sociais &gt; Instagram</strong>. Siga as instruções na tela pra autorizar a conexão.</p>
+                        <p style="margin-top: 10px;">Antes de começar, confira se:</p>
+                        <ul class="tutorial-list" style="margin: 8px 0 12px;">
+                          <li>Sua conta do Instagram é <strong>profissional (Business ou Creator)</strong>. Conta pessoal não conecta.</li>
+                          <li>O Instagram está <strong>vinculado a uma página do Facebook</strong> que você administra.</li>
+                          <li>Você tem em mãos o <strong>login do Facebook</strong> (email e senha).</li>
+                        </ul>
+                        <p style="color: var(--ink-3); font-size: 13px;">Travou em algum passo? Sem stress — a gente revisa isso na call de integração.</p>
                       </div>
                     </div>
                   </div>
@@ -375,34 +384,15 @@
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div class="task" id="int-pagamento">
-                <div class="task-row with-phone">
-                  <div class="task-main">
-                    <div class="task-text">Configure seus dados de pagamento</div>
-                    <div class="details" id="d-3-2">
-                      <div class="details-inner">
-                        <p>Na tela inicial, clique em <strong>modulos, link de pagamento</strong> e <strong>configurar dados de recebimento</strong>. Assim o Fin consegue gerar links de pagamento e mandá-los direto para os seus clientes.</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="task-phone-wrap">
-                    <div class="phone" aria-hidden="true">
-                      <div class="phone-notch"></div>
-                      <div class="phone-screen">
-                        <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
-                        <div class="phone-body has-shot">
-                          <img class="phone-shot" src="./imgs/linkdepagamento.png" alt="Tela de configuração de pagamentos">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-
+            <!-- Banner dark de agendar call (restaurado).
+                 Copy ATUALIZADO: agora cobre WhatsApp + links de pagamento
+                 (Instagram virou self-service, fica fora). O fluxo continua
+                 igual: clica no gatilho → faz swipe pro checklist → quando
+                 tudo está marcado, libera o botão de agendar. -->
             <div class="integration-hero" id="integration-hero">
-              <span class="training-eyebrow">Etapa 03 - Parte 2</span>
+              <span class="training-eyebrow">Etapa 03 · Parte 2</span>
               <div class="integration-hero-glow" aria-hidden="true"></div>
 
               <div class="integration-stage" id="integration-stage">
@@ -410,8 +400,8 @@
                 <!-- Slide 1: intro + gatilho -->
                 <div class="integration-slide slide-intro">
                   <div class="integration-hero-content">
-                    <h3 class="integration-headline">Agora, vamos conectar seu WhatsApp.</h3>
-                    <p class="integration-body">A integração do WhatsApp Business precisa ser feita junto com nosso time! É rápido, mas tem detalhes técnicos que a gente resolve pra você.</p>
+                    <h3 class="integration-headline">Falta pouco. Vamos conectar WhatsApp e pagamentos juntos.</h3>
+                    <p class="integration-body">Essas duas integrações têm detalhes técnicos que o nosso time resolve com você em ~20 minutos. Você já conectou o Instagram sozinha — agora é só agendar a call e a gente cuida do resto.</p>
                   </div>
                   <button type="button" class="btn-glow" id="integration-start">
                     <span class="btn-glow-bg"></span>
@@ -439,18 +429,22 @@
                     <label class="int-check">
                       <input type="checkbox" class="int-check-box" id="chk-int-1">
                       <span class="int-check-mark" aria-hidden="true"></span>
-                      <span class="int-check-text">Acesso a uma conta de Facebook (email e senha)</span>
+                      <span class="int-check-text">Acesso a uma conta de Facebook (email e senha) — pro WhatsApp Business</span>
                     </label>
-                    
+                    <label class="int-check">
+                      <input type="checkbox" class="int-check-box" id="chk-int-2">
+                      <span class="int-check-mark" aria-hidden="true"></span>
+                      <span class="int-check-text">WhatsApp Business instalado no celular</span>
+                    </label>
                     <label class="int-check">
                       <input type="checkbox" class="int-check-box" id="chk-int-3">
                       <span class="int-check-mark" aria-hidden="true"></span>
-                      <span class="int-check-text">Documento CNPJ para o processo de verificação do número</span>
+                      <span class="int-check-text">CNPJ em mãos pra verificação do número</span>
                     </label>
                     <label class="int-check">
                       <input type="checkbox" class="int-check-box" id="chk-int-4">
                       <span class="int-check-mark" aria-hidden="true"></span>
-                      <span class="int-check-text">Seu catálogo e tom de voz já configurados (Etapas 1 e 2)</span>
+                      <span class="int-check-text">Dados bancários (Pix/conta) pra configurar os links de pagamento</span>
                     </label>
                   </div>
                   <a href="https://wa.me/SEUNUMERO" target="_blank" rel="noopener" class="btn-glow integration-schedule is-locked" id="integration-schedule">
@@ -472,9 +466,6 @@
 
               </div>
             </div>
-            </div>
-
-         
 
           </div>
           <div class="page-nav">

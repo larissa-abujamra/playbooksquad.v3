@@ -1417,6 +1417,9 @@
 
 
   // ============ Fluxo de integração (Etapa 3): intro -> checklist -> agendar ============
+  // Banner dark com 2 slides: 1) intro com gatilho; 2) checklist que libera o
+  // botão de agendar quando todos os itens estiverem marcados. Atualmente
+  // cobre WhatsApp + links de pagamento (Instagram é self-service acima).
   const intStage = document.getElementById('integration-stage');
   if (intStage) {
     const introSlide = intStage.querySelector('.slide-intro');
