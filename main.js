@@ -215,7 +215,7 @@
       pdfLabel: 'Horário',
       // (alteração #4) — sem options, só campo de texto livre
       q: 'Quais são os dias e horários de funcionamento?',
-      hint: 'Pode ser detalhado — dias diferentes, horários diferentes, exceções.',
+      hint: 'Pode ser detalhado: dias diferentes, horários diferentes, exceções.',
       type: 'text',
       placeholder: 'Ex: seg-sex das 9h-18h, sab-dom das 9h-14h',
     },
@@ -224,7 +224,7 @@
       key: 'localizacao',
       pdfLabel: 'Localização',
       q: 'Onde fica seu negócio?',
-      hint: 'Bairro e cidade — e onde você atende, se faz entrega.',
+      hint: 'Bairro e cidade, e onde você atende, se faz entrega.',
       type: 'text',
       placeholder: 'Ex: Vila Mariana, São Paulo. Delivery pra Zona Sul.',
     },
@@ -284,7 +284,7 @@
       q: 'Qual o produto mais vendido?',
       hint: 'Conte o nome, a faixa de preço e o diferencial.',
       type: 'textarea',
-      placeholder: 'Ex: Bolo Red Velvet — R$ 90 a R$ 120. Cobertura de cream cheese feita na hora, muito pedido pra aniversário.',
+      placeholder: 'Ex: Bolo Red Velvet (R$ 90 a R$ 120). Cobertura de cream cheese feita na hora, muito pedido pra aniversário.',
     },
 
     // (alteração #8) — bloco inteiro "Regras importantes" foi REMOVIDO.
@@ -304,7 +304,7 @@
         { value: 'casual',    label: 'Casual e descontraído',
           desc: 'Conversa leve e amigável, como entre amigos. Linguagem simples e próxima do dia a dia.' },
         { value: 'afetuoso',  label: 'Afetuoso e acolhedor',
-          desc: 'Tom carinhoso e cuidadoso. Faz a cliente se sentir querida — bom pra marcas com clima de casa.' },
+          desc: 'Tom carinhoso e cuidadoso. Faz a cliente se sentir querida. Bom pra marcas com clima de casa.' },
         { value: 'elegante',  label: 'Elegante e sofisticado',
           desc: 'Tom premium e refinado. Vocabulário cuidado, ideal pra marcas mais exclusivas.' },
         { value: 'atencioso', label: 'Atencioso e prestativo',
@@ -316,7 +316,7 @@
       key: 'emojis',
       pdfLabel: 'Uso de emojis',
       q: 'O agente deve usar emojis?',
-      hint: 'Emojis deixam a conversa mais leve — mas nem toda marca combina.',
+      hint: 'Emojis deixam a conversa mais leve, mas nem toda marca combina.',
       type: 'choice-with-followup',
       options: [
         { value: 'sempre',   label: 'Sempre',   desc: 'Em quase toda mensagem.', followup: true },
@@ -893,7 +893,7 @@
         document.body.appendChild(ta);
         ta.select();
         try { document.execCommand('copy'); flashCopied(); }
-        catch (_) { alert('Não foi possível copiar — copie manualmente.'); }
+        catch (_) { alert('Não foi possível copiar. Copie manualmente.'); }
         document.body.removeChild(ta);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -956,7 +956,7 @@
       let label = opt ? opt.label : String(ans);
       if (q.type === 'choice-with-followup') {
         const fp = wizardState.answers[q.followupKey];
-        if (fp) label += ' — ' + fp;
+        if (fp) label += ': ' + fp;
       }
       return label;
     }
@@ -974,7 +974,7 @@
     const lines = [];
     const today = new Date().toLocaleDateString('pt-BR');
 
-    lines.push('Perfil do Negócio — Gerado pelo Playbook Squad');
+    lines.push('Perfil do Negócio · Gerado pelo Playbook Squad');
     lines.push('');
     lines.push('Waz, preciso que siga essas diretrizes para atender os clientes do meu negócio:');
     lines.push('');
@@ -1014,7 +1014,7 @@
 
   function downloadPDF() {
     if (!window.jspdf || !window.jspdf.jsPDF) {
-      alert('PDF ainda carregando — tenta de novo em 1 segundo.');
+      alert('PDF ainda carregando. Tenta de novo em 1 segundo.');
       return;
     }
     const { jsPDF } = window.jspdf;
