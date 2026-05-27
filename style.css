@@ -3074,51 +3074,53 @@
    pra essa página.
    ============================================================ */
 
-/* Link inline na Etapa 02 do setup.html — fica entre o passo 3
-   do caminho Waz e o botão "Prefiro cadastrar manualmente".
-   Estilo "callout" discreto, mesma família dos step-cards mas
-   horizontal e mais compacto. */
+/* Link "Dicas e detalhes" na Etapa 02 do setup.html — fica entre o
+   passo 3 do caminho Waz e o botão "Prefiro cadastrar manualmente".
+   Estilo minimalista: sem fundo, só uma borda fina inferior que aparece
+   no hover. Block-level com max-width pra ocupar uma linha própria, com
+   margin-bottom generoso pra separar do toggle abaixo. */
 .catalog-tips-link {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 20px;
-  padding: 14px 18px;
-  background: var(--bg-2);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  margin: 24px 0 36px;          /* mais respiro acima e ABAIXO (separa do toggle) */
+  padding: 12px 4px;
+  max-width: 440px;
   color: var(--ink);
   text-decoration: none;
   font-size: 14.5px;
   line-height: 1.35;
-  transition: background .18s ease, border-color .18s ease, transform .15s ease;
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s ease;
 }
 .catalog-tips-link:hover {
-  background: var(--bg-3);
-  border-color: var(--ink-3);
-  transform: translateY(-1px);
+  border-bottom-color: var(--line);
 }
 .catalog-tips-link > svg:first-of-type {
   flex: 0 0 auto;
   color: var(--maky);
 }
+.catalog-tips-link-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
 .catalog-tips-link strong {
-  display: block;
   font-weight: 600;
-  margin-bottom: 2px;
+  letter-spacing: -0.005em;
 }
 .catalog-tips-link-sub {
-  display: block;
   font-size: 13px;
   color: var(--ink-2);
 }
 .catalog-tips-link-arr {
   margin-left: auto;
   color: var(--ink-3);
-  transition: transform .18s ease, color .18s ease;
+  transition: transform .2s ease, color .2s ease;
 }
 .catalog-tips-link:hover .catalog-tips-link-arr {
-  transform: translateX(3px);
+  transform: translateX(4px);
   color: var(--ink);
 }
 
