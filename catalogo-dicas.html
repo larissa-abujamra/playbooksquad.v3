@@ -25,6 +25,10 @@
 
     <div class="label" style="margin-top: 18px;">Setup</div>
     <a class="nav-link" href="setup.html#page-1">Treine seus agentes</a>
+    <ul class="nav-subsections">
+      <li><a href="setup.html#wizard">Seu negócio</a></li>
+      <li><a href="restricoes.html">Restrições</a></li>
+    </ul>
     <a class="nav-link" href="setup.html#page-2">Monte seu catálogo</a>
     <ul class="nav-subsections">
       <li><a href="setup.html#page-2">Cadastre seus produtos</a></li>
@@ -34,11 +38,7 @@
     <ul class="nav-subsections">
       <li><a href="setup.html#int-instagram">Conecte seu Instagram</a></li>
     </ul>
-    <a class="nav-link" href="setup.html#page-4">Piloto automático</a>
-    <ul class="nav-subsections">
-      <li><a href="setup.html#auto-copiloto">Co-piloto</a></li>
-      <li><a href="setup.html#auto-piloto">Piloto Automático</a></li>
-    </ul>
+    
 
     <div class="label" style="margin-top: 18px;">Mais</div>
     <a class="nav-link" href="faq.html">Dúvidas comuns</a>
@@ -57,7 +57,7 @@
           <option value="setup.html#page-2">② Monte seu catálogo</option>
           <option value="catalogo-dicas.html" selected>↳ Dicas e detalhes</option>
           <option value="setup.html#page-3">③ Integrações</option>
-          <option value="setup.html#page-4">④ Piloto automático</option>
+    
         </optgroup>
         <optgroup label="Mais">
           <option value="faq.html">Dúvidas comuns</option>
@@ -201,13 +201,63 @@
             </div>
           </div>
 
-          <h3 class="tip-subtitle">Como organizar no arquivo</h3>
-          <ul class="tip-list">
-            <li><strong>Uma linha por variação</strong>, com o nome do produto repetido e a variação na frente. Ex: <em>"Bolo Red Velvet — P", "Bolo Red Velvet — M", "Bolo Red Velvet — G"</em>.</li>
-            <li>Se a variação <strong>muda o preço</strong>, coloque o preço de cada uma na sua linha.</li>
-            <li>Se a variação <strong>não muda o preço</strong> (ex: sabores), agrupe na descrição: <em>"Disponível em chocolate, red velvet e cenoura"</em>.</li>
-            <li>Evite mais de <strong>2 eixos de variação</strong> por produto (ex: tamanho + sabor). Mais que isso confunde o cliente na hora de pedir.</li>
-          </ul>
+          <!-- Passo a passo de cadastrar variações no app — mesmo padrão do
+               tutorial de fotos: 3 passos simples + 1 último com phone mock
+               à esquerda exibindo o vídeo do fluxo completo. -->
+          <!-- Seção "Como organizar no arquivo" foi removida (era redundante
+               com este tutorial). As dicas úteis dela foram migradas pros
+               passos correspondentes: limite de eixos no passo 2, ajuste de
+               preço por valor no passo 3. -->
+          <h3 class="tip-subtitle">Como cadastrar variações</h3>
+          <div class="tutorial-steps">
+
+            <div class="tutorial-step">
+              <div class="tutorial-step-number">1</div>
+              <div class="tutorial-step-body">
+                <h4>Edite o produto</h4>
+                <p>Na aba <strong>Produtos e Serviços</strong>, toque no produto que vai ganhar variações e abra <strong>"Editar produto"</strong>.</p>
+              </div>
+            </div>
+
+            <div class="tutorial-step">
+              <div class="tutorial-step-number">2</div>
+              <div class="tutorial-step-body">
+                <h4>Toque em "Adicionar grupo"</h4>
+                <p>Cada grupo é um eixo de variação. Dê um nome ao grupo (ex: <em>Tamanho</em>, <em>Sabor</em>, <em>Cobertura</em>). Evite criar mais de <strong>2 grupos</strong> por produto: mais que isso confunde o cliente na hora de pedir.</p>
+              </div>
+            </div>
+
+            <div class="tutorial-step">
+              <div class="tutorial-step-number">3</div>
+              <div class="tutorial-step-body">
+                <h4>Toque em "Adicionar valor"</h4>
+                <p>Dentro do grupo, cada valor é uma opção. Pode adicionar quantos valores quiser dentro do mesmo grupo. Se a variação <strong>muda o preço</strong> (ex: tamanho P/M/G), ajuste o preço pra cada valor na hora de cadastrar; se <strong>não muda</strong> (ex: sabores), basta manter o preço base do produto.</p>
+              </div>
+            </div>
+
+            <!-- Último passo: vídeo do fluxo no frame de celular. -->
+            <div class="tutorial-step phone-left number-inside">
+              <div class="tutorial-step-body">
+                <div class="tutorial-step-text">
+                  <h4>Escreva cada variante como valor separado</h4>
+                  <p>Para um grupo de sabor, por exemplo, crie um valor pra cada sabor (<em>Chocolate</em>, <em>Red Velvet</em>, <em>Cenoura</em>). Não junte tudo numa linha só — separe valor por valor pro Waz oferecer as opções corretas pro cliente.</p>
+                </div>
+                <div class="tutorial-step-number">4</div>
+                <div class="phone" aria-hidden="true">
+                  <div class="phone-notch"></div>
+                  <div class="phone-screen">
+                    <div class="phone-status"><span>9:41</span><span class="icons"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M1 11h2v2H1zM4 8h2v5H4zM7 5h2v8H7zM10 2h2v11h-2z"/></svg><svg viewBox="0 0 14 14" fill="none"><rect x="1.5" y="4.5" width="9" height="5" rx="1" stroke="currentColor" stroke-width="1"/><rect x="11" y="6" width="1.5" height="2" rx=".3" fill="currentColor"/></svg></span></div>
+                    <div class="phone-body has-shot">
+                      <video class="phone-shot" autoplay loop muted playsinline preload="metadata">
+                        <source src="./imgs/variant.mov.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
 
           <a class="tip-more" href="https://blog.squad.com/variacoes-de-produto" target="_blank" rel="noopener">
             Saiba mais sobre variações

@@ -33,7 +33,7 @@
   }
 
   // ============ Setup paging (setup.html): show one .page at a time ============
-  // The 4 etapas live in #page-1..#page-4. Sidebar links (#page-X) and the
+  // Each etapa lives in its own #page-N. Sidebar links (#page-X) and the
   // Anterior/Próximo buttons switch the active page (with a fade-in) instead of
   // scrolling through one long document.
   const setupPages = document.querySelectorAll('.page');
