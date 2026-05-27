@@ -182,43 +182,42 @@
   // ============ Wizard: treinamento guiado de agentes ============
   const wizardQuestions = [
     // ===== PARTE 1: SOBRE SEU NEGÓCIO =====
-    // (operação básica — nome, marca, horário, localização e delivery)
+    // Mudanças nesta revisão:
+    //  · removida `sectionIntro` — "Começar" leva direto à 1ª pergunta
+    //  · removidos TODOS os `recommended: true` (questões e options)
+    //  · pergunta "Como você descreveria sua marca?" REMOVIDA
+    //  · "horário" virou texto livre com exemplo mais detalhado
+    //  · "delivery": followupHint reescrito como "Como é sua entrega?"
+    //    (a opção "Apenas retirada" já existia; mantida)
+    //  · NOVA pergunta "Mensagem de boas-vindas" passou a ser a 1ª de todas
+    //    (substitui a antiga "frase ou jeito de falar" da Parte 5)
+    // Ordem invertida (a pedido): nome da confeitaria vem ANTES da mensagem de boas-vindas.
     {
       block: 'Sobre seu negócio',
-      sectionIntro: 'Vamos começar com o básico. Nada longo — só o suficiente pra o agente entender sua operação.',
       key: 'nome_confeitaria',
       pdfLabel: 'Nome da confeitaria',
       q: 'Qual o nome da sua confeitaria?',
       type: 'text',
       placeholder: 'Ex: Doce Encanto',
-      recommended: true,
     },
     {
       block: 'Sobre seu negócio',
-      key: 'descricao_marca',
-      pdfLabel: 'Descrição da marca',
-      q: 'Como você descreveria sua marca?',
-      hint: 'Uma frase curta que capture a essência do seu negócio.',
-      type: 'text',
-      placeholder: 'Ex: Uma confeitaria artesanal, acolhedora e elegante.',
+      key: 'mensagem_boas_vindas',
+      pdfLabel: 'Mensagem de boas-vindas',
+      q: 'Você já tem alguma mensagem de boas-vindas?',
+      hint: 'A primeira mensagem que o agente envia quando o cliente abre conversa. Se não tiver, pode pular.',
+      type: 'textarea',
+      placeholder: 'Ex: "Oi! Bem-vinda à Doce Encanto 💕 Como posso te ajudar hoje?"',
     },
     {
       block: 'Sobre seu negócio',
       key: 'horario',
       pdfLabel: 'Horário',
-      q: 'Qual o horário de funcionamento?',
-      hint: 'Escolha uma opção ou selecione "Outro" pra escrever o seu.',
-      type: 'choice-with-followup',
-      recommended: true,
-      options: [
-        { value: 'seg_sex', label: 'Segunda a Sexta, 9h às 18h' },
-        { value: 'seg_sab', label: 'Segunda a Sábado, 8h às 20h' },
-        { value: 'todos',   label: 'Todos os dias, 10h às 22h' },
-        { value: 'outro',   label: 'Outro (especificar)', followup: true },
-      ],
-      followupKey: 'horario_outro',
-      followupHint: 'Descreva o horário de funcionamento.',
-      followupPlaceholder: 'Ex: Terça a Domingo, 11h às 19h',
+      // (alteração #4) — sem options, só campo de texto livre
+      q: 'Quais são os dias e horários de funcionamento?',
+      hint: 'Pode ser detalhado — dias diferentes, horários diferentes, exceções.',
+      type: 'text',
+      placeholder: 'Ex: seg-sex das 9h-18h, sab-dom das 9h-14h',
     },
     {
       block: 'Sobre seu negócio',
@@ -228,15 +227,14 @@
       hint: 'Bairro e cidade — e onde você atende, se faz entrega.',
       type: 'text',
       placeholder: 'Ex: Vila Mariana, São Paulo. Delivery pra Zona Sul.',
-      recommended: true,
     },
-    // Delivery: choice-with-followup com "Sim" abrindo uma TEXTAREA pra regiões, taxa e pedido mínimo
+    // (alteração #5) — delivery: "Sim" abre followup "Como é sua entrega?";
+    // opção "Apenas retirada" já existia, mantida.
     {
       block: 'Sobre seu negócio',
       key: 'delivery',
       pdfLabel: 'Delivery',
-      q: 'Vocês fazem delivery?',
-      hint: 'Se "Sim", conte sobre regiões, taxa e pedido mínimo.',
+      q: 'Vocês fazem entrega?',
       type: 'choice-with-followup',
       options: [
         { value: 'sim',          label: 'Sim', followup: true },
@@ -245,12 +243,12 @@
       ],
       followupKey: 'delivery_detalhes',
       followupType: 'textarea',
-      followupHint: 'Quais regiões você atende? Qual a taxa? Tem pedido mínimo?',
+      followupHint: 'Como é sua entrega?',
       followupPlaceholder: 'Ex: Atendo a Zona Sul de SP. Taxa R$ 12. Pedido mínimo R$ 50.',
     },
 
     // ===== PARTE 2: PEDIDOS E ENCOMENDAS =====
-    // (faz o agente vender sem depender do humano)
+    // (alteração #6) — pergunta sobre "personalização" foi REMOVIDA
     {
       block: 'Pedidos e encomendas',
       key: 'prazo_minimo',
@@ -276,26 +274,9 @@
       type: 'textarea',
       placeholder: 'Ex: Bolos de casamento precisam de 15 dias. Brigadeiros saem no mesmo dia.',
     },
-    {
-      block: 'Pedidos e encomendas',
-      key: 'personalizacao',
-      pdfLabel: 'Personalização',
-      q: 'O que pode ser personalizado?',
-      hint: 'Marque tudo que vocês aceitam personalizar.',
-      type: 'multi-choice',
-      options: [
-        { value: 'escrita',   label: 'Escrita no bolo' },
-        { value: 'tema',      label: 'Tema/decoração' },
-        { value: 'recheio',   label: 'Recheio' },
-        { value: 'cobertura', label: 'Cobertura' },
-        { value: 'formato',   label: 'Formato' },
-        { value: 'tamanho',   label: 'Tamanho' },
-        { value: 'nenhuma',   label: 'Não fazemos personalização' },
-      ],
-    },
 
     // ===== PARTE 3: PRODUTOS =====
-    // (faz o agente recomendar produtos corretamente)
+    // (alteração #7) — pergunta sobre "restrições alimentares" foi REMOVIDA
     {
       block: 'Produtos',
       key: 'produto_top',
@@ -304,53 +285,14 @@
       hint: 'Conte o nome, a faixa de preço e o diferencial.',
       type: 'textarea',
       placeholder: 'Ex: Bolo Red Velvet — R$ 90 a R$ 120. Cobertura de cream cheese feita na hora, muito pedido pra aniversário.',
-      recommended: true,
-    },
-    {
-      block: 'Produtos',
-      key: 'restricoes',
-      pdfLabel: 'Restrições alimentares',
-      q: 'Vocês possuem opções para restrições alimentares?',
-      hint: 'Marque todas que você atende.',
-      type: 'multi-choice',
-      options: [
-        { value: 'sem_lactose', label: 'Sem lactose' },
-        { value: 'sem_gluten',  label: 'Sem glúten' },
-        { value: 'vegano',      label: 'Vegano' },
-        { value: 'sem_acucar',  label: 'Sem açúcar' },
-        { value: 'low_carb',    label: 'Low carb' },
-        { value: 'nenhuma',     label: 'Nenhuma' },
-      ],
     },
 
-    // Removidos (a pedido):
-    //  · bloco "Conservação e consumo" (validade + instruções de consumo)
-    //  · bloco "Pagamento" (formas de pagamento aceitas)
-    //  · bloco "Perguntas frequentes" (perguntas comuns + outras FAQ livres)
+    // (alteração #8) — bloco inteiro "Regras importantes" foi REMOVIDO.
+    // Removidos anteriormente: "Conservação e consumo", "Pagamento", "Perguntas frequentes".
 
-    // ===== PARTE 4: REGRAS IMPORTANTES =====
-    // (evita problemas operacionais — checkboxes prontas + campo livre)
-    {
-      block: 'Regras importantes',
-      key: 'regras',
-      pdfLabel: 'Regras',
-      q: 'Quais regras seus clientes precisam saber?',
-      hint: 'Marque as que se aplicam e use "Outras regras" pra acrescentar.',
-      type: 'multi-choice',
-      options: [
-        { value: 'sem_cancelamento',  label: 'Não aceitamos cancelamento' },
-        { value: 'cancel_com_antec',  label: 'Cancelamento apenas com antecedência' },
-        { value: 'sem_feriado',       label: 'Não abrimos em feriados' },
-        { value: 'so_encomenda',      label: 'Trabalhamos apenas sob encomenda' },
-        { value: 'sem_alteracao',     label: 'Não fazemos alterações após confirmação' },
-      ],
-      otherKey: 'regras_outras',
-      otherLabel: 'Outras regras importantes',
-      otherPlaceholder: 'Escreva outras regras importantes do seu negócio...',
-    },
-
-    // ===== PARTE 5: TOM DE VOZ DA MARCA =====
-    // (faz o agente parecer humano e alinhado com a marca)
+    // ===== PARTE 4: TOM DE VOZ DA MARCA =====
+    // (alteração #9) — reduzido de 6 para 4 opções (cobrem o espectro de
+    //   formalidade e tom emocional sem redundância)
     {
       block: 'Tom de voz',
       key: 'tom_voz',
@@ -358,7 +300,6 @@
       q: 'Como o agente deve conversar com os clientes?',
       hint: 'Escolha o estilo que mais combina com sua marca.',
       type: 'single-choice',
-      recommended: true,
       options: [
         { value: 'casual',    label: 'Casual e descontraído',
           desc: 'Conversa leve e amigável, como entre amigos. Linguagem simples e próxima do dia a dia.' },
@@ -366,12 +307,8 @@
           desc: 'Tom carinhoso e cuidadoso. Faz a cliente se sentir querida — bom pra marcas com clima de casa.' },
         { value: 'elegante',  label: 'Elegante e sofisticado',
           desc: 'Tom premium e refinado. Vocabulário cuidado, ideal pra marcas mais exclusivas.' },
-        { value: 'formal',    label: 'Profissional e formal',
-          desc: 'Comunicação séria e respeitosa. Linguagem correta, sem intimidade — transmite credibilidade.' },
-        { value: 'divertido', label: 'Divertido e bem-humorado',
-          desc: 'Cheio de personalidade. Usa humor leve e criatividade pra tornar a conversa memorável.' },
-        { value: 'direto',    label: 'Direto e objetivo',
-          desc: 'Vai direto ao ponto. Informações claras, sem rodeios — bom pra cliente apressado.' },
+        { value: 'atencioso', label: 'Atencioso e prestativo',
+          desc: 'Focado em atender às necessidades do cliente de forma eficiente e cortês. Linguagem clara, positiva e orientada para soluções.' },
       ],
     },
     {
@@ -383,24 +320,17 @@
       type: 'choice-with-followup',
       options: [
         { value: 'sempre',   label: 'Sempre',   desc: 'Em quase toda mensagem.', followup: true },
-        { value: 'as_vezes', label: 'Às vezes', desc: 'Só pra dar um tom simpático, sem exagerar.', followup: true, recommended: true },
+        { value: 'as_vezes', label: 'Às vezes', desc: 'Só pra dar um tom simpático, sem exagerar.', followup: true },
         { value: 'nunca',    label: 'Nunca',    desc: 'Prefiro texto limpo, sem emojis.' },
       ],
       followupKey: 'emojis_preferidos',
       followupHint: 'Quais emojis combinam com sua marca?',
       followupPlaceholder: '🎂💕🍫😊✨',
     },
-    {
-      block: 'Tom de voz',
-      key: 'frase_marca',
-      pdfLabel: 'Frase ou jeito de falar',
-      q: 'Existe alguma frase ou jeito de falar que representa sua marca?',
-      hint: 'Saudação típica, bordão, jeito de fechar uma conversa. Se não tiver, pode pular.',
-      type: 'textarea',
-      placeholder: 'Ex: "Bem-vinda à Doce Encanto. Que alegria receber seu contato 💕"',
-    },
+    // (alteração #10) — "frase ou jeito de falar" foi SUBSTITUÍDA pela
+    // nova "Mensagem de boas-vindas" que agora abre o questionário (acima).
 
-    // ===== PARTE 6: FINALIZAÇÃO =====
+    // ===== PARTE 5: FINALIZAÇÃO =====
     {
       block: 'Finalização',
       key: 'extra_final',
