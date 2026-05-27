@@ -1459,43 +1459,77 @@
 
   // ============ Personagens espiando (Waz, Maky e Fin) ============
   // Waz e Fin na esquerda (borda da sidebar), Maky na direita.
-  // Ancorados ao `.training-cta-block` (versões antigas da página) ou,
-  // como fallback, ao `.steps-grid` do novo hub da Etapa 01. Sem esse
-  // fallback os peeks ficavam com top:0 → grudados no topo da tela.
+  // ÂNCORA DINÂMICA: cada chamada de placePeeks() procura uma âncora
+  // VÁLIDA no momento — o h1 da página/etapa atualmente ativa. Antes a
+  // âncora era capturada uma vez (.steps-grid, que só existe em #page-1),
+  // e ao trocar de etapa a âncora ficava oculta → c.height = 0 → cálculo
+  // falhava → peeks colavam no topo (sobrepostos).
   const wazPeek = document.querySelector('.waz-peek');
   const makyPeek = document.querySelector('.maky-peek');
   const finPeek = document.querySelector('.fin-peek');
   const peekApp = document.querySelector('.app');
-  const peekAnchor = document.querySelector('.training-cta-block')
-                  || document.querySelector('.steps-grid');
-  if (peekApp && peekAnchor && (wazPeek || makyPeek || finPeek)) {
+
+  if (peekApp && (wazPeek || makyPeek || finPeek)) {
+    // Resolve a âncora no momento da chamada (não cacheia).
+    // Preferência: h1 da .page.is-active (estável em qualquer etapa); fallback
+    // pro h1 da própria .stage / .doc — funciona em todas as páginas internas.
+    const getAnchor = () => {
+      const activePage = document.querySelector('.page.is-active');
+      if (activePage) return activePage.querySelector('h1') || activePage;
+      return document.querySelector('.stage h1')
+          || document.querySelector('.doc h1')
+          || document.querySelector('.steps-grid');
+    };
+
+    const heightOf = (el) => el ? el.getBoundingClientRect().height : 0;
+
     const placePeeks = () => {
+      const anchor = getAnchor();
+      if (!anchor) return;
       const a = peekApp.getBoundingClientRect();
-      const c = peekAnchor.getBoundingClientRect();
-      if (!c.height) return; // app escondido / sem layout ainda
-      const centerInApp = (c.top - a.top) + c.height / 2;
+      const c = anchor.getBoundingClientRect();
+      if (!c.height && !c.top) return;   // app escondido / sem layout ainda
+      // Ponto-alvo: ~120px ABAIXO do topo do h1 — fica numa altura natural,
+      // perto da intro/primeiros cards de qualquer etapa. Não depende mais
+      // da altura da âncora (que variava demais entre páginas).
+      const targetY = (c.top - a.top) + 120;
+
+      const wazH = heightOf(wazPeek);
       let wazTop = 0;
       if (wazPeek) {
-        wazTop = Math.round(centerInApp - wazPeek.offsetHeight / 2);
+        wazTop = Math.round(targetY - wazH / 2);
         wazPeek.style.top = wazTop + 'px';
       }
       if (makyPeek) {
         // Maky um pouco acima da linha do Waz
-        makyPeek.style.top = Math.round(centerInApp - makyPeek.offsetHeight / 2 - 70) + 'px';
+        makyPeek.style.top = Math.round(targetY - heightOf(makyPeek) / 2 - 70) + 'px';
       }
       if (finPeek) {
         // Fin logo abaixo do Waz, com leve sobreposição (-30) pra parecerem
-        // um trio empilhado. Fallback para centro+offset se não houver Waz.
+        // um trio empilhado. Fallback para abaixo do alvo se não houver Waz.
         const finTop = wazPeek
-          ? wazTop + wazPeek.offsetHeight - 30
-          : Math.round(centerInApp + finPeek.offsetHeight / 2 + 20);
+          ? wazTop + wazH - 30
+          : Math.round(targetY + heightOf(finPeek) / 2 + 20);
         finPeek.style.top = finTop + 'px';
       }
     };
+
+    // Espera a imagem estar realmente pronta — em reload com cache, `complete`
+    // já é true mas o evento `load` pode não disparar (foi disparado antes do
+    // listener ser anexado).
+    const imageReady = (img) => {
+      if (!img) return Promise.resolve();
+      if (img.complete && img.naturalHeight > 0) return Promise.resolve();
+      return new Promise(resolve => {
+        const done = () => resolve();
+        img.addEventListener('load',  done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      });
+    };
+
     placePeeks();
-    if (wazPeek)  wazPeek.addEventListener('load', placePeeks);
-    if (makyPeek) makyPeek.addEventListener('load', placePeeks);
-    if (finPeek)  finPeek.addEventListener('load', placePeeks);
+    Promise.all([wazPeek, makyPeek, finPeek].map(imageReady)).then(placePeeks);
+
     window.addEventListener('load', placePeeks);
     window.addEventListener('resize', placePeeks);
     if ('ResizeObserver' in window) {
@@ -1503,5 +1537,21 @@
       ro.observe(peekApp);
       const content = document.querySelector('.content');
       if (content) ro.observe(content);
+    }
+
+    // Hook nas trocas de etapa do setup: depois que a `.page.is-active` muda,
+    // a âncora antiga (h1 da etapa anterior) some do layout. Observar
+    // mudanças de `class` no container `.section#setup` recalcula os peeks.
+    // Wrapper em rAF dá tempo do reflow da página nova acontecer antes da medição.
+    const setupSection = document.getElementById('setup');
+    if (setupSection && 'MutationObserver' in window) {
+      const mo = new MutationObserver(() => {
+        requestAnimationFrame(() => requestAnimationFrame(placePeeks));
+      });
+      mo.observe(setupSection, {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class'],
+      });
     }
   }

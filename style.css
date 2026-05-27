@@ -2478,6 +2478,10 @@
   left: calc(var(--sidebar-w) - 18px);
   top: 0;
   width: 167px;
+  /* aspect-ratio explícito (843/1264 nativo da imagem) garante que o browser
+     reserve a altura ANTES da imagem carregar — sem isso, o JS calculava
+     offsetHeight = 0 em reload com cache e jogava o Fin sobre o Waz. */
+  aspect-ratio: 843 / 1264;
   height: auto;
   pointer-events: none;
   user-select: none;
@@ -2491,6 +2495,7 @@
   right: -10px;
   top: 0;
   width: 175px;
+  aspect-ratio: 912 / 1174;          /* dimensões nativas — reserva altura */
   height: auto;
   pointer-events: none;
   user-select: none;
@@ -2505,6 +2510,7 @@
   left: calc(var(--sidebar-w) - 24px);   /* 3px mais à esquerda que o Waz */
   top: 0;
   width: 185px;          /* ligeiramente menor que o Waz pra dar variação visual */
+  aspect-ratio: 455 / 548;               /* dimensões nativas — reserva altura */
   height: auto;
   pointer-events: none;
   user-select: none;
