@@ -837,7 +837,10 @@
   .ov-cta h2 {
     font-size: clamp(26px, 3.4vw, 34px);
     font-weight: 700; letter-spacing: -0.025em; line-height: 1.1;
-    max-width: 22ch;
+    /* 45ch comporta "Pronto pra colocar sua equipe pra trabalhar?" numa linha
+       só em desktop. Em telas estreitas o limite real vira o próprio container
+       e o texto quebra naturalmente — sem overflow. */
+    max-width: 45ch;
   }
   .ov-cta p {
     margin-top: 14px;

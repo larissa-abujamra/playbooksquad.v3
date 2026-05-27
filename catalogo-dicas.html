@@ -265,11 +265,19 @@
           </a>
         </article>
 
-        <!-- Botão de voltar pro fluxo principal -->
-        <a class="catalogo-back-btn" href="setup.html#page-2">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Voltar para Cadastrar produtos
-        </a>
+        <!-- Navegação no fim da página: volta pra Cadastrar produtos (Etapa 02)
+             e avança pra Integrações (Etapa 03). Mesmo padrão .page-nav usado
+             no fim do restricoes.html — fica consistente com o resto do app. -->
+        <div class="page-nav">
+          <a class="page-prev" href="setup.html#page-2">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Voltar para Cadastrar produtos
+          </a>
+          <a class="page-next" href="setup.html#page-3">
+            Próximo: Integrações
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
 
       </section>
 
