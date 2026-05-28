@@ -254,25 +254,11 @@
       key: 'prazo_minimo',
       pdfLabel: 'Prazo mínimo de encomenda',
       q: 'Qual o prazo mínimo para encomendas?',
-      hint: 'Quanto tempo de antecedência você precisa.',
-      type: 'single-choice',
-      options: [
-        { value: '24h',     label: '24 horas' },
-        { value: '48h',     label: '48 horas' },
-        { value: '3dias',   label: '3 dias' },
-        { value: '5dias',   label: '5 dias' },
-        { value: '1semana', label: '1 semana' },
-        { value: 'depende', label: 'Depende do produto' },
-      ],
-    },
-    {
-      block: 'Pedidos e encomendas',
-      key: 'prazo_detalhes',
-      pdfLabel: 'Detalhes de prazo',
-      q: 'Algum detalhe ou exceção sobre o prazo?',
-      hint: 'Produtos que precisam de mais (ou menos) tempo. Se não tiver, pode pular.',
+      // Hint absorveu o conteúdo da antiga pergunta "Algum detalhe ou exceção
+      // sobre o prazo?" (removida) — agora exceções vão na mesma resposta.
+      hint: 'Quanto tempo de antecedência você precisa? Alguma exceção?',
       type: 'textarea',
-      placeholder: 'Ex: Bolos de casamento precisam de 15 dias. Brigadeiros saem no mesmo dia.',
+      placeholder: 'Ex: 48 horas pra encomendas em geral. Bolos de casamento precisam de 15 dias.',
     },
 
     // ===== PARTE 3: PRODUTOS =====
