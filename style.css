@@ -2279,19 +2279,51 @@
   }
 }
 @media (max-width: 640px) {
-  /* Mobile: empilha [number, text, phone] de cima pra baixo.
-     IMPORTANTE: o `max-width: calc(100% - 274px)` definido na regra de
-     860px continua aplicado aqui (seletor com 3 classes vence o reset
-     `max-width: 100%` do .phone-left). Precisamos resetar explicitamente
-     — sem isso o texto fica espremido em ~100px no mobile. */
-  .tutorial-step.phone-left.number-inside .tutorial-step-body { gap: 12px; }
-  .tutorial-step.phone-left.number-inside .tutorial-step-text {
-    max-width: 100%;
-    width: 100%;
+  /* Mobile: trocamos o flex herdado de `.phone-left .tutorial-step-body`
+     por GRID com 2 áreas. Linha 1 = [number, text]; linha 2 = phone (full
+     row, mas o phone interno só tem 200px de width). Isso garante:
+       - number alinhado com a primeira linha do h4 (top da row 1)
+       - phone numa linha separada abaixo, com tamanho compacto (200px)
+     Mais robusto que flex+wrap, que não controla tamanho do item que faz wrap. */
+  .tutorial-step.phone-left.number-inside .tutorial-step-body {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    grid-template-areas:
+      "num   text"
+      "phone phone";
+    column-gap: 12px;
+    row-gap: 4px;
+    align-items: start;
   }
-  .tutorial-step.phone-left.number-inside .tutorial-step-number { order: 1; }
-  .tutorial-step.phone-left.number-inside .tutorial-step-text   { order: 2; }
-  .tutorial-step.phone-left.number-inside .phone                { order: 3; margin-top: 4px; }
+  .tutorial-step.phone-left.number-inside .tutorial-step-number {
+    grid-area: num;
+  }
+  .tutorial-step.phone-left.number-inside .tutorial-step-text {
+    grid-area: text;
+    /* reset do max-width herdado da regra de 860px */
+    max-width: none;
+    width: auto;
+  }
+  .tutorial-step.phone-left.number-inside .phone {
+    grid-area: phone;
+    width: 200px;          /* mesmo tamanho do .phone-left mobile original */
+    margin-top: 8px;
+  }
+
+  /* Phone escondido por padrão no mobile pra economizar viewport.
+     O botão `.phone-toggle` (injetado em main.js) revela ao clicar. */
+  .tutorial-step.phone-left .phone {
+    display: none;
+  }
+  .tutorial-step.phone-left.phone-visible .phone {
+    display: block;
+    animation: phoneSlideDown .3s ease both;
+  }
+  /* Toggle aparece SÓ no mobile (escondido por padrão no .phone-toggle base) */
+  .tutorial-step.phone-left .phone-toggle {
+    display: inline-flex;
+    margin-top: 14px;
+  }
 }
 
 .tutorial-list {

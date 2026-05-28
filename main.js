@@ -161,22 +161,33 @@
     });
   });
 
-  // ============ Mobile phone toggle (injetado em cada .task-row.with-phone) ============
-  document.querySelectorAll('.task-row.with-phone .task-main').forEach(taskMain => {
+  // ============ Mobile phone toggle ============
+  // Helper que injeta um botão "Ver tela de exemplo" e wire-uppa o toggle.
+  // O CSS controla quando o botão aparece (só no mobile) e a visibilidade
+  // do phone via classe `.phone-visible` no container.
+  function attachPhoneToggle(parent, container) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'phone-toggle';
     btn.setAttribute('aria-expanded', 'false');
     btn.innerHTML = '<svg class="toggle-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="4" y="2" width="8" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="12" r="0.7" fill="currentColor"/></svg><span class="toggle-text">Ver tela de exemplo</span>';
-    taskMain.appendChild(btn);
+    parent.appendChild(btn);
     btn.addEventListener('click', () => {
-      const taskRow = btn.closest('.task-row');
-      const isOpen = taskRow.classList.toggle('phone-visible');
+      const isOpen = container.classList.toggle('phone-visible');
       btn.classList.toggle('is-open', isOpen);
       btn.setAttribute('aria-expanded', String(isOpen));
       const textEl = btn.querySelector('.toggle-text');
       if (textEl) textEl.textContent = isOpen ? 'Esconder tela' : 'Ver tela de exemplo';
     });
+  }
+  // 1) Etapa 03 — Instagram (.task-row.with-phone): toggle dentro do .task-main
+  document.querySelectorAll('.task-row.with-phone .task-main').forEach(taskMain => {
+    attachPhoneToggle(taskMain, taskMain.closest('.task-row'));
+  });
+  // 2) Tutoriais de catálogo (.tutorial-step.phone-left): toggle dentro do .tutorial-step-text
+  document.querySelectorAll('.tutorial-step.phone-left').forEach(step => {
+    const textEl = step.querySelector('.tutorial-step-text');
+    if (textEl) attachPhoneToggle(textEl, step);
   });
 
   // ============ Wizard: treinamento guiado de agentes ============
