@@ -2257,7 +2257,12 @@
     align-items: stretch;
   }
   .tutorial-step.phone-left .tutorial-step-text { max-width: 100%; padding-left: 0; }
-  .tutorial-step.phone-left .phone { width: 200px; margin-top: 12px; }
+  .tutorial-step.phone-left .phone {
+    width: 200px;
+    margin: 12px auto 0;   /* centralizado horizontalmente */
+    align-self: center;    /* idem, pro caso de flex parent */
+    justify-self: center;  /* idem, pro caso de grid parent (.number-inside) */
+  }
 }
 
 /* ---- Variante: número POSICIONADO entre o phone e o texto ----
