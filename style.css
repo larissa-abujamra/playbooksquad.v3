@@ -28,9 +28,9 @@
     --ink-2: #6B7280;
     --ink-3: #9CA3AF;
 
-    --maky: #E91E8C;
-    --waz:  #2DB67D;
-    --fin:  #2563EB;
+    --maky: #f45dac;
+    --waz:  #2dc76a;
+    --fin:  #47bff1;
 
     --sidebar-w: 280px;
     --content-max: 720px;
@@ -632,23 +632,32 @@
   }
 
   /* Hero em 2 colunas: imagem dos agentes à esquerda, conteúdo à direita.
-     (Antes era uma coluna só, centralizada.) */
+     Proporções ajustadas (1fr 1.05fr) pra coluna da imagem ter mais peso
+     visual; gap reduzido pra aproximar imagem e texto. Padding-top maior
+     pra dar respiro entre o ov-nav e o eyebrow do hero. */
   .ov-hero {
     display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.3fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
     align-items: center;
-    gap: clamp(24px, 5vw, 64px);
+    gap: clamp(16px, 2.5vw, 36px);
     max-width: 1100px;
     margin: 0 auto clamp(56px, 9vw, 96px);
-    padding: 10px 0 40px;
+    padding: clamp(32px, 5vw, 56px) 0 40px;
     text-align: left;
   }
-  /* Coluna esquerda — imagem dos agentes */
+  /* Coluna esquerda — imagem INTEIRA (1:1, sem corte). max-width controla
+     o tamanho final em viewports grandes; margin auto centraliza na coluna. */
+  .ov-hero-media {
+    max-width: clamp(360px, 38vw, 480px);   /* ~15% maior em todas as faixas */
+    margin: 0 auto;
+    border-radius: 20px;
+    overflow: hidden;             /* só pra clip dos cantos arredondados */
+  }
   .ov-hero-media img {
     display: block;
     width: 100%;
     height: auto;
-    max-width: 510px;
+    object-fit: contain;
   }
   /* Coluna direita — todo o conteúdo que já existia */
   .ov-hero-content { min-width: 0; }
@@ -670,10 +679,21 @@
       gap: 16px;
       padding: 24px 0;
     }
+    /* Reseta o container do aspect-ratio do desktop — no mobile a imagem
+       aparece em tamanho natural (1:1), sem recortar bordas. */
+    .ov-hero-media {
+      aspect-ratio: auto;
+      max-width: 220px;
+      margin: 0 auto;
+      overflow: visible;
+      border-radius: 14px;
+    }
     .ov-hero-media img {
+      width: 100%;
       max-width: 220px;
       height: auto;
-      margin: 0 auto;              /* imagem centralizada */
+      object-fit: contain;
+      margin: 0 auto;
       display: block;
     }
     .ov-hero .ov-timeline {

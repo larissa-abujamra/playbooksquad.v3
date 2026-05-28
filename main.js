@@ -227,6 +227,24 @@
       type: 'textarea',
       placeholder: 'Ex: "Oi! Bem-vinda à Doce Encanto 💕 Como posso te ajudar hoje?"',
     },
+    // Pergunta sobre link de cardápio — choice-with-followup: "Sim" abre
+    // um campo de texto pra colar o link.
+    {
+      block: 'Sobre seu negócio',
+      key: 'link_cardapio',
+      pdfLabel: 'Link do cardápio',
+      q: 'Você tem algum link de cardápio?',
+      hint: 'Se tem cardápio online (PDF, site, Instagram, etc.), cola o link.',
+      type: 'choice-with-followup',
+      options: [
+        { value: 'sim', label: 'Sim', followup: true },
+        { value: 'nao', label: 'Não' },
+      ],
+      followupKey: 'link_cardapio_url',
+      followupType: 'text',
+      followupHint: 'Cole o link do cardápio',
+      followupPlaceholder: 'Ex: https://linktr.ee/sua-confeitaria',
+    },
     {
       block: 'Sobre seu negócio',
       key: 'horario',
