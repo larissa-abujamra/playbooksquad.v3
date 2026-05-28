@@ -60,6 +60,13 @@
     void target.offsetWidth;            // reflow so the animation restarts every time
     target.classList.add('page-enter');
     updateSidebarActive(id);
+    // Sincroniza o <select id="mobile-nav"> quando a navegação acontece
+    // via Anterior/Próximo, sidebar ou hash routing (sem ser via o próprio
+    // select). Procura a option cujo value === "#<id>" e seta como selected.
+    if (mobileNav) {
+      const opt = Array.from(mobileNav.options).find(o => o.value === '#' + id);
+      if (opt && mobileNav.value !== opt.value) mobileNav.value = opt.value;
+    }
     if (opts.scroll !== false) window.scrollTo({ top: 0, behavior: 'smooth' });
     return true;
   }
