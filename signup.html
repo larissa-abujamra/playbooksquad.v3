@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Vamos começar · Playbook squad.com</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fustat:wght@200..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Reutiliza o shell .overview da home pra manter o look (sem sidebar).
+     Estrutura: ov-nav + card central com formulário + ov-foot. -->
+<div class="overview signup-page" id="overview">
+  <div class="ov-shell signup-shell">
+
+    <header class="ov-nav">
+      <a href="home.html" class="brand"><img src="imgs/squad.png" class="brand-logo" alt="squad.com"></a>
+      <span class="badge">Playbook · Confeitarias</span>
+    </header>
+
+    <main class="signup-main">
+      <section class="signup-card" aria-labelledby="signup-title">
+        <div class="ov-eyebrow">Antes de começar</div>
+        <h1 class="signup-title" id="signup-title">Como podemos te chamar?</h1>
+        <p class="signup-lede">Em menos de 20 segundos a gente já libera seu treinamento.</p>
+
+        <form id="signup-form" class="signup-form" novalidate>
+          <label class="signup-field">
+            <span class="signup-label">Seu nome</span>
+            <input
+              type="text"
+              name="nome"
+              id="signup-nome"
+              placeholder="Ex: Larissa"
+              autocomplete="name"
+              required
+              minlength="2"
+              maxlength="80"
+            />
+          </label>
+
+          <label class="signup-field">
+            <span class="signup-label">Seu e-mail</span>
+            <input
+              type="email"
+              name="email"
+              id="signup-email"
+              placeholder="larissa@confeitaria.com"
+              autocomplete="email"
+              required
+              maxlength="120"
+            />
+          </label>
+
+          <button type="submit" id="signup-submit" class="btn-glow" disabled>
+            <span class="btn-glow-bg"></span>
+            <span class="btn-glow-content">
+              <span class="signup-submit-label">Continuar</span>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+        </form>
+
+        <p class="signup-error" id="signup-error" role="alert" hidden></p>
+      </section>
+    </main>
+
+    <footer class="ov-foot">
+      <span>squad.com · Playbook para Confeitarias</span>
+      <span>2026</span>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   Signup — captura nome + email e grava no Supabase antes do setup.
+   ----------------------------------------------------------------
+   - Botão fica disabled até nome (>=2 chars) e email (regex básico)
+     serem válidos. Sync no input de cada campo.
+   - Submit chama POST /rest/v1/users via fetch() (não usa a lib
+     @supabase/supabase-js — é só 1 INSERT, fetch direto é menor).
+   - `Prefer: return=minimal` evita 406 quando a tabela tem RLS sem
+     SELECT pro anon. Em caso de erro mostra mensagem amigável e
+     re-habilita o botão pra retry.
+   - localStorage: persiste o user pra próximas telas (setup) usarem.
+   ================================================================ */
+(() => {
+  const SUPABASE_URL = 'https://xkgepeejugrlgtavcxqb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZ2VwZWVqdWdybGd0YXZjeHFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODU0MjIsImV4cCI6MjA5NTU2MTQyMn0.s7JKeTqkG14boQcH00eGv4CKSzeYJPY8zud8WMe4pQc';
+
+  const form       = document.getElementById('signup-form');
+  const nomeEl     = document.getElementById('signup-nome');
+  const emailEl    = document.getElementById('signup-email');
+  const submitBtn  = document.getElementById('signup-submit');
+  const submitLbl  = submitBtn.querySelector('.signup-submit-label');
+  const errorEl    = document.getElementById('signup-error');
+
+  // Regex permissiva — formato básico de email; validação final é o backend.
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const isValid = () => {
+    const nome = nomeEl.value.trim();
+    const email = emailEl.value.trim();
+    return nome.length >= 2 && EMAIL_RE.test(email);
+  };
+  const syncSubmit = () => {
+    submitBtn.disabled = !isValid();
+    if (!errorEl.hidden) errorEl.hidden = true;   // limpa erro quando o user edita
+  };
+  nomeEl.addEventListener('input', syncSubmit);
+  emailEl.addEventListener('input', syncSubmit);
+  syncSubmit();   // estado inicial
+
+  // ESC/Enter handling vem de graça do <form> nativo
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    if (!isValid() || submitBtn.disabled) return;
+
+    // Estado "salvando" — desabilita o botão, troca o label
+    submitBtn.disabled = true;
+    submitLbl.textContent = 'Salvando…';
+    errorEl.hidden = true;
+
+    const payload = {
+      nome:  nomeEl.value.trim(),
+      email: emailEl.value.trim().toLowerCase(),
+    };
+
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/users', {
+        method: 'POST',
+        headers: {
+          'apikey':        SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'Content-Type':  'application/json',
+          'Prefer':        'return=minimal',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        // Coleta detalhes do erro pro console; mensagem amigável pra UI
+        const detail = await res.text().catch(() => '');
+        throw new Error('HTTP ' + res.status + (detail ? ' — ' + detail : ''));
+      }
+
+      // Persiste localmente pro setup/wizard usar (nome do user em
+      // saudações, prefill de form, etc.)
+      try {
+        localStorage.setItem('squad-user', JSON.stringify({
+          ...payload,
+          createdAt: new Date().toISOString(),
+        }));
+      } catch (_) { /* private mode bloqueia, OK */ }
+
+      // Tudo certo — pra Etapa 01
+      window.location.href = 'setup.html';
+    } catch (err) {
+      console.error('[signup] erro ao salvar:', err);
+      errorEl.hidden = false;
+      errorEl.textContent = 'Não conseguimos salvar agora. Verifique sua conexão e tente de novo.';
+      submitLbl.textContent = 'Continuar';
+      submitBtn.disabled = false;   // libera retry
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

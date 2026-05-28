@@ -3476,3 +3476,123 @@
   .catalog-tips-link-sub { font-size: 12.5px; }
   .catalogo-back-btn { width: 100%; justify-content: center; }
 }
+
+/* ============================================================
+   SIGNUP — página /signup (nome + email antes do setup)
+   ------------------------------------------------------------
+   Reusa o shell .overview da home (nav + footer) e empurra um card
+   central com formulário. Sem sidebar — antes do dashboard.
+   ============================================================ */
+.signup-page {
+  min-height: 100vh;
+}
+.signup-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.signup-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(32px, 6vw, 64px) 0;
+}
+.signup-card {
+  width: 100%;
+  max-width: 460px;
+  padding: clamp(28px, 5vw, 44px);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  text-align: left;
+  box-shadow: 0 12px 40px rgba(0,0,0,.04);
+}
+.signup-title {
+  font-size: clamp(26px, 3.5vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 6px 0 10px;
+  color: var(--ink);
+}
+.signup-lede {
+  color: var(--ink-2);
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0 0 26px;
+}
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.signup-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.signup-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.signup-field input {
+  appearance: none;
+  font: inherit;
+  font-size: 15px;
+  padding: 12px 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+.signup-field input::placeholder { color: var(--ink-3); }
+.signup-field input:hover { background: var(--bg-3); }
+.signup-field input:focus {
+  outline: none;
+  border-color: var(--ink);
+  background: var(--bg);
+  box-shadow: 0 0 0 3px rgba(0,0,0,.05);
+}
+/* Botão do form ocupa toda a largura e respeita o estado disabled */
+.signup-form .btn-glow {
+  margin-top: 8px;
+  width: 100%;
+}
+.signup-form .btn-glow:disabled,
+.signup-form .btn-glow[disabled] {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+.signup-form .btn-glow:disabled:hover { transform: none; }
+.signup-form .btn-glow:disabled .btn-glow-bg {
+  animation: none;          /* desliga o shimmer no estado disabled */
+  opacity: 0.15;
+}
+
+/* Mensagem de erro — chamativa mas não agressiva */
+.signup-error {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: color-mix(in oklab, var(--maky) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--maky) 28%, transparent);
+  border-radius: 10px;
+  color: color-mix(in oklab, var(--maky) 78%, black);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Mobile — card sem moldura, full-bleed do padding do shell */
+@media (max-width: 640px) {
+  .signup-main { padding: 20px 0 40px; }
+  .signup-card {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 8px 0 24px;
+  }
+}
