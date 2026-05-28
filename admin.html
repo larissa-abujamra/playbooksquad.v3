@@ -489,7 +489,7 @@
 
     <!-- Filtros -->
     <section class="adm-filters" aria-label="Filtros">
-      <input type="search" id="f-search" placeholder="Buscar por nome ou email…" />
+      <input type="search" id="f-search" placeholder="Buscar por nome ou telefone…" />
       <select id="f-status" aria-label="Filtrar por status">
         <option value="all">Todos status</option>
         <option value="completed">Completos</option>
@@ -515,7 +515,7 @@
         <thead>
           <tr>
             <th>Nome</th>
-            <th>Email</th>
+            <th>Telefone</th>
             <th>Progresso</th>
             <th>Status</th>
             <th>Criado em</th>
@@ -669,6 +669,9 @@
   // ---------- Filtros (client-side) ----------
   function filteredRows() {
     const q = fSearch.value.trim().toLowerCase();
+    // Permite buscar por telefone com OU sem máscara: ex "11999" casa com
+    // "(11) 99999-1111" porque comparamos só dígitos.
+    const qDigits = q.replace(/\D/g, '');
     const status = fStatus.value;
     const dateRange = fDate.value;
     const now = Date.now();
@@ -680,8 +683,11 @@
 
     return allRows.filter(r => {
       if (q) {
-        const hay = ((r.nome || '') + ' ' + (r.email || '')).toLowerCase();
-        if (!hay.includes(q)) return false;
+        const nome = (r.nome || '').toLowerCase();
+        const tel  = (r.telefone || '').replace(/\D/g, '');
+        const nameMatch = nome.includes(q);
+        const phoneMatch = qDigits && tel.includes(qDigits);
+        if (!nameMatch && !phoneMatch) return false;
       }
       if (status === 'completed'  && !r.completed) return false;
       if (status === 'incomplete' &&  r.completed) return false;
@@ -704,6 +710,14 @@
     const d = new Date(iso);
     if (isNaN(d)) return '—';
     return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+  // Formata telefone armazenado como dígitos puros → "(11) 99999-8888"
+  function fmtPhone(raw) {
+    if (!raw) return '—';
+    const d = String(raw).replace(/\D/g, '');
+    if (d.length === 10) return '(' + d.slice(0,2) + ') ' + d.slice(2,6) + '-' + d.slice(6);
+    if (d.length === 11) return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+    return raw;
   }
   function fmtAnswerValue(v) {
     if (v == null || v === '') return '—';
@@ -744,7 +758,7 @@
       html += `
         <tr class="adm-row ${statusCls}${isExp ? ' is-expanded' : ''}" data-id="${escapeHtml(r.id)}">
           <td class="adm-name" data-label="Nome">${escapeHtml(r.nome || '—')}</td>
-          <td data-label="Email">${escapeHtml(r.email || '—')}</td>
+          <td data-label="Telefone">${escapeHtml(fmtPhone(r.telefone))}</td>
           <td data-label="Progresso">${escapeHtml(r.current_step ?? 0)}</td>
           <td data-label="Status"><span class="adm-status adm-status--${r.completed ? 'completed' : 'incomplete'}">${statusLabel}</span></td>
           <td data-label="Criado">${fmtDate(r.created_at)}</td>
@@ -799,7 +813,7 @@
   }
   fExport.addEventListener('click', () => {
     const rows = filteredRows();
-    const cols = ['id', 'nome', 'email', 'current_step', 'completed', 'created_at', 'updated_at', 'answers'];
+    const cols = ['id', 'nome', 'telefone', 'current_step', 'completed', 'created_at', 'updated_at', 'answers'];
     const lines = [cols.join(',')];
     rows.forEach(r => {
       lines.push(cols.map(c => csvEscape(r[c])).join(','));

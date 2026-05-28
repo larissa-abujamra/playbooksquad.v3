@@ -397,13 +397,12 @@
   }
   // ----------------------------------------------------------------
   // Supabase: upsert das respostas do wizard.
-  //  · localStorage continua sendo a fonte primária (offline-friendly);
-  //    o upsert remoto é background e silencioso.
-  //  · Identificamos o user pelo `email` salvo em `localStorage["squad-user"]`
-  //    no signup.html. Sem signup, não envia (early return).
+  //  · Identificamos o user pelo `telefone` salvo em
+  //    `localStorage["squad-user"]` no signup.html (sem auth, só form).
+  //    Sem signup, não envia (early return).
   //  · Debounce de 1.5s pra evitar ~1 request por keypress em textareas.
-  //  · UPSERT via `?on_conflict=email` + `Prefer: resolution=merge-duplicates`
-  //    — a tabela `wizard_responses` tem unique index em `email`.
+  //  · UPSERT via `?on_conflict=telefone` + `Prefer: resolution=merge-duplicates`
+  //    — a tabela `wizard_responses` tem unique index em `telefone`.
   // ----------------------------------------------------------------
   const SUPABASE_URL = 'https://xkgepeejugrlgtavcxqb.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZ2VwZWVqdWdybGd0YXZjeHFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODU0MjIsImV4cCI6MjA5NTU2MTQyMn0.s7JKeTqkG14boQcH00eGv4CKSzeYJPY8zud8WMe4pQc';
@@ -412,9 +411,9 @@
   function pushWizardToSupabase() {
     let user = null;
     try { user = JSON.parse(localStorage.getItem('squad-user') || 'null'); } catch (_) {}
-    if (!user || !user.email) return;   // sem signup, não envia
+    if (!user || !user.telefone) return;   // sem signup, não envia
 
-    fetch(SUPABASE_URL + '/rest/v1/wizard_responses?on_conflict=email', {
+    fetch(SUPABASE_URL + '/rest/v1/wizard_responses?on_conflict=telefone', {
       method: 'POST',
       headers: {
         apikey:          SUPABASE_ANON_KEY,
@@ -423,7 +422,7 @@
         Prefer:          'resolution=merge-duplicates, return=minimal',
       },
       body: JSON.stringify({
-        email:        user.email,
+        telefone:     user.telefone,
         nome:         user.nome,
         answers:      wizardState.answers,
         current_step: wizardState.currentIndex,

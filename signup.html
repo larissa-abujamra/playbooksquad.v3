@@ -11,8 +11,7 @@
 </head>
 <body>
 
-<!-- Reutiliza o shell .overview da home pra manter o look (sem sidebar).
-     Estrutura: ov-nav + card central com formulário + ov-foot. -->
+<!-- Shell .overview (sem sidebar) — mesma estrutura visual da home. -->
 <div class="overview signup-page" id="overview">
   <div class="ov-shell signup-shell">
 
@@ -34,7 +33,7 @@
               type="text"
               name="nome"
               id="signup-nome"
-              placeholder="Ex: João"
+              placeholder="Ex: Maria"
               autocomplete="name"
               required
               minlength="2"
@@ -43,49 +42,24 @@
           </label>
 
           <label class="signup-field">
-            <span class="signup-label">Seu e-mail</span>
+            <span class="signup-label">Seu WhatsApp</span>
             <input
-              type="email"
-              name="email"
-              id="signup-email"
-              placeholder="joão@confeitaria.com"
-              autocomplete="email"
+              type="tel"
+              name="telefone"
+              id="signup-telefone"
+              placeholder="(00) 00000-0000"
+              autocomplete="tel-national"
+              inputmode="numeric"
               required
-              maxlength="120"
+              maxlength="16"
             />
-          </label>
-
-          <label class="signup-field">
-            <span class="signup-label">Senha</span>
-            <div class="signup-password-wrap">
-              <input
-                type="password"
-                name="password"
-                id="signup-password"
-                placeholder="Mínimo 8 caracteres"
-                autocomplete="new-password"
-                required
-                minlength="8"
-                maxlength="72"
-              />
-              <button type="button" class="signup-password-toggle" id="signup-password-toggle"
-                      aria-label="Mostrar senha" aria-pressed="false">
-                <svg class="ico-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
-                <svg class="ico-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M3 3l18 18M10.6 6.1A9.4 9.4 0 0 1 12 6c6.5 0 10 6 10 6a17.6 17.6 0 0 1-3.4 4.1M6.6 6.6A17.4 17.4 0 0 0 2 12s3.5 6 10 6c1.4 0 2.7-.3 3.9-.7M9.9 9.9a3 3 0 0 0 4.2 4.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            </div>
-            <span class="signup-field-hint">Mínimo 8 caracteres. Use uma senha que você lembre.</span>
+            <span class="signup-field-hint">Com DDD. A gente usa pra te encontrar caso precise.</span>
           </label>
 
           <button type="submit" id="signup-submit" class="btn-glow" disabled>
             <span class="btn-glow-bg"></span>
             <span class="btn-glow-content">
-              <span class="signup-submit-label">Continuar</span>
+              <span class="signup-submit-label">Avançar</span>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -94,12 +68,6 @@
         </form>
 
         <p class="signup-error" id="signup-error" role="alert" hidden></p>
-
-        <!-- Link discreto pra quem já tem conta -->
-        <p class="signup-altlink">
-          Já tem uma conta?
-          <a href="signin.html">Entrar</a>
-        </p>
       </section>
     </main>
 
@@ -113,163 +81,85 @@
 
 <script>
 /* ================================================================
-   Signup — cria conta via Supabase Auth (nome + email + senha).
+   Signup — formulário simples (nome + telefone).
    ----------------------------------------------------------------
-   IMPORTANTE: troca pra Supabase Auth (POST /auth/v1/signup) em vez
-   de inserir manualmente em public.users. Razões:
-     · Senha entra HASHED (bcrypt) automaticamente — nunca em texto
-       plano. Inserir senha numa tabela "users" comum seria grave.
-     · O Supabase gerencia sessão, recuperação de senha, confirmação
-       de email, rate-limit, etc.
-     · O nome vai como user_metadata.nome.
-     · Validação: nome ≥ 2 chars, email regex básico, senha ≥ 8 chars.
-     · Tratamento dos erros mais comuns (email duplicado, senha
-       fraca, confirmação de email pendente).
-     · localStorage["squad-user"] continua sendo escrito pra próximas
-       telas (setup/wizard) usarem nome/email sem precisar query auth.
+   - Sem auth, sem senha, sem fetch ao Supabase aqui. É só um form
+     que persiste o user no localStorage e redireciona pro setup.
+   - As respostas do wizard vão pro Supabase depois (main.js usa
+     o `telefone` do localStorage["squad-user"] como chave do upsert).
+   - Máscara brasileira: formata enquanto digita; aceita 10 ou 11
+     dígitos (DDD + 8 ou 9 dígitos). O localStorage guarda APENAS
+     os dígitos (sem máscara) pra facilitar query/dedupe depois.
    ================================================================ */
 (() => {
-  const SUPABASE_URL = 'https://xkgepeejugrlgtavcxqb.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZ2VwZWVqdWdybGd0YXZjeHFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODU0MjIsImV4cCI6MjA5NTU2MTQyMn0.s7JKeTqkG14boQcH00eGv4CKSzeYJPY8zud8WMe4pQc';
+  const form        = document.getElementById('signup-form');
+  const nomeEl      = document.getElementById('signup-nome');
+  const telEl       = document.getElementById('signup-telefone');
+  const submitBtn   = document.getElementById('signup-submit');
+  const submitLbl   = submitBtn.querySelector('.signup-submit-label');
+  const errorEl     = document.getElementById('signup-error');
 
-  const form         = document.getElementById('signup-form');
-  const nomeEl       = document.getElementById('signup-nome');
-  const emailEl      = document.getElementById('signup-email');
-  const passEl       = document.getElementById('signup-password');
-  const passToggle   = document.getElementById('signup-password-toggle');
-  const submitBtn    = document.getElementById('signup-submit');
-  const submitLbl    = submitBtn.querySelector('.signup-submit-label');
-  const errorEl      = document.getElementById('signup-error');
+  // ---------- Máscara de telefone BR ----------
+  // 10 dígitos: (00) 0000-0000  ·  11 dígitos: (00) 00000-0000
+  function onlyDigits(s)  { return s.replace(/\D/g, ''); }
+  function formatPhone(raw) {
+    const d = onlyDigits(raw).slice(0, 11);
+    if (d.length === 0) return '';
+    if (d.length <= 2)  return '(' + d;
+    if (d.length <= 6)  return '(' + d.slice(0,2) + ') ' + d.slice(2);
+    if (d.length <= 10) return '(' + d.slice(0,2) + ') ' + d.slice(2,6) + '-' + d.slice(6);
+    return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+  }
+  telEl.addEventListener('input', () => {
+    telEl.value = formatPhone(telEl.value);
+    syncSubmit();
+  });
+  // Cole formatado (paste handler)
+  telEl.addEventListener('paste', (ev) => {
+    ev.preventDefault();
+    const text = (ev.clipboardData || window.clipboardData).getData('text');
+    telEl.value = formatPhone(text);
+    syncSubmit();
+  });
 
-  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const PASS_MIN = 8;
-
+  // ---------- Validação ----------
   const isValid = () => {
-    const nome  = nomeEl.value.trim();
-    const email = emailEl.value.trim();
-    const pass  = passEl.value;
-    return nome.length >= 2
-        && EMAIL_RE.test(email)
-        && pass.length >= PASS_MIN;
+    const nome = nomeEl.value.trim();
+    const tel  = onlyDigits(telEl.value);
+    return nome.length >= 2 && (tel.length === 10 || tel.length === 11);
   };
   const syncSubmit = () => {
     submitBtn.disabled = !isValid();
-    if (!errorEl.hidden) errorEl.hidden = true;   // limpa erro quando user edita
+    if (!errorEl.hidden) errorEl.hidden = true;
   };
   nomeEl.addEventListener('input', syncSubmit);
-  emailEl.addEventListener('input', syncSubmit);
-  passEl.addEventListener('input', syncSubmit);
   syncSubmit();
 
-  // Toggle mostrar/esconder senha (olhinho)
-  passToggle.addEventListener('click', () => {
-    const showing = passEl.type === 'text';
-    passEl.type = showing ? 'password' : 'text';
-    passToggle.setAttribute('aria-pressed', String(!showing));
-    passToggle.setAttribute('aria-label', showing ? 'Mostrar senha' : 'Esconder senha');
-    passToggle.classList.toggle('is-showing', !showing);
-  });
-
-  // Mensagens amigáveis pros erros mais comuns do auth/signup
-  function friendlyError(status, detail) {
-    const text = (detail || '').toLowerCase();
-    if (status === 400) {
-      if (text.includes('already registered') || text.includes('already been registered')
-       || text.includes('user already')) {
-        return 'Esse e-mail já está cadastrado. Tenta entrar em vez de criar uma conta nova.';
-      }
-      if (text.includes('password') && (text.includes('weak') || text.includes('short'))) {
-        return 'Senha muito curta ou fraca. Use no mínimo 8 caracteres.';
-      }
-      if (text.includes('email') && text.includes('invalid')) {
-        return 'E-mail inválido. Confira e tente de novo.';
-      }
-    }
-    if (status === 422) {
-      return 'Algum dado está fora do formato. Confira e-mail e senha.';
-    }
-    if (status === 429) {
-      return 'Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.';
-    }
-    return 'Não conseguimos salvar agora. Verifique sua conexão e tente de novo.';
-  }
-
-  form.addEventListener('submit', async (ev) => {
+  // ---------- Submit ----------
+  form.addEventListener('submit', (ev) => {
     ev.preventDefault();
     if (!isValid() || submitBtn.disabled) return;
 
-    submitBtn.disabled = true;
-    submitLbl.textContent = 'Salvando…';
-    errorEl.hidden = true;
-
-    const nome  = nomeEl.value.trim();
-    const email = emailEl.value.trim().toLowerCase();
-    const pass  = passEl.value;
+    const nome = nomeEl.value.trim();
+    const telefone = onlyDigits(telEl.value);   // sem máscara, só dígitos
 
     try {
-      const res = await fetch(SUPABASE_URL + '/auth/v1/signup', {
-        method: 'POST',
-        headers: {
-          'apikey':       SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password: pass,
-          data: { nome },          // vai pra user_metadata.nome em auth.users
-        }),
-      });
-
-      const json = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        const detail = json.msg || json.message || json.error_description || JSON.stringify(json);
-        throw Object.assign(new Error('HTTP ' + res.status + ' — ' + detail), {
-          status: res.status,
-          detail,
-        });
-      }
-
-      // Persiste localmente pro setup/wizard usar
-      try {
-        localStorage.setItem('squad-user', JSON.stringify({
-          nome,
-          email,
-          // user_id do Supabase Auth — útil pra próximas requests
-          userId: json.user && json.user.id,
-          createdAt: new Date().toISOString(),
-        }));
-        // Sessão (se o projeto não exige confirmation): salva o token
-        if (json.access_token) {
-          localStorage.setItem('squad-session', JSON.stringify({
-            access_token:  json.access_token,
-            refresh_token: json.refresh_token,
-            expires_at:    json.expires_at,
-          }));
-        }
-      } catch (_) {}
-
-      // Se "Confirm email" está ligado no projeto, a session não vem agora.
-      // O user precisa abrir o email pra confirmar. Avisa em vez de redirecionar.
-      const confirmacaoPendente = !json.access_token && json.user && !json.user.confirmed_at;
-      if (confirmacaoPendente) {
-        errorEl.hidden = false;
-        errorEl.classList.add('is-info');
-        errorEl.textContent = 'Conta criada! Verifique seu e-mail pra confirmar o cadastro e voltar pra continuar.';
-        submitLbl.textContent = 'Aguardando confirmação';
-        return;
-      }
-
-      // Tudo certo — pro setup
-      window.location.href = 'setup.html';
-    } catch (err) {
-      console.error('[signup] erro ao salvar:', err);
+      localStorage.setItem('squad-user', JSON.stringify({
+        nome,
+        telefone,
+        createdAt: new Date().toISOString(),
+      }));
+    } catch (_) {
+      // localStorage bloqueado (modo privado etc) — segue mesmo assim
       errorEl.hidden = false;
-      errorEl.classList.remove('is-info');
-      errorEl.textContent = friendlyError(err.status, err.detail);
-      submitLbl.textContent = 'Continuar';
-      submitBtn.disabled = false;
+      errorEl.textContent = 'Não conseguimos salvar seus dados localmente. Tente desativar o modo anônimo do navegador.';
+      return;
     }
+
+    // Limpa qualquer resíduo do antigo fluxo de auth
+    try { localStorage.removeItem('squad-session'); } catch (_) {}
+
+    window.location.href = 'setup.html';
   });
 })();
 </script>
