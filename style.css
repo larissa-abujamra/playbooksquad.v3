@@ -3573,6 +3573,46 @@
   opacity: 0.15;
 }
 
+/* Wrapper do campo de senha — input + botão olhinho sobrepostos */
+.signup-password-wrap {
+  position: relative;
+}
+.signup-password-wrap input {
+  width: 100%;
+  padding-right: 44px;       /* espaço pro botão do olho */
+}
+.signup-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: color .15s ease, background .15s ease;
+}
+.signup-password-toggle:hover {
+  color: var(--ink);
+  background: var(--bg-3);
+}
+.signup-password-toggle .ico-eye-off { display: none; }
+.signup-password-toggle.is-showing .ico-eye    { display: none; }
+.signup-password-toggle.is-showing .ico-eye-off { display: block; }
+
+/* Hint pequeno abaixo do input (ex: "Mínimo 8 caracteres") */
+.signup-field-hint {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+
 /* Mensagem de erro — chamativa mas não agressiva */
 .signup-error {
   margin: 16px 0 0;
@@ -3584,6 +3624,29 @@
   font-size: 14px;
   line-height: 1.45;
 }
+/* Variante "info" pra mensagens neutras (ex: aguardando confirmação) */
+.signup-error.is-info {
+  background: color-mix(in oklab, var(--waz) 8%, transparent);
+  border-color: color-mix(in oklab, var(--waz) 28%, transparent);
+  color: color-mix(in oklab, var(--waz) 70%, black);
+}
+
+/* Link discreto pro fluxo alternativo (signup ↔ signin) */
+.signup-altlink {
+  margin: 22px 0 0;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--ink-3);
+}
+.signup-altlink a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1px;
+  transition: border-color .15s ease;
+}
+.signup-altlink a:hover { border-color: var(--ink); }
 
 /* Mobile — card sem moldura, full-bleed do padding do shell */
 @media (max-width: 640px) {
