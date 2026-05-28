@@ -857,12 +857,20 @@
   }
   
   .ov-title {
-    font-size: clamp(36px, 5.4vw, 60px);
+    /* Reduzido: era clamp(36px, 5.4vw, 60px). Fonte ~15% menor mas mantém
+       "seus novos agentes." em uma linha só. */
+    font-size: clamp(32px, 4.6vw, 52px);
     font-weight: 700;
     letter-spacing: -0.035em;
     line-height: 1.02;
     margin: 0;
+    /* `text-wrap: balance` distribui as quebras de forma mais equilibrada
+       entre as linhas — evita uma órfã muito longa ou um "rio" estranho. */
+    text-wrap: balance;
   }
+  /* Acent stripe não quebra no meio: força "seus novos agentes." inteiro
+     na mesma linha mesmo se sobrar pouco espaço. */
+  .ov-title .accent-stripe { white-space: nowrap; }
   .ov-title .accent-stripe {
     background-image: linear-gradient(90deg, var(--maky), var(--waz) 50%, var(--fin));
     -webkit-background-clip: text;
