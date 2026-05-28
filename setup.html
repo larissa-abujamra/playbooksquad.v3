@@ -36,7 +36,10 @@
       <li><a href="#page-2">Cadastre seus produtos</a></li>
       <li><a href="catalogo-dicas.html">Dicas e detalhes</a></li>
     </ul>
+    <!-- Integrações temporariamente ocultada (hidden por enquanto).
     <a class="nav-link" href="#page-3">Integrações</a>
+    -->
+
 
 
     <div class="label" style="margin-top: 18px;">Mais</div>
@@ -61,7 +64,9 @@
           <option value="#page-1">① Treine seus agentes</option>
           <option value="#page-2">② Monte seu catálogo</option>
           <option value="catalogo-dicas.html">↳ Dicas e detalhes</option>
+          <!-- Integrações temporariamente ocultada:
           <option value="#page-3">③ Integrações</option>
+          -->
        
         </optgroup>
         <optgroup label="Mais">
@@ -357,7 +362,14 @@
           </div>
         </div>
 
-        <!-- ETAPA 3 -->
+        <!-- ETAPA 3 — TEMPORARIAMENTE OCULTADA (hidden por enquanto).
+             Envelopada em <template> em vez de <!-- --> porque o conteúdo já
+             contém comentários HTML internos, que quebrariam um wrapper de
+             comentário. <template> também não é parseado por querySelectorAll,
+             então o JS de navegação (showSetupPage / page-prev / page-next)
+             nem sequer enxerga a `.page#page-3` aqui dentro. Pra reativar
+             é só remover as 2 linhas <template> abaixo. -->
+        <template id="page-3-hidden">
         <div class="page" id="page-3">
           <div class="stage" id="stage-3">
             <div class="section-eyebrow">Etapa 03</div>
@@ -493,8 +505,10 @@
             </button>
           </div>
         </div>
+        </template>
+        <!-- FIM da ETAPA 3 ocultada -->
 
-      
+
 
     </div>
   </main>
