@@ -406,6 +406,10 @@
   //    mais "avançada" no servidor que a local, restaura.
   // ----------------------------------------------------------------
   let wizardSaveTimer = null;
+  // Cache do briefing refinado vindo da Edge Function — declarada AQUI
+  // (antes de renderDone) pra a atribuição `cachedBriefingMarkdown = null`
+  // dentro de renderDone atingir esta variável, não criar uma global.
+  let cachedBriefingMarkdown = null;
 
   async function getCurrentUser() {
     if (!window.sb) return null;
@@ -939,6 +943,10 @@
     clearTimeout(wizardSaveTimer);
     pushWizardToSupabase();
 
+    // Invalida cache do briefing refinado — as respostas podem ter mudado
+    // se o user revisou e voltou à tela final.
+    cachedBriefingMarkdown = null;
+
     wizardCard.classList.remove('is-leaving-forward', 'is-leaving-back');
     const direction = isResume ? 'forward' : 'forward';
     wizardCard.classList.add('is-entering-' + direction);
@@ -974,7 +982,7 @@
         '<div class="wizard-done-actions">' +
           '<button class="wizard-download" type="button" id="wizard-download">' +
             '<svg viewBox="0 0 16 16" fill="none"><path d="M8 2v9m0 0l-3-3m3 3l3-3M3 14h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-            'Baixar PDF' +
+            '<span class="wizard-download-label">Baixar PDF</span>' +
           '</button>' +
           // Botão "Copiar prompt" — copia o MESMO conteúdo do PDF em texto plano
           '<button class="wizard-copy" type="button" id="wizard-copy">' +
@@ -999,15 +1007,42 @@
         '</div>' +
       '</div>';
 
-    document.getElementById('wizard-download').addEventListener('click', downloadPDF);
-
-    // Botão "Copiar prompt" — escreve o texto do PDF no clipboard,
-    // com feedback visual ("Copiado ✓") por 1.8s. Fallback execCommand
-    // para HTTP/older browsers onde navigator.clipboard pode falhar.
-    const copyBtn = document.getElementById('wizard-copy');
+    // Helpers de loading dos dois botões — usados pelos handlers async.
+    // Botão "Baixar PDF" e "Copiar prompt" desabilitam um ao outro durante
+    // a chamada (evita race / chamada dupla à Edge Function).
+    const dlBtn    = document.getElementById('wizard-download');
+    const dlLabel  = dlBtn.querySelector('.wizard-download-label');
+    const copyBtn  = document.getElementById('wizard-copy');
     const copyLabel = copyBtn.querySelector('.wizard-copy-label');
-    copyBtn.addEventListener('click', () => {
-      const text = buildPromptText();
+
+    function setBusy(busy, who) {
+      dlBtn.disabled   = !!busy;
+      copyBtn.disabled = !!busy;
+      if (!busy) {
+        if (dlLabel)   dlLabel.textContent   = 'Baixar PDF';
+        if (copyLabel) copyLabel.textContent = 'Copiar prompt';
+        return;
+      }
+      // Mostra "Gerando…" só no botão que iniciou a operação
+      if (who === 'download' && dlLabel)   dlLabel.textContent   = 'Gerando…';
+      if (who === 'copy'     && copyLabel) copyLabel.textContent = 'Gerando…';
+    }
+
+    // ----- Baixar PDF -----
+    dlBtn.addEventListener('click', async () => {
+      if (dlBtn.disabled) return;
+      setBusy(true, 'download');
+      try { await downloadPDF(); }
+      finally { setBusy(false); }
+    });
+
+    // ----- Copiar prompt -----
+    // Reusa o mesmo markdown refinado que vai no PDF (cache via
+    // `cachedBriefingMarkdown`). Em erro de rede, cai no `buildPromptText()`
+    // — mantém o comportamento antigo de hoje em qualquer cenário.
+    copyBtn.addEventListener('click', async () => {
+      if (copyBtn.disabled) return;
+
       const flashCopied = () => {
         copyBtn.classList.add('is-copied');
         if (copyLabel) copyLabel.textContent = 'Copiado ✓';
@@ -1016,21 +1051,41 @@
           if (copyLabel) copyLabel.textContent = 'Copiar prompt';
         }, 1800);
       };
-      const fallbackCopy = () => {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); flashCopied(); }
-        catch (_) { alert('Não foi possível copiar. Copie manualmente.'); }
-        document.body.removeChild(ta);
+      const doCopy = (text) => {
+        const fallbackCopy = () => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); flashCopied(); }
+          catch (_) { alert('Não foi possível copiar. Copie manualmente.'); }
+          document.body.removeChild(ta);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(flashCopied, fallbackCopy);
+        } else {
+          fallbackCopy();
+        }
       };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(flashCopied, fallbackCopy);
-      } else {
-        fallbackCopy();
+
+      // Se já temos o markdown (vindo de um clique anterior em Baixar PDF
+      // ou Copiar), evita 2ª chamada à API.
+      if (cachedBriefingMarkdown) {
+        doCopy(cachedBriefingMarkdown);
+        return;
+      }
+
+      setBusy(true, 'copy');
+      try {
+        const md = await getBriefingMarkdown();
+        doCopy(md);
+      } catch (err) {
+        console.warn('[copy] briefing refinado falhou, usando texto local:', err);
+        doCopy(buildPromptText());
+      } finally {
+        setBusy(false);
       }
     });
 
@@ -1143,7 +1198,210 @@
       .trim();
   }
 
-  function downloadPDF() {
+  // ----------------------------------------------------------------
+  //  BRIEFING REFINADO — pipeline via Edge Function
+  //  ----------------------------------------------------------------
+  //  1. montarRespostasTexto(): empacota as respostas cruas (uma linha
+  //     "Label: valor" por pergunta, com "(em branco)" pros vazios).
+  //  2. gerarBriefingRefinado(): manda pro endpoint /functions/v1/gerar-briefing
+  //     e devolve o markdown processado.
+  //  3. getBriefingMarkdown(): wrapper com cache em memória — evita
+  //     chamar a função duas vezes (clica Baixar e depois Copiar).
+  //  4. renderPDFFromMarkdown(): usa o mesmo setup jsPDF de antes
+  //     (header, footer, paginação) mas como FONTE o markdown parseado.
+  //  5. downloadPDF() (público): tenta a versão refinada; em qualquer
+  //     erro (rede off, função 500, markdown vazio), cai no
+  //     downloadPDFLocal() — o código antigo, intacto.
+  // ----------------------------------------------------------------
+
+  // 1) Monta string "Label: valor" pra mandar pro Edge Function
+  function montarRespostasTexto() {
+    const lines = [];
+    wizardQuestions.forEach(q => {
+      const label = q.pdfLabel || q.q;
+      const answer = formatAnswer(q);
+      const printed = (answer && answer.trim()) ? answer.replace(/\s*\n\s*/g, ' / ') : '(em branco)';
+      lines.push(label + ': ' + printed);
+    });
+    return lines.join('\n');
+  }
+
+  // 2) POST pra Edge Function — lança em erro pra quem chama tratar fallback
+  async function gerarBriefingRefinado() {
+    const url = window.SUPABASE_URL;
+    const key = window.SUPABASE_ANON_KEY;
+    if (!url || !key) throw new Error('SUPABASE_URL / ANON_KEY não disponíveis');
+
+    const respostas = montarRespostasTexto();
+    const res = await fetch(url + '/functions/v1/gerar-briefing', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + key,
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify({ respostas }),
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      throw new Error('Edge Function HTTP ' + res.status + (detail ? ' — ' + detail : ''));
+    }
+    const data = await res.json().catch(() => ({}));
+    const md = data && data.markdown;
+    if (!md || !String(md).trim()) {
+      throw new Error('Edge Function não retornou markdown');
+    }
+    return String(md);
+  }
+
+  // 3) Cache em memória (a declaração `let` real está lá em cima, junto
+  //    de wizardSaveTimer — antes de renderDone, pra a invalidação em
+  //    renderDone atingir esta variável e não criar uma global por engano).
+  async function getBriefingMarkdown() {
+    if (cachedBriefingMarkdown) return cachedBriefingMarkdown;
+    cachedBriefingMarkdown = await gerarBriefingRefinado();
+    return cachedBriefingMarkdown;
+  }
+
+  // 4) Renderiza o PDF a partir do markdown refinado.
+  //    Parser simples linha-a-linha:
+  //      "# X"          → header gigante
+  //      "## X"         → header de bloco (uppercase, com underline curto)
+  //      "### X"        → sub-header
+  //      "- **L:** v"   → bullet "•  L: v"
+  //      "- L: v"       → bullet "•  L: v"
+  //      "- texto"      → bullet "•  texto"
+  //      ""             → respiro vertical
+  //      qualquer outra → parágrafo normal
+  //    `**negrito**` inline é REMOVIDO (jsPDF nativo não tem rich text
+  //    barato). A perda é cosmética; o conteúdo continua todo.
+  function renderPDFFromMarkdown(markdown) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 48;
+    const maxWidth = pageWidth - margin * 2;
+    let y = margin;
+
+    // Header fixo (igual à versão local — identidade do documento)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(17, 24, 39);
+    doc.text('Perfil do Negócio', margin, y);
+    y += 24;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(107, 114, 128);
+    doc.text('Gerado pelo Playbook Squad', margin, y);
+    y += 22;
+    doc.setDrawColor(229, 231, 235);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 26;
+
+    // Helper: imprime linhas quebradas com paginação automática
+    const printWrapped = (text, opts) => {
+      const o = opts || {};
+      const indent = o.indent || 0;
+      const lineH  = o.lineHeight || 15;
+      doc.setFont(o.fontFamily || 'helvetica', o.fontStyle || 'normal');
+      doc.setFontSize(o.fontSize || 11);
+      doc.setTextColor(o.r ?? 17, o.g ?? 24, o.b ?? 39);
+      const lines = doc.splitTextToSize(text, maxWidth - indent);
+      lines.forEach((line, i) => {
+        if (y > pageHeight - margin) { doc.addPage(); y = margin; }
+        doc.text(line, margin + indent + (i === 0 ? 0 : 12), y);
+        y += lineH;
+      });
+    };
+
+    const stripBold = (s) => String(s || '').replace(/\*\*(.+?)\*\*/g, '$1');
+
+    // Parse linha a linha
+    const rawLines = String(markdown).replace(/\r\n?/g, '\n').split('\n');
+    rawLines.forEach(rawLine => {
+      const line = rawLine.replace(/\s+$/, '');           // trim direita
+      if (!line.trim()) { y += 8; return; }               // linha em branco = respiro
+
+      // ### sub-header
+      if (/^###\s+/.test(line)) {
+        if (y > pageHeight - 80) { doc.addPage(); y = margin; }
+        const text = pdfSafe(stripBold(line.replace(/^###\s+/, '')));
+        y += 6;
+        printWrapped(text, { fontStyle: 'bold', fontSize: 12, lineHeight: 16 });
+        y += 4;
+        return;
+      }
+
+      // ## bloco
+      if (/^##\s+/.test(line)) {
+        if (y > pageHeight - 120) { doc.addPage(); y = margin; }
+        const text = pdfSafe(stripBold(line.replace(/^##\s+/, ''))).toUpperCase();
+        y += 10;
+        printWrapped(text, { fontStyle: 'bold', fontSize: 13, lineHeight: 16 });
+        // underline curto (mesmo padrão do PDF local)
+        doc.setDrawColor(17, 24, 39);
+        doc.setLineWidth(1.4);
+        doc.line(margin, y - 8, margin + 32, y - 8);
+        doc.setLineWidth(0.5);
+        y += 8;
+        return;
+      }
+
+      // # header gigante (caso a Edge Function devolva um título top-level)
+      if (/^#\s+/.test(line)) {
+        if (y > pageHeight - 140) { doc.addPage(); y = margin; }
+        const text = pdfSafe(stripBold(line.replace(/^#\s+/, '')));
+        y += 12;
+        printWrapped(text, { fontStyle: 'bold', fontSize: 16, lineHeight: 20 });
+        y += 6;
+        return;
+      }
+
+      // - bullet
+      if (/^-\s+/.test(line)) {
+        const body = pdfSafe(stripBold(line.replace(/^-\s+/, '')));
+        printWrapped('•  ' + body, { fontSize: 11, lineHeight: 15 });
+        y += 4;
+        return;
+      }
+
+      // Parágrafo normal
+      printWrapped(pdfSafe(stripBold(line)), { fontSize: 11, lineHeight: 15 });
+      y += 4;
+    });
+
+    // Footer com data + paginação (mesmo padrão do PDF local)
+    const totalPages = doc.internal.getNumberOfPages();
+    const today = new Date().toLocaleDateString('pt-BR');
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(156, 163, 175);
+      doc.text('Gerado em ' + today + '  ·  Squad', margin, pageHeight - 24);
+      doc.text(i + '/' + totalPages, pageWidth - margin, pageHeight - 24, { align: 'right' });
+    }
+
+    doc.save('perfil-negocio-squad.pdf');
+  }
+
+  // 5) downloadPDF público — tenta refinado primeiro, fallback no local
+  async function downloadPDF() {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      alert('PDF ainda carregando. Tenta de novo em 1 segundo.');
+      return;
+    }
+    try {
+      const md = await getBriefingMarkdown();
+      renderPDFFromMarkdown(md);
+    } catch (err) {
+      console.warn('[downloadPDF] briefing refinado falhou, usando PDF local:', err);
+      downloadPDFLocal();
+    }
+  }
+
+  // PDF local (antiga downloadPDF) — fallback intacto, sem mudanças de comportamento
+  function downloadPDFLocal() {
     if (!window.jspdf || !window.jspdf.jsPDF) {
       alert('PDF ainda carregando. Tenta de novo em 1 segundo.');
       return;
