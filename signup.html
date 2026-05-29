@@ -63,15 +63,6 @@
             <span class="signup-field-hint" id="hint-password">Mínimo 6 caracteres.</span>
           </label>
 
-          <!-- Campo confirmar senha — só aparece no modo "criar conta" -->
-          <label class="signup-field" id="field-confirm">
-            <span class="signup-label">Confirme a senha</span>
-            <input type="password" name="password2" id="signup-password2"
-                   placeholder="Digite a senha de novo"
-                   autocomplete="new-password"
-                   minlength="6" maxlength="72" />
-          </label>
-
           <button type="submit" id="signup-submit" class="btn-glow" disabled>
             <span class="btn-glow-bg"></span>
             <span class="btn-glow-content">
@@ -139,8 +130,6 @@
   const emailEl     = document.getElementById('signup-email');
   const passEl      = document.getElementById('signup-password');
   const passToggle  = document.getElementById('signup-password-toggle');
-  const pass2El     = document.getElementById('signup-password2');
-  const fieldConf   = document.getElementById('field-confirm');
   const submitBtn   = document.getElementById('signup-submit');
   const submitLbl   = submitBtn.querySelector('.signup-submit-label');
   const errorEl     = document.getElementById('signup-error');
@@ -166,11 +155,8 @@
       altlinkA.textContent  = 'Entrar';
       hintPass.textContent  = 'Mínimo 6 caracteres.';
       fieldNome.style.display = '';
-      fieldConf.style.display = '';
       nomeEl.required  = true;
-      pass2El.required = true;
       passEl.setAttribute('autocomplete', 'new-password');
-      pass2El.setAttribute('autocomplete', 'new-password');
     } else {
       titleEl.textContent   = 'Bem-vindo de volta';
       ledeEl.textContent    = 'Continue de onde parou no seu treinamento.';
@@ -180,13 +166,10 @@
       altlinkA.textContent  = 'Criar conta';
       hintPass.textContent  = '';
       fieldNome.style.display = 'none';
-      fieldConf.style.display = 'none';
       nomeEl.required  = false;
-      pass2El.required = false;
       passEl.setAttribute('autocomplete', 'current-password');
     }
     nomeEl.value = '';
-    pass2El.value = '';
     syncSubmit();
     // Foco no email no modo entrar; nome no modo criar
     (mode === 'signin' ? emailEl : nomeEl).focus();
@@ -203,25 +186,20 @@
     const pass  = passEl.value;
     if (!EMAIL_RE.test(email)) return false;
     if (pass.length < 6) return false;
-    if (mode === 'signup') {
-      if (nomeEl.value.trim().length < 2) return false;
-      if (pass2El.value !== pass) return false;
-    }
+    if (mode === 'signup' && nomeEl.value.trim().length < 2) return false;
     return true;
   };
   const syncSubmit = () => {
     submitBtn.disabled = !isValid();
     if (!errorEl.hidden) errorEl.hidden = true;
   };
-  [nomeEl, emailEl, passEl, pass2El].forEach(el => el.addEventListener('input', syncSubmit));
+  [nomeEl, emailEl, passEl].forEach(el => el.addEventListener('input', syncSubmit));
   syncSubmit();
 
   // ---------- Toggle olhinho ----------
   passToggle.addEventListener('click', () => {
     const showing = passEl.type === 'text';
-    const next = showing ? 'password' : 'text';
-    passEl.type  = next;
-    pass2El.type = next;
+    passEl.type = showing ? 'password' : 'text';
     passToggle.setAttribute('aria-pressed', String(!showing));
     passToggle.setAttribute('aria-label', showing ? 'Mostrar senha' : 'Esconder senha');
     passToggle.classList.toggle('is-showing', !showing);
