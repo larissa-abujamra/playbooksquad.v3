@@ -3667,3 +3667,80 @@
     padding: 8px 0 24px;
   }
 }
+
+/* ============================================================
+   AUTH — bloco "user + Sair" injetado pelo auth-gate.js
+   ============================================================ */
+.auth-logout-wrap {
+  margin-top: auto;          /* empurra pro fim do sidebar (que é flex column) */
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.auth-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  min-width: 0;
+}
+.auth-user-avatar {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--maky), var(--fin) 55%, var(--waz));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.auth-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.auth-logout {
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color .15s ease, background .15s ease, border-color .15s ease;
+}
+.auth-logout:hover {
+  color: var(--ink);
+  background: var(--bg-2);
+  border-color: var(--ink-3);
+}
+.auth-logout-mobile {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-2);
+  cursor: pointer;
+  margin-left: 8px;
+  flex: 0 0 auto;
+}
+.auth-logout-mobile:hover { color: var(--ink); border-color: var(--ink-3); }

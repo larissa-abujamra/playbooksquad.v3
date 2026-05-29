@@ -22,44 +22,60 @@
 
     <main class="signup-main">
       <section class="signup-card" aria-labelledby="signup-title">
-        <div class="ov-eyebrow">Antes de começar</div>
-        <h1 class="signup-title" id="signup-title">Bem-vindo</h1>
-        <p class="signup-lede">Em menos de 20 segundos a gente já libera seu treinamento.</p>
+        <div class="ov-eyebrow" id="signup-eyebrow">Antes de começar</div>
+        <h1 class="signup-title" id="signup-title">Crie sua conta</h1>
+        <p class="signup-lede" id="signup-lede">Em menos de 1 minuto a gente já libera seu treinamento.</p>
 
         <form id="signup-form" class="signup-form" novalidate>
-          <label class="signup-field">
+          <!-- Campo nome — só aparece no modo "criar conta" -->
+          <label class="signup-field" id="field-nome">
             <span class="signup-label">Seu nome</span>
-            <input
-              type="text"
-              name="nome"
-              id="signup-nome"
-              placeholder="Ex: Maria"
-              autocomplete="name"
-              required
-              minlength="2"
-              maxlength="80"
-            />
+            <input type="text" name="nome" id="signup-nome"
+                   placeholder="Ex: Maria" autocomplete="name"
+                   required minlength="2" maxlength="80" />
           </label>
 
           <label class="signup-field">
-            <span class="signup-label">Seu WhatsApp</span>
-            <input
-              type="tel"
-              name="telefone"
-              id="signup-telefone"
-              placeholder="(00) 00000-0000"
-              autocomplete="tel-national"
-              inputmode="numeric"
-              required
-              maxlength="16"
-            />
-            <span class="signup-field-hint">Com DDD. A gente usa pra te encontrar caso precise.</span>
+            <span class="signup-label">Seu e-mail</span>
+            <input type="email" name="email" id="signup-email"
+                   placeholder="maria@confeitaria.com" autocomplete="email"
+                   required maxlength="120" />
+          </label>
+
+          <label class="signup-field">
+            <span class="signup-label">Senha</span>
+            <div class="signup-password-wrap">
+              <input type="password" name="password" id="signup-password"
+                     placeholder="Mínimo 6 caracteres"
+                     autocomplete="new-password"
+                     required minlength="6" maxlength="72" />
+              <button type="button" class="signup-password-toggle" id="signup-password-toggle"
+                      aria-label="Mostrar senha" aria-pressed="false">
+                <svg class="ico-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <svg class="ico-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 3l18 18M10.6 6.1A9.4 9.4 0 0 1 12 6c6.5 0 10 6 10 6a17.6 17.6 0 0 1-3.4 4.1M6.6 6.6A17.4 17.4 0 0 0 2 12s3.5 6 10 6c1.4 0 2.7-.3 3.9-.7M9.9 9.9a3 3 0 0 0 4.2 4.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <span class="signup-field-hint" id="hint-password">Mínimo 6 caracteres.</span>
+          </label>
+
+          <!-- Campo confirmar senha — só aparece no modo "criar conta" -->
+          <label class="signup-field" id="field-confirm">
+            <span class="signup-label">Confirme a senha</span>
+            <input type="password" name="password2" id="signup-password2"
+                   placeholder="Digite a senha de novo"
+                   autocomplete="new-password"
+                   minlength="6" maxlength="72" />
           </label>
 
           <button type="submit" id="signup-submit" class="btn-glow" disabled>
             <span class="btn-glow-bg"></span>
             <span class="btn-glow-content">
-              <span class="signup-submit-label">Avançar</span>
+              <span class="signup-submit-label">Criar conta</span>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -68,6 +84,11 @@
         </form>
 
         <p class="signup-error" id="signup-error" role="alert" hidden></p>
+
+        <p class="signup-altlink">
+          <span id="altlink-question">Já tem uma conta?</span>
+          <a href="#" id="altlink-action">Entrar</a>
+        </p>
       </section>
     </main>
 
@@ -79,87 +100,209 @@
   </div>
 </div>
 
+<!-- Supabase Auth via cliente oficial v2 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
 <script>
 /* ================================================================
-   Signup — formulário simples (nome + telefone).
+   Signup — auth via Supabase (email + senha).
    ----------------------------------------------------------------
-   - Sem auth, sem senha, sem fetch ao Supabase aqui. É só um form
-     que persiste o user no localStorage e redireciona pro setup.
-   - As respostas do wizard vão pro Supabase depois (main.js usa
-     o `telefone` do localStorage["squad-user"] como chave do upsert).
-   - Máscara brasileira: formata enquanto digita; aceita 10 ou 11
-     dígitos (DDD + 8 ou 9 dígitos). O localStorage guarda APENAS
-     os dígitos (sem máscara) pra facilitar query/dedupe depois.
+   Uma página, DOIS modos alternáveis:
+     · "Criar conta": Nome + Email + Senha + Confirmar senha
+     · "Entrar":      Email + Senha
+
+   Usa o cliente oficial (`window.sb` exposto pelo supabase.js).
+   Em sucesso (qualquer dos modos), redireciona pra setup.html. O cliente
+   guarda o JWT em localStorage automaticamente; o gate de setup.html
+   detecta a sessão e libera.
    ================================================================ */
 (() => {
+  if (!window.sb) {
+    document.getElementById('signup-error').hidden = false;
+    document.getElementById('signup-error').textContent =
+      'Não conseguimos carregar o serviço. Recarregue a página.';
+    return;
+  }
+
+  // Se já está logado, vai direto pro setup (não força re-login)
+  window.sb.auth.getSession().then(({ data }) => {
+    if (data?.session) {
+      window.location.replace('setup.html');
+    }
+  });
+
+  // ---------- Refs ----------
   const form        = document.getElementById('signup-form');
   const nomeEl      = document.getElementById('signup-nome');
-  const telEl       = document.getElementById('signup-telefone');
+  const fieldNome   = document.getElementById('field-nome');
+  const emailEl     = document.getElementById('signup-email');
+  const passEl      = document.getElementById('signup-password');
+  const passToggle  = document.getElementById('signup-password-toggle');
+  const pass2El     = document.getElementById('signup-password2');
+  const fieldConf   = document.getElementById('field-confirm');
   const submitBtn   = document.getElementById('signup-submit');
   const submitLbl   = submitBtn.querySelector('.signup-submit-label');
   const errorEl     = document.getElementById('signup-error');
+  const titleEl     = document.getElementById('signup-title');
+  const ledeEl      = document.getElementById('signup-lede');
+  const eyebrowEl   = document.getElementById('signup-eyebrow');
+  const altlinkQ    = document.getElementById('altlink-question');
+  const altlinkA    = document.getElementById('altlink-action');
+  const hintPass    = document.getElementById('hint-password');
 
-  // ---------- Máscara de telefone BR ----------
-  // 10 dígitos: (00) 0000-0000  ·  11 dígitos: (00) 00000-0000
-  function onlyDigits(s)  { return s.replace(/\D/g, ''); }
-  function formatPhone(raw) {
-    const d = onlyDigits(raw).slice(0, 11);
-    if (d.length === 0) return '';
-    if (d.length <= 2)  return '(' + d;
-    if (d.length <= 6)  return '(' + d.slice(0,2) + ') ' + d.slice(2);
-    if (d.length <= 10) return '(' + d.slice(0,2) + ') ' + d.slice(2,6) + '-' + d.slice(6);
-    return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+  let mode = 'signup';   // 'signup' | 'signin'
+
+  // ---------- Toggle entre modos ----------
+  function setMode(next) {
+    mode = next;
+    errorEl.hidden = true;
+    if (mode === 'signup') {
+      titleEl.textContent   = 'Crie sua conta';
+      ledeEl.textContent    = 'Em menos de 1 minuto a gente já libera seu treinamento.';
+      eyebrowEl.textContent = 'Antes de começar';
+      submitLbl.textContent = 'Criar conta';
+      altlinkQ.textContent  = 'Já tem uma conta?';
+      altlinkA.textContent  = 'Entrar';
+      hintPass.textContent  = 'Mínimo 6 caracteres.';
+      fieldNome.style.display = '';
+      fieldConf.style.display = '';
+      nomeEl.required  = true;
+      pass2El.required = true;
+      passEl.setAttribute('autocomplete', 'new-password');
+      pass2El.setAttribute('autocomplete', 'new-password');
+    } else {
+      titleEl.textContent   = 'Bem-vindo de volta';
+      ledeEl.textContent    = 'Continue de onde parou no seu treinamento.';
+      eyebrowEl.textContent = 'Entrar';
+      submitLbl.textContent = 'Entrar';
+      altlinkQ.textContent  = 'Ainda não tem conta?';
+      altlinkA.textContent  = 'Criar conta';
+      hintPass.textContent  = '';
+      fieldNome.style.display = 'none';
+      fieldConf.style.display = 'none';
+      nomeEl.required  = false;
+      pass2El.required = false;
+      passEl.setAttribute('autocomplete', 'current-password');
+    }
+    nomeEl.value = '';
+    pass2El.value = '';
+    syncSubmit();
+    // Foco no email no modo entrar; nome no modo criar
+    (mode === 'signin' ? emailEl : nomeEl).focus();
   }
-  telEl.addEventListener('input', () => {
-    telEl.value = formatPhone(telEl.value);
-    syncSubmit();
-  });
-  // Cole formatado (paste handler)
-  telEl.addEventListener('paste', (ev) => {
+  altlinkA.addEventListener('click', (ev) => {
     ev.preventDefault();
-    const text = (ev.clipboardData || window.clipboardData).getData('text');
-    telEl.value = formatPhone(text);
-    syncSubmit();
+    setMode(mode === 'signup' ? 'signin' : 'signup');
   });
 
   // ---------- Validação ----------
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isValid = () => {
-    const nome = nomeEl.value.trim();
-    const tel  = onlyDigits(telEl.value);
-    return nome.length >= 2 && (tel.length === 10 || tel.length === 11);
+    const email = emailEl.value.trim();
+    const pass  = passEl.value;
+    if (!EMAIL_RE.test(email)) return false;
+    if (pass.length < 6) return false;
+    if (mode === 'signup') {
+      if (nomeEl.value.trim().length < 2) return false;
+      if (pass2El.value !== pass) return false;
+    }
+    return true;
   };
   const syncSubmit = () => {
     submitBtn.disabled = !isValid();
     if (!errorEl.hidden) errorEl.hidden = true;
   };
-  nomeEl.addEventListener('input', syncSubmit);
+  [nomeEl, emailEl, passEl, pass2El].forEach(el => el.addEventListener('input', syncSubmit));
   syncSubmit();
 
+  // ---------- Toggle olhinho ----------
+  passToggle.addEventListener('click', () => {
+    const showing = passEl.type === 'text';
+    const next = showing ? 'password' : 'text';
+    passEl.type  = next;
+    pass2El.type = next;
+    passToggle.setAttribute('aria-pressed', String(!showing));
+    passToggle.setAttribute('aria-label', showing ? 'Mostrar senha' : 'Esconder senha');
+    passToggle.classList.toggle('is-showing', !showing);
+  });
+
+  // ---------- Mensagens amigáveis ----------
+  function friendly(err) {
+    const msg = (err?.message || '').toLowerCase();
+    if (mode === 'signup') {
+      if (msg.includes('already registered') || msg.includes('already been') || msg.includes('user already'))
+        return 'Esse e-mail já tem conta. Quer entrar em vez de criar?';
+      if (msg.includes('password') && (msg.includes('weak') || msg.includes('short') || msg.includes('6')))
+        return 'Senha muito curta. Use no mínimo 6 caracteres.';
+      if (msg.includes('email') && msg.includes('invalid'))
+        return 'E-mail inválido. Confira e tente de novo.';
+    } else {
+      if (msg.includes('invalid login') || msg.includes('invalid_grant') || msg.includes('credentials'))
+        return 'E-mail ou senha incorretos. Tente de novo.';
+      if (msg.includes('email not confirmed'))
+        return 'Verifique seu e-mail pra confirmar o cadastro antes de entrar.';
+    }
+    if (msg.includes('rate limit') || msg.includes('too many'))
+      return 'Muitas tentativas em pouco tempo. Aguarde um minuto.';
+    return 'Não conseguimos completar a ação agora. Verifique sua conexão.';
+  }
+
   // ---------- Submit ----------
-  form.addEventListener('submit', (ev) => {
+  form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     if (!isValid() || submitBtn.disabled) return;
 
-    const nome = nomeEl.value.trim();
-    const telefone = onlyDigits(telEl.value);   // sem máscara, só dígitos
+    submitBtn.disabled = true;
+    const labelAtivando = mode === 'signup' ? 'Criando conta…' : 'Entrando…';
+    const labelOriginal = mode === 'signup' ? 'Criar conta' : 'Entrar';
+    submitLbl.textContent = labelAtivando;
+    errorEl.hidden = true;
+
+    const email = emailEl.value.trim().toLowerCase();
+    const pass  = passEl.value;
+    const nome  = nomeEl.value.trim();
 
     try {
-      localStorage.setItem('squad-user', JSON.stringify({
-        nome,
-        telefone,
-        createdAt: new Date().toISOString(),
-      }));
-    } catch (_) {
-      // localStorage bloqueado (modo privado etc) — segue mesmo assim
+      let result;
+      if (mode === 'signup') {
+        result = await window.sb.auth.signUp({
+          email,
+          password: pass,
+          options: { data: { nome } },   // nome vai pra user_metadata.nome
+        });
+      } else {
+        result = await window.sb.auth.signInWithPassword({ email, password: pass });
+      }
+      const { data, error } = result;
+      if (error) throw error;
+
+      // Fallback adicional: localStorage com nome pra UI (caso user_metadata
+      // tarde a estar disponível em alguma chamada).
+      try {
+        const nomeFinal = nome || data?.user?.user_metadata?.nome || '';
+        if (nomeFinal) localStorage.setItem('squad-user-name', nomeFinal);
+      } catch (_) {}
+
+      // Se confirm email estiver ON no Supabase, signUp NÃO retorna session.
+      if (mode === 'signup' && !data?.session) {
+        errorEl.hidden = false;
+        errorEl.classList.add('is-info');
+        errorEl.textContent = 'Conta criada! Verifique seu e-mail pra confirmar e depois entre na conta.';
+        submitLbl.textContent = 'Aguardando confirmação';
+        // Em vez de redirecionar, oferece o modo entrar pro próximo passo
+        return;
+      }
+
+      window.location.href = 'setup.html';
+    } catch (err) {
+      console.error('[signup] erro:', err);
       errorEl.hidden = false;
-      errorEl.textContent = 'Não conseguimos salvar seus dados localmente. Tente desativar o modo anônimo do navegador.';
-      return;
+      errorEl.classList.remove('is-info');
+      errorEl.textContent = friendly(err);
+      submitLbl.textContent = labelOriginal;
+      submitBtn.disabled = false;
     }
-
-    // Limpa qualquer resíduo do antigo fluxo de auth
-    try { localStorage.removeItem('squad-session'); } catch (_) {}
-
-    window.location.href = 'setup.html';
   });
 })();
 </script>

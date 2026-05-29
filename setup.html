@@ -363,12 +363,12 @@
         </div>
 
         <!-- ETAPA 3 — TEMPORARIAMENTE OCULTADA (hidden por enquanto).
-             Envelopada em <template> em vez de <!-- --> porque o conteúdo já
-             contém comentários HTML internos, que quebrariam um wrapper de
-             comentário. <template> também não é parseado por querySelectorAll,
-             então o JS de navegação (showSetupPage / page-prev / page-next)
-             nem sequer enxerga a `.page#page-3` aqui dentro. Pra reativar
-             é só remover as 2 linhas <template> abaixo. -->
+             Envelopada em &lt;template&gt; porque o conteúdo já contém
+             comentários HTML internos, e um wrapper de comentário simples
+             quebraria. &lt;template&gt; também não é parseado por
+             querySelectorAll, então o JS de navegação nem enxerga
+             .page#page-3 aqui dentro. Pra reativar, remova as 2 linhas
+             &lt;template&gt; / &lt;/template&gt; abaixo. -->
         <template id="page-3-hidden">
         <div class="page" id="page-3">
           <div class="stage" id="stage-3">
@@ -531,6 +531,11 @@
   </main>
 </div>
 
+<!-- Ordem importa: supabase-js (CDN) → supabase.js (cria window.sb) →
+     auth-gate.js (checa sessão + injeta botão Sair) → main.js (usa sb). -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="auth-gate.js"></script>
 <script src="main.js"></script>
 
 </body>

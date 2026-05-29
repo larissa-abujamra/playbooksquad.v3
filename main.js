@@ -384,52 +384,89 @@
     completed: false,
   };
 
-  function wizardLoad() {
+  function wizardLoadLocal() {
     try {
       const raw = localStorage.getItem(WIZARD_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        wizardState.answers = parsed.answers || {};
+        wizardState.answers      = parsed.answers || {};
         wizardState.currentIndex = Math.min(parsed.currentIndex || 0, wizardQuestions.length);
-        wizardState.completed = !!parsed.completed;
+        wizardState.completed    = !!parsed.completed;
       }
     } catch (e) {}
   }
+
   // ----------------------------------------------------------------
-  // Supabase: upsert das respostas do wizard.
-  //  · Identificamos o user pelo `telefone` salvo em
-  //    `localStorage["squad-user"]` no signup.html (sem auth, só form).
-  //    Sem signup, não envia (early return).
-  //  · Debounce de 1.5s pra evitar ~1 request por keypress em textareas.
-  //  · UPSERT via `?on_conflict=telefone` + `Prefer: resolution=merge-duplicates`
-  //    — a tabela `wizard_responses` tem unique index em `telefone`.
+  // Supabase: upsert + load das respostas do wizard.
+  //  · Usa o cliente `window.sb` (criado em supabase.js). O JWT do user
+  //    logado é anexado automaticamente — sem 401 por RLS.
+  //  · onConflict: 'user_id' bate com o unique(user_id) da tabela.
+  //  · Debounce de 1.5s pra evitar ~1 request por keypress.
+  //  · No load: tenta buscar a linha do user atual; se houver versão
+  //    mais "avançada" no servidor que a local, restaura.
   // ----------------------------------------------------------------
-  const SUPABASE_URL = 'https://xkgepeejugrlgtavcxqb.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZ2VwZWVqdWdybGd0YXZjeHFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODU0MjIsImV4cCI6MjA5NTU2MTQyMn0.s7JKeTqkG14boQcH00eGv4CKSzeYJPY8zud8WMe4pQc';
   let wizardSaveTimer = null;
 
-  function pushWizardToSupabase() {
-    let user = null;
-    try { user = JSON.parse(localStorage.getItem('squad-user') || 'null'); } catch (_) {}
-    if (!user || !user.telefone) return;   // sem signup, não envia
+  async function getCurrentUser() {
+    if (!window.sb) return null;
+    const { data, error } = await window.sb.auth.getUser();
+    if (error || !data?.user) return null;
+    return data.user;
+  }
 
-    fetch(SUPABASE_URL + '/rest/v1/wizard_responses?on_conflict=telefone', {
-      method: 'POST',
-      headers: {
-        apikey:          SUPABASE_ANON_KEY,
-        Authorization:   'Bearer ' + SUPABASE_ANON_KEY,
-        'Content-Type':  'application/json',
-        Prefer:          'resolution=merge-duplicates, return=minimal',
-      },
-      body: JSON.stringify({
-        telefone:     user.telefone,
-        nome:         user.nome,
-        answers:      wizardState.answers,
-        current_step: wizardState.currentIndex,
-        completed:    wizardState.completed,
-        updated_at:   new Date().toISOString(),
-      }),
-    }).catch(err => console.warn('[wizard] save remoto falhou:', err));
+  async function pushWizardToSupabase() {
+    const user = await getCurrentUser();
+    if (!user) return;            // sem sessão → não envia (página deveria já ter redirecionado)
+    const nome =
+      (user.user_metadata && user.user_metadata.nome) ||
+      localStorage.getItem('squad-user-name') ||
+      '';
+
+    const payload = {
+      user_id:      user.id,
+      email:        user.email,
+      nome,
+      answers:      wizardState.answers,
+      current_step: wizardState.currentIndex,
+      completed:    wizardState.completed,
+      updated_at:   new Date().toISOString(),
+    };
+
+    const { error } = await window.sb
+      .from('wizard_responses')
+      .upsert(payload, { onConflict: 'user_id' });
+
+    if (error) console.warn('[wizard] save remoto falhou:', error.message || error);
+  }
+
+  // Carrega o estado remoto (se mais avançado que o local) e mescla.
+  async function loadRemoteState() {
+    const user = await getCurrentUser();
+    if (!user) return false;
+    const { data, error } = await window.sb
+      .from('wizard_responses')
+      .select('answers, current_step, completed')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (error) {
+      console.warn('[wizard] load remoto falhou:', error.message || error);
+      return false;
+    }
+    if (!data) return false;
+    // Mescla: se a versão remota estiver mais avançada (ou já completa),
+    // ela vence. Senão, mantém a local (que pode ter respostas mais novas
+    // que ainda não chegaram ao servidor).
+    const remoteAhead =
+      !!data.completed && !wizardState.completed ||
+      (data.current_step || 0) > wizardState.currentIndex;
+    if (remoteAhead) {
+      wizardState.answers      = data.answers || {};
+      wizardState.currentIndex = Math.min(data.current_step || 0, wizardQuestions.length);
+      wizardState.completed    = !!data.completed;
+      // Persiste pra próxima abertura ser instantânea
+      try { localStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(wizardState)); } catch (_) {}
+    }
+    return true;
   }
 
   function scheduleRemoteSave() {
@@ -444,19 +481,42 @@
     scheduleRemoteSave();   // upsert debounced no Supabase
   }
 
-  function wizardOpen() {
-    wizardLoad();
-    if (wizardState.completed) {
-      renderDone(true);
-    } else {
-      renderQuestion(wizardState.currentIndex, 'forward');
-    }
+  // wizardOpen ficou async pra esperar o load remoto. Estratégia:
+  //  1. Lê o estado local IMEDIATAMENTE (instantâneo, offline-friendly) e
+  //     já abre o modal — UX não trava esperando rede.
+  //  2. Em paralelo, tenta `loadRemoteState()`. Se o servidor tiver versão
+  //     mais avançada (user retomando de outro device), re-renderiza pra
+  //     refletir o progresso correto.
+  async function wizardOpen() {
+    wizardLoadLocal();
+
+    if (wizardState.completed) renderDone(true);
+    else renderQuestion(wizardState.currentIndex, 'forward');
+
     document.body.classList.add('in-wizard');
     wizard.setAttribute('aria-hidden', 'false');
     setTimeout(() => {
       const input = wizardCard.querySelector('.wizard-input, .wizard-textarea');
       if (input) input.focus();
     }, 350);
+
+    // Tenta carregar do Supabase em background. Se retomou mais avançado,
+    // re-renderiza pra mostrar a tela correta.
+    try {
+      const snapBefore = { step: wizardState.currentIndex, done: wizardState.completed };
+      const ok = await loadRemoteState();
+      if (ok) {
+        const moved =
+          wizardState.completed !== snapBefore.done ||
+          wizardState.currentIndex !== snapBefore.step;
+        if (moved) {
+          if (wizardState.completed) renderDone(true);
+          else renderQuestion(wizardState.currentIndex, 'forward');
+        }
+      }
+    } catch (err) {
+      console.warn('[wizard] sincronização inicial falhou:', err);
+    }
   }
   function wizardClose() {
     document.body.classList.remove('in-wizard');
