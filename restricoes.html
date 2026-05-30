@@ -130,26 +130,26 @@
             <textarea class="waz-guard-input" id="waz-guard-extra" rows="3" placeholder="Ex: Sempre confirmar o endereço antes de fechar um pedido de entrega."></textarea>
           </label>
 
-          <button type="button" class="btn-glow waz-guard-generate" id="waz-guard-generate">
-            <span class="btn-glow-bg"></span>
-            <span class="btn-glow-content">
-              Gerar prompt pro Waz
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8h9M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-          </button>
+          <!-- Botão "Gerar prompt pro Waz" removido: as restrições agora
+               viram parte do briefing único gerado no fim do wizard. Aqui
+               a pessoa só preenche; o autosave em main.js (handler do
+               #waz-guard) persiste em wizardState.answers + Supabase. -->
         </section>
 
       </section>
 
-      <!-- (NOVO) Navegação Anterior/Próximo no fim da página
-           - Anterior: volta para o wizard "Conte sobre o seu negócio" (setup.html#wizard auto-abre)
-           - Próximo:  vai para "Monte seu catálogo" (setup.html#page-2) -->
+      <!-- Navegação Anterior/Próximo no fim da página.
+           - Anterior: volta pro wizard (setup.html#wizard auto-abre).
+           - Próximo: volta pro hub da Etapa 01 (setup.html#page-1).
+             O handler do JS (em main.js, perto do bloco #waz-guard) marca
+             `answers.restricoes_visitado = true` e faz flush ao Supabase
+             antes de navegar — assim o Passo 03 destrava no hub. -->
       <div class="page-nav">
         <a class="page-prev" href="setup.html#wizard">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Anterior
         </a>
-        <a class="page-next" href="setup.html#page-2">
+        <a class="page-next" id="restricoes-next" href="setup.html#page-1">
           Próximo
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
@@ -159,24 +159,8 @@
   </main>
 </div>
 
-<!-- Modal do prompt gerado (idêntico ao que estava em setup.html) -->
-<div class="waz-modal" id="waz-modal" role="dialog" aria-modal="true" aria-labelledby="waz-modal-title" aria-hidden="true">
-  <div class="waz-modal-backdrop" id="waz-modal-backdrop"></div>
-  <div class="waz-modal-card">
-    <button class="waz-modal-close" id="waz-modal-close" type="button" aria-label="Fechar">
-      <svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    </button>
-    <h3 class="waz-modal-title" id="waz-modal-title">Seu prompt pro Waz</h3>
-    <p class="waz-modal-sub">Copie e cole na conversa com o Waz, na aba Assistentes.</p>
-    <pre class="waz-modal-text" id="waz-modal-text"></pre>
-    <div class="waz-modal-actions">
-      <button class="btn waz-modal-copy" id="waz-modal-copy" type="button">
-        <span class="waz-copy-label">Copiar texto</span>
-        <svg class="arr" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 10.5h-1A1.5 1.5 0 0 1 1 9V2.5A1.5 1.5 0 0 1 2.5 1H9a1.5 1.5 0 0 1 1.5 1.5v1" stroke="currentColor" stroke-width="1.3"/></svg>
-      </button>
-    </div>
-  </div>
-</div>
+<!-- Modal de "prompt pro Waz" removido: fluxo paralelo descontinuado.
+     As restrições viram parte do PDF/briefing único gerado no wizard. -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>

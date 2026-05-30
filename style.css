@@ -3008,18 +3008,25 @@
 @media (prefers-reduced-motion: reduce) { .waz-modal-card { animation: none; } }
 
 /* ============================================================
-   "Treine seus agentes" — hub de 2 passos (page-1) + FAQ + depoimentos
+   "Treine seus agentes" — hub de 3 passos (page-1) + FAQ + depoimentos
    ============================================================ */
-/* Dois blocos lado a lado (passos 01 e 02) */
+/* 3 blocos lado a lado (passos 01, 02 e 03 "Gere o guia") */
 .steps-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   margin-top: 24px;
   margin-bottom: 40px;
 }
+/* Telas médias: vira 2 colunas (Passo 03 quebra pra linha de baixo,
+   ocupando toda a largura — destaca o passo final). */
+@media (max-width: 980px) {
+  .steps-grid { grid-template-columns: 1fr 1fr; }
+  .steps-grid .step-card--final { grid-column: 1 / -1; }
+}
 @media (max-width: 760px) {
   .steps-grid { grid-template-columns: 1fr; }   /* empilha no mobile */
+  .steps-grid .step-card--final { grid-column: auto; }
 }
 /* ------------------------------------------------------------
    Step-cards com BRILHO ANIMADO nas bordas no hover.
@@ -3141,6 +3148,56 @@
   flex: 1;            /* mantém os botões alinhados na base dos cards */
 }
 .step-btn { align-self: flex-start; }
+
+/* Passo 03 — bloco final com 2 botões empilhados (Baixar PDF + Copiar prompt) */
+.step-final-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+.step-final-actions .step-btn {
+  align-self: stretch;
+  justify-content: center;
+}
+.step-btn--secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+.step-btn--secondary:hover {
+  background: var(--bg-2);
+}
+
+/* Hint que aparece quando o card está travado.
+   Escondido por padrão; quando o card ganha .is-locked, vira visível. */
+.step-locked-hint {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  display: none;
+}
+
+/* Card travado: visualmente apagado + interação desabilitada.
+   `.is-locked` é aplicada pelo JS (initHubLocks) baseado no estado. */
+.step-card.is-locked {
+  opacity: 0.55;
+  /* Mata o brilho animado das bordas (definido em .step-card::after) */
+  animation: none !important;
+}
+.step-card.is-locked:hover {
+  transform: none;
+  box-shadow: none;
+}
+.step-card.is-locked::after { opacity: 0 !important; }
+.step-card.is-locked .step-btn,
+.step-card.is-locked a.step-btn {
+  pointer-events: none;
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+}
+.step-card.is-locked .step-locked-hint { display: block; }
 
 /* FAQ rápido na hub (reaproveita .faq / .faq-list) */
 .step-faq {

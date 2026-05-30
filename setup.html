@@ -86,14 +86,19 @@
           <div class="stage" id="stage-1">
             <!-- (NOVO) hub da Etapa 01 — 2 passos lado a lado + FAQ + depoimentos -->
             <div class="section-eyebrow">Etapa 01</div>
-            <h1>Treine seus agentes em 2 passos</h1>
-            <p class="stage-intro">Nas próximas telas, você vai responder algumas perguntas sobre seu negócio. Suas respostas serão usadas para gerar um Guia Rápido em PDF. Você vai enviar esse PDF para o Waz, para ele aprender sobre sua confeitaria.</p>
+            <h1>Treine seus agentes em 3 passos</h1>
+            <p class="stage-intro">Nas próximas telas, você vai responder algumas perguntas sobre seu negócio. No fim, geramos um Guia Rápido em PDF pronto pra enviar ao Waz, que aprende e distribui as informações para a Maky e o Fin.</p>
 
-            <!-- Dois blocos lado a lado (empilham em telas estreitas via CSS) -->
-            <div class="steps-grid">
+            <!-- Hub sequencial: cada passo destrava o seguinte.
+                 - Passo 01: sempre habilitado.
+                 - Passo 02: destrava após wizard concluído (answers.completed).
+                 - Passo 03: destrava após Passo 02 visitado (answers.restricoes_visitado).
+                 As travas são aplicadas em main.js no init do hub (initHubLocks),
+                 lendo o estado de localStorage + Supabase. -->
+            <div class="steps-grid" id="hub-steps">
 
-              <!-- Bloco 1: abre o wizard ("Conte sobre o seu negócio") -->
-              <article class="step-card">
+              <!-- Passo 01: abre o wizard ("Conte sobre o seu negócio") -->
+              <article class="step-card" data-step="1">
                 <div class="step-icon" aria-hidden="true">
                   <svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M10 8h22a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H18l-8 6V12a4 4 0 0 1 4-4z"/>
@@ -103,15 +108,15 @@
                 <div class="step-num">Passo 01</div>
                 <h2 class="step-title">Conte sobre o seu negócio</h2>
                 <p class="step-desc">Defina o tom de voz e conte como o Waz deve responder os seus clientes</p>
-                <!-- Mantém id="start-wizard-btn" para o handler do wizard continuar funcionando -->
                 <button type="button" id="start-wizard-btn" class="btn step-btn">
-                  Começar
+                  <span class="step-btn-label">Começar</span>
                   <svg class="arr" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
+                <p class="step-locked-hint" aria-hidden="true">Conclua o passo anterior pra liberar.</p>
               </article>
 
-              <!-- Bloco 2: navega para a página dedicada de restrições -->
-              <article class="step-card">
+              <!-- Passo 02: navega para a página dedicada de restrições -->
+              <article class="step-card" data-step="2">
                 <div class="step-icon" aria-hidden="true">
                   <svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M24 6 8 12v10c0 9.5 6.8 17.7 16 20 9.2-2.3 16-10.5 16-20V12L24 6z"/>
@@ -121,10 +126,39 @@
                 <div class="step-num">Passo 02</div>
                 <h2 class="step-title">Defina as restrições</h2>
                 <p class="step-desc">Escolha quais situações o Waz deve te acionar antes de responder aos clientes</p>
-                <a href="restricoes.html" class="btn step-btn">
-                  Começar
+                <a href="restricoes.html" class="btn step-btn" id="step-2-btn">
+                  <span class="step-btn-label">Começar</span>
                   <svg class="arr" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </a>
+                <p class="step-locked-hint" aria-hidden="true">Conclua o Passo 01 pra liberar.</p>
+              </article>
+
+              <!-- Passo 03 (NOVO): gera o guia em PDF + opção de copiar prompt.
+                   É AQUI que vivem os botões "Baixar PDF" e "Copiar prompt"
+                   (antes ficavam no renderDone do wizard). A geração em si
+                   continua igual — só mudou de lugar. -->
+              <article class="step-card step-card--final" data-step="3">
+                <div class="step-icon" aria-hidden="true">
+                  <svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 6h16l8 8v24a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/>
+                    <path d="M30 6v8h8"/>
+                    <path d="M18 26h14M18 32h10"/>
+                  </svg>
+                </div>
+                <div class="step-num">Passo 03</div>
+                <h2 class="step-title">Gere o guia</h2>
+                <p class="step-desc">Baixe o PDF com tudo organizado para enviar ao Waz na conversa.</p>
+                <div class="step-final-actions">
+                  <button type="button" id="hub-download" class="btn step-btn">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v9m0 0l-3-3m3 3l3-3M3 14h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="step-btn-label" id="hub-download-label">Baixar PDF</span>
+                  </button>
+                  <button type="button" id="hub-copy" class="btn step-btn step-btn--secondary">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1A1.5 1.5 0 0 1 1 9V2.5A1.5 1.5 0 0 1 2.5 1H9a1.5 1.5 0 0 1 1.5 1.5v1" stroke="currentColor" stroke-width="1.4"/></svg>
+                    <span class="step-btn-label" id="hub-copy-label">Copiar prompt</span>
+                  </button>
+                </div>
+                <p class="step-locked-hint" aria-hidden="true">Conclua os Passos 01 e 02 pra liberar.</p>
               </article>
 
             </div>

@@ -525,6 +525,11 @@
   function wizardClose() {
     document.body.classList.remove('in-wizard');
     wizard.setAttribute('aria-hidden', 'true');
+    // Re-avalia os locks do hub. Se o user acabou de completar o wizard,
+    // o Passo 02 destrava sem precisar de reload da página. `applyHubLocks`
+    // é function declaration declarada mais abaixo (hoisted no mesmo
+    // escopo); chamá-la aqui em runtime é seguro.
+    if (typeof applyHubLocks === 'function') applyHubLocks();
   }
 
   function updateWizardProgress() {
@@ -976,118 +981,26 @@
         '<div class="wizard-done-mark" aria-hidden="true">' +
           '<svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</div>' +
-        '<h1 id="wizard-question-text">Pronto. Seu time já tem o briefing.</h1>' +
-        '<p class="wizard-done-sub">A gente organizou suas respostas num PDF estruturado pra alimentar o Waz, a Maky e o Fin de uma vez só.</p>' +
+        '<h1 id="wizard-question-text">Passo 01 concluído!</h1>' +
+        '<p class="wizard-done-sub">As suas respostas foram salvas. Próximo passo: definir as restrições do Waz. Depois disso, o Passo 03 libera a geração do PDF.</p>' +
         '<div class="wizard-summary">' + summaryHtml + '</div>' +
         '<div class="wizard-done-actions">' +
-          '<button class="wizard-download" type="button" id="wizard-download">' +
-            '<svg viewBox="0 0 16 16" fill="none"><path d="M8 2v9m0 0l-3-3m3 3l3-3M3 14h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-            '<span class="wizard-download-label">Baixar PDF</span>' +
-          '</button>' +
-          // Botão "Copiar prompt" — copia o MESMO conteúdo do PDF em texto plano
-          '<button class="wizard-copy" type="button" id="wizard-copy">' +
-            '<svg class="wizard-copy-ico" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M3.5 10.5h-1A1.5 1.5 0 0 1 1 9V2.5A1.5 1.5 0 0 1 2.5 1H9a1.5 1.5 0 0 1 1.5 1.5v1" stroke="currentColor" stroke-width="1.4"/></svg>' +
-            '<span class="wizard-copy-label">Copiar prompt</span>' +
-          '</button>' +
           '<button class="wizard-review" type="button" id="wizard-review">Revisar respostas</button>' +
         '</div>' +
-        '<p class="wizard-done-aux">Agora envie esse PDF na conversa com o <b>Waz</b> em <b>Assistentes</b>. Ele lê e distribui as informações pra Maky e Fin automaticamente.</p>' +
-        // (NOVO) Navegação Anterior/Próximo no fim do wizard:
-        // - Anterior: fecha o wizard e volta pra Etapa 01 (hub "Treine seus agentes")
-        // - Próximo:  fecha o wizard e leva pra restricoes.html ("Defina as restrições")
+        // Navegação no fim do Passo 01:
+        // - Anterior: fecha o wizard e volta pra Etapa 01 (hub)
+        // - Próximo:  fecha o wizard e leva pra restricoes.html (Passo 02)
         '<div class="page-nav">' +
           '<button class="page-prev" type="button" id="wizard-done-prev">' +
             '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9 3l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-            'Anterior' +
+            'Voltar ao hub' +
           '</button>' +
           '<button class="page-next" type="button" id="wizard-done-next">' +
-            'Próximo' +
+            'Ir pro Passo 02' +
             '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
           '</button>' +
         '</div>' +
       '</div>';
-
-    // Helpers de loading dos dois botões — usados pelos handlers async.
-    // Botão "Baixar PDF" e "Copiar prompt" desabilitam um ao outro durante
-    // a chamada (evita race / chamada dupla à Edge Function).
-    const dlBtn    = document.getElementById('wizard-download');
-    const dlLabel  = dlBtn.querySelector('.wizard-download-label');
-    const copyBtn  = document.getElementById('wizard-copy');
-    const copyLabel = copyBtn.querySelector('.wizard-copy-label');
-
-    function setBusy(busy, who) {
-      dlBtn.disabled   = !!busy;
-      copyBtn.disabled = !!busy;
-      if (!busy) {
-        if (dlLabel)   dlLabel.textContent   = 'Baixar PDF';
-        if (copyLabel) copyLabel.textContent = 'Copiar prompt';
-        return;
-      }
-      // Mostra "Gerando…" só no botão que iniciou a operação
-      if (who === 'download' && dlLabel)   dlLabel.textContent   = 'Gerando…';
-      if (who === 'copy'     && copyLabel) copyLabel.textContent = 'Gerando…';
-    }
-
-    // ----- Baixar PDF -----
-    dlBtn.addEventListener('click', async () => {
-      if (dlBtn.disabled) return;
-      setBusy(true, 'download');
-      try { await downloadPDF(); }
-      finally { setBusy(false); }
-    });
-
-    // ----- Copiar prompt -----
-    // Reusa o mesmo markdown refinado que vai no PDF (cache via
-    // `cachedBriefingMarkdown`). Em erro de rede, cai no `buildPromptText()`
-    // — mantém o comportamento antigo de hoje em qualquer cenário.
-    copyBtn.addEventListener('click', async () => {
-      if (copyBtn.disabled) return;
-
-      const flashCopied = () => {
-        copyBtn.classList.add('is-copied');
-        if (copyLabel) copyLabel.textContent = 'Copiado ✓';
-        setTimeout(() => {
-          copyBtn.classList.remove('is-copied');
-          if (copyLabel) copyLabel.textContent = 'Copiar prompt';
-        }, 1800);
-      };
-      const doCopy = (text) => {
-        const fallbackCopy = () => {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          try { document.execCommand('copy'); flashCopied(); }
-          catch (_) { alert('Não foi possível copiar. Copie manualmente.'); }
-          document.body.removeChild(ta);
-        };
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(flashCopied, fallbackCopy);
-        } else {
-          fallbackCopy();
-        }
-      };
-
-      // Se já temos o markdown (vindo de um clique anterior em Baixar PDF
-      // ou Copiar), evita 2ª chamada à API.
-      if (cachedBriefingMarkdown) {
-        doCopy(cachedBriefingMarkdown);
-        return;
-      }
-
-      setBusy(true, 'copy');
-      try {
-        const md = await getBriefingMarkdown();
-        doCopy(md);
-      } catch (err) {
-        console.warn('[copy] briefing refinado falhou, usando texto local:', err);
-        doCopy(buildPromptText());
-      } finally {
-        setBusy(false);
-      }
-    });
 
     document.getElementById('wizard-review').addEventListener('click', () => {
       wizardState.completed = false;
@@ -1095,9 +1008,8 @@
       wizardSave();
       renderQuestion(0, 'back');
     });
-    // Handlers dos botões Anterior/Próximo da tela final
     document.getElementById('wizard-done-prev').addEventListener('click', () => {
-      wizardClose();                              // só fecha o wizard — fica no hub da Etapa 01
+      wizardClose();                              // fecha o wizard, fica no hub
     });
     document.getElementById('wizard-done-next').addEventListener('click', () => {
       wizardClose();
@@ -1223,6 +1135,17 @@
       const printed = (answer && answer.trim()) ? answer.replace(/\s*\n\s*/g, ' / ') : '(em branco)';
       lines.push(label + ': ' + printed);
     });
+
+    // Restrições (alimentadas pela página restricoes.html, persistidas em
+    // wizardState.answers). Se a pessoa não passou por essa página, ambas
+    // saem como "(em branco)" — a Edge Function trata como "Não informado".
+    const sit = wizardState.answers.restricoes_situacoes;
+    const sitText = (Array.isArray(sit) && sit.length) ? sit.join(', ') : '(em branco)';
+    lines.push('Situações em que o Waz deve consultar o dono antes de responder: ' + sitText);
+
+    const extra = (wizardState.answers.restricoes_extra || '').trim();
+    lines.push('Outras instruções importantes do dono: ' + (extra || '(em branco)'));
+
     return lines.join('\n');
   }
 
@@ -1560,95 +1483,231 @@
   // ============ (NOVO) Gerador de prompt "O que o Waz não deve fazer" ============
   // Seção independente na página (abaixo do botão "Configurar meus agentes").
   // É 100% opcional: não interfere no fluxo do wizard nem na navegação das páginas.
-  // Junta as situações marcadas + a observação livre e gera um texto pronto pro Waz,
-  // exibido num modal com botão de copiar.
-  const wazGuard = document.getElementById('waz-guard');
-  if (wazGuard) {
-    const outroCheck = document.getElementById('waz-guard-outro-check');
-    const outroInput = document.getElementById('waz-guard-outro');
-    const extraInput = document.getElementById('waz-guard-extra');
-    const genBtn     = document.getElementById('waz-guard-generate');
-    const modal      = document.getElementById('waz-modal');
-    const modalText  = document.getElementById('waz-modal-text');
-    const copyBtn    = document.getElementById('waz-modal-copy');
-    const copyLabel  = copyBtn ? copyBtn.querySelector('.waz-copy-label') : null;
-    const closeBtn   = document.getElementById('waz-modal-close');
-    const backdrop   = document.getElementById('waz-modal-backdrop');
+  // ============ Hub "Treine seus agentes" (setup.html Etapa 01) ============
+  // - 3 passos sequenciais com travas baseadas no estado persistido:
+  //     Passo 01: sempre livre
+  //     Passo 02: livre quando wizardState.completed === true
+  //     Passo 03: livre quando completed && answers.restricoes_visitado
+  // - Os botões "Baixar PDF" / "Copiar prompt" agora vivem aqui (não mais
+  //   no renderDone do wizard). A LÓGICA de geração não muda — só onde
+  //   está plugada.
+  // - O estado é lido de localStorage E do Supabase pra sobreviver a
+  //   reload/troca de device.
 
-    // "Outro" mostra/esconde o campo de texto livre correspondente
-    if (outroCheck && outroInput) {
-      outroCheck.addEventListener('change', () => {
-        outroInput.classList.toggle('is-hidden', !outroCheck.checked);
-        if (outroCheck.checked) outroInput.focus();
-      });
+  // Conecta um par de botões (download + copy) à lógica de PDF refinado +
+  // fallback + cache que já existe. Usado pelo Passo 03 do hub.
+  function attachPdfActions(dlBtn, dlLabel, copyBtn, copyLabel) {
+    if (!dlBtn || !copyBtn) return;
+
+    function setBusy(busy, who) {
+      dlBtn.disabled   = !!busy;
+      copyBtn.disabled = !!busy;
+      if (!busy) {
+        if (dlLabel)   dlLabel.textContent   = 'Baixar PDF';
+        if (copyLabel) copyLabel.textContent = 'Copiar prompt';
+        return;
+      }
+      if (who === 'download' && dlLabel)   dlLabel.textContent   = 'Gerando…';
+      if (who === 'copy'     && copyLabel) copyLabel.textContent = 'Gerando…';
     }
 
-    // Monta o prompt no formato pedido, incluindo só o que foi preenchido
-    function buildWazPrompt() {
-      const items = [];
-      wazGuard.querySelectorAll('.waz-check-box:checked').forEach(c => {
-        if (c.value === '__outro__') {
-          const o = (outroInput.value || '').trim();
-          if (o) items.push(o);                 // usa o texto do "Outro", se houver
-        } else {
-          items.push(c.value);
-        }
-      });
-      const extra = (extraInput.value || '').trim();
-
-      let out = 'Waz, por favor siga estas instruções ao me ajudar a atender meus clientes:\n\n';
-      out += 'Assuntos para me consultar antes de responder:\n';
-      out += items.length ? items.map(i => '- ' + i).join('\n') : '- (nenhum por enquanto)';
-      if (extra) out += '\n\nOutras informações importantes:\n' + extra;  // só entra se houver texto
-      return out;
-    }
-
-    function openModal(text) {
-      modalText.textContent = text;
-      modal.classList.add('is-open');
-      modal.setAttribute('aria-hidden', 'false');
-      copyBtn.classList.remove('is-copied');
-      if (copyLabel) copyLabel.textContent = 'Copiar texto';
-    }
-    function closeModal() {
-      modal.classList.remove('is-open');
-      modal.setAttribute('aria-hidden', 'true');
-    }
-
-    if (genBtn)   genBtn.addEventListener('click', () => openModal(buildWazPrompt()));
-    if (closeBtn) closeBtn.addEventListener('click', closeModal);
-    if (backdrop) backdrop.addEventListener('click', closeModal);
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    dlBtn.addEventListener('click', async () => {
+      if (dlBtn.disabled) return;
+      setBusy(true, 'download');
+      try { await downloadPDF(); }
+      finally { setBusy(false); }
     });
 
-    // Copiar pra área de transferência (com fallback pra execCommand)
-    if (copyBtn) {
-      copyBtn.addEventListener('click', async () => {
-        const text = modalText.textContent;
-        let ok = false;
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(text);
-            ok = true;
-          }
-        } catch (e) { ok = false; }
-        if (!ok) {                              // fallback p/ contextos sem Clipboard API
+    copyBtn.addEventListener('click', async () => {
+      if (copyBtn.disabled) return;
+      const flashCopied = () => {
+        copyBtn.classList.add('is-copied');
+        if (copyLabel) copyLabel.textContent = 'Copiado ✓';
+        setTimeout(() => {
+          copyBtn.classList.remove('is-copied');
+          if (copyLabel) copyLabel.textContent = 'Copiar prompt';
+        }, 1800);
+      };
+      const doCopy = (text) => {
+        const fallbackCopy = () => {
           const ta = document.createElement('textarea');
           ta.value = text;
           ta.style.position = 'fixed';
           ta.style.opacity = '0';
           document.body.appendChild(ta);
           ta.select();
-          try { ok = document.execCommand('copy'); } catch (e) {}
+          try { document.execCommand('copy'); flashCopied(); }
+          catch (_) { alert('Não foi possível copiar. Copie manualmente.'); }
           document.body.removeChild(ta);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(flashCopied, fallbackCopy);
+        } else {
+          fallbackCopy();
         }
-        copyBtn.classList.add('is-copied');     // feedback visual
-        if (copyLabel) copyLabel.textContent = ok ? 'Copiado!' : 'Copie manualmente';
-        setTimeout(() => {
-          copyBtn.classList.remove('is-copied');
-          if (copyLabel) copyLabel.textContent = 'Copiar texto';
-        }, 1800);
+      };
+      // Cache evita 2ª chamada à Edge Function quando o user clica nos dois
+      if (cachedBriefingMarkdown) { doCopy(cachedBriefingMarkdown); return; }
+
+      setBusy(true, 'copy');
+      try {
+        const md = await getBriefingMarkdown();
+        doCopy(md);
+      } catch (err) {
+        console.warn('[copy] briefing refinado falhou, usando texto local:', err);
+        doCopy(buildPromptText());
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
+
+  // Avalia o estado atual e aplica .is-locked nos cards do hub.
+  function applyHubLocks() {
+    const grid = document.getElementById('hub-steps');
+    if (!grid) return;
+    const card1 = grid.querySelector('[data-step="1"]');
+    const card2 = grid.querySelector('[data-step="2"]');
+    const card3 = grid.querySelector('[data-step="3"]');
+
+    const step1Done = !!wizardState.completed;
+    const step2Done = !!wizardState.answers.restricoes_visitado;
+
+    if (card1) card1.classList.remove('is-locked');         // sempre livre
+    if (card2) card2.classList.toggle('is-locked', !step1Done);
+    if (card3) card3.classList.toggle('is-locked', !(step1Done && step2Done));
+  }
+
+  // Inicializa o hub: lê o estado de localStorage + Supabase, aplica
+  // os locks, e liga os botões do Passo 03 à lógica de PDF.
+  async function initHub() {
+    const grid = document.getElementById('hub-steps');
+    if (!grid) return;
+
+    // 1) Estado local imediato (instantâneo, offline-friendly)
+    wizardLoadLocal();
+    applyHubLocks();
+
+    // 2) Liga os botões do Passo 03 ÁS funções de PDF/copy. Note que os
+    //    cliques só funcionam quando o card NÃO tiver .is-locked (CSS
+    //    impede pointer-events).
+    attachPdfActions(
+      document.getElementById('hub-download'),
+      document.getElementById('hub-download-label'),
+      document.getElementById('hub-copy'),
+      document.getElementById('hub-copy-label'),
+    );
+
+    // 3) Sync com Supabase em background — se o estado remoto estiver
+    //    mais avançado (user retomando de outro device), reaplica locks.
+    try {
+      const updated = await loadRemoteState();
+      if (updated) applyHubLocks();
+    } catch (err) {
+      console.warn('[hub] sync remoto falhou:', err);
+    }
+  }
+  initHub();
+
+  // ============ Restrições (restricoes.html) — alimenta o wizardState ============
+  // Antes: gerava um prompt próprio num modal pra copiar/colar (fluxo
+  // paralelo, sem persistência). Agora: as restrições viram parte do
+  // `wizardState.answers` (chaves `restricoes_situacoes` + `restricoes_extra`),
+  // são autosalvas no Supabase via o mesmo `wizardSave()` do wizard, e o
+  // `montarRespostasTexto()` anexa essas linhas no payload pra Edge Function
+  // — assim o briefing único no fim do wizard já contém as restrições.
+  const wazGuard = document.getElementById('waz-guard');
+  if (wazGuard) {
+    const checks     = Array.from(wazGuard.querySelectorAll('.waz-check-box'));
+    const outroCheck = document.getElementById('waz-guard-outro-check');
+    const outroInput = document.getElementById('waz-guard-outro');
+    const extraInput = document.getElementById('waz-guard-extra');
+    // Lista dos values "fixos" — pra identificar qual string em
+    // restricoes_situacoes representa o texto livre do "Outro" no retomar.
+    const KNOWN_VALUES = checks
+      .filter(c => c.value !== '__outro__')
+      .map(c => c.value);
+
+    function applyStateToUI() {
+      const saved = Array.isArray(wizardState.answers.restricoes_situacoes)
+        ? wizardState.answers.restricoes_situacoes : [];
+      // Checks fixos
+      checks.forEach(c => {
+        if (c.value === '__outro__') return;
+        c.checked = saved.includes(c.value);
+      });
+      // "Outro" = qualquer string salva que NÃO está nos values fixos
+      const outroText = saved.find(s => !KNOWN_VALUES.includes(s));
+      if (outroText) {
+        outroCheck.checked = true;
+        outroInput.value = outroText;
+        outroInput.classList.remove('is-hidden');
+      } else {
+        outroCheck.checked = false;
+        outroInput.value = '';
+        outroInput.classList.add('is-hidden');
+      }
+      extraInput.value = wizardState.answers.restricoes_extra || '';
+    }
+
+    // Carrega local imediatamente (UI já vem pré-preenchida)
+    wizardLoadLocal();
+    applyStateToUI();
+    // Sync com remoto em background — se vier um estado mais avançado
+    // (user retomando de outro device), re-popula a UI.
+    loadRemoteState()
+      .then(updated => { if (updated) applyStateToUI(); })
+      .catch(err => console.warn('[restricoes] sync remoto falhou:', err));
+
+    function collectAndSave() {
+      const situacoes = [];
+      checks.forEach(c => {
+        if (!c.checked) return;
+        if (c.value === '__outro__') {
+          const o = (outroInput.value || '').trim();
+          if (o) situacoes.push(o);   // texto livre vira item da lista
+        } else {
+          situacoes.push(c.value);
+        }
+      });
+      wizardState.answers.restricoes_situacoes = situacoes;
+      wizardState.answers.restricoes_extra     = (extraInput.value || '').trim();
+      wizardSave();   // localStorage agora + upsert Supabase com debounce 1.5s
+    }
+
+    // Toggle do "Outro" + salva
+    outroCheck.addEventListener('change', () => {
+      outroInput.classList.toggle('is-hidden', !outroCheck.checked);
+      if (outroCheck.checked) outroInput.focus();
+      collectAndSave();
+    });
+    // Salva em qualquer alteração nos demais checks
+    checks.forEach(c => {
+      if (c === outroCheck) return;
+      c.addEventListener('change', collectAndSave);
+    });
+    // Texto livre: salva enquanto digita (debounce do wizardSave evita
+    // request por keystroke)
+    [outroInput, extraInput].forEach(el => el.addEventListener('input', collectAndSave));
+
+    // ----- Botão "Próximo" do restricoes.html -----
+    // Marca answers.restricoes_visitado = true e FORÇA o flush remoto
+    // antes de navegar. Sem o flush imediato, o user que clicasse rápido
+    // demais perderia a marca (debounce de 1.5s teria sido pulado pela
+    // mudança de página).
+    const nextBtn = document.getElementById('restricoes-next');
+    if (nextBtn) {
+      nextBtn.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        const dest = nextBtn.getAttribute('href') || 'setup.html#page-1';
+        wizardState.answers.restricoes_visitado = true;
+        // Persiste local imediato + cancela debounce + flush remoto
+        try { localStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(wizardState)); } catch (_) {}
+        clearTimeout(wizardSaveTimer);
+        try { await pushWizardToSupabase(); } catch (err) {
+          console.warn('[restricoes] flush remoto falhou — segue local:', err);
+        }
+        window.location.href = dest;
       });
     }
   }
