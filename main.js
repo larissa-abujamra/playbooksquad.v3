@@ -1101,10 +1101,77 @@
     return lines.join('\n');
   }
 
-  // O font padrão do jsPDF não suporta emoji — remove pra não quebrar o texto do PDF
+  // ----------------------------------------------------------------
+  // Emoji → texto pro PDF
+  // ----------------------------------------------------------------
+  // O PDF é lido pela IA Waz como TEXTO (não imagem). A fonte default
+  // do jsPDF (Helvetica) é WinAnsi — quando recebe um codepoint fora
+  // desse encoding (qualquer emoji), o jsPDF muda a linha INTEIRA pra
+  // UTF-16 com null bytes intercalados. Resultado: a linha vira
+  // " u s e   a p..." pro Waz — pior do
+  // que renderizar tofu, corrompe TUDO.
+  //
+  // Solução escolhida: trocar cada emoji por uma descrição textual em
+  // colchetes ([emoji bolo], [emoji coração]). Preserva a informação
+  // semântica que o Waz precisa, sem corromper o encoding e sem inflar
+  // o PDF com fonte embutida (Noto Emoji = ~10MB).
+  // ----------------------------------------------------------------
+  const EMOJI_NAMES = {
+    // Doces / confeitaria
+    '🎂':'bolo','🍰':'fatia de bolo','🧁':'cupcake','🍪':'cookie',
+    '🍩':'rosquinha','🍫':'chocolate','🍬':'bala','🍭':'pirulito',
+    '🍮':'pudim','🍯':'mel','🥧':'torta','🍦':'sorvete','🍨':'sorvete de pote',
+    '🍧':'raspadinha','🥐':'croissant','🥖':'baguete','🥨':'pretzel',
+    '🍞':'pão','🧇':'waffle','🥞':'panqueca','🍓':'morango','🍒':'cereja',
+    '🥥':'coco','🍫':'chocolate','☕':'café',
+    // Corações
+    '❤️':'coração','❤':'coração','💕':'corações','💖':'coração brilhante',
+    '💗':'coração crescendo','💝':'presente coração','💞':'corações girando',
+    '💟':'decoração coração','💘':'coração flechado','💔':'coração partido',
+    '💜':'coração roxo','💙':'coração azul','💚':'coração verde',
+    '💛':'coração amarelo','🧡':'coração laranja','🖤':'coração preto',
+    '🤍':'coração branco','🤎':'coração marrom',
+    // Brilhos / decoração
+    '✨':'brilhos','⭐':'estrela','🌟':'estrela brilhante','💫':'estrela cadente',
+    '🎉':'festa','🎊':'confete','🎁':'presente','🎀':'laço',
+    // Flores
+    '🌸':'flor de cerejeira','🌹':'rosa','🌷':'tulipa','🌻':'girassol',
+    '🌺':'hibisco','🌼':'margarida','💐':'buquê','🌿':'folhagem',
+    // Rostos / gestos
+    '🥰':'sorriso fofo','😊':'sorriso','😍':'encantado','🤤':'babando',
+    '🥹':'emocionada','🙂':'sorriso leve','😘':'beijinho','🤩':'estrelinha nos olhos',
+    '👋':'aceno','🙌':'mãos pra cima','🙏':'agradecimento','👏':'palmas',
+    '💪':'força','👍':'joinha','👌':'ok','🤝':'aperto de mão',
+    // Outros úteis
+    '☀️':'sol','☀':'sol','🌙':'lua','🔥':'fogo','💡':'lâmpada',
+    '📍':'localização','📞':'telefone','📱':'celular','💬':'balão de fala',
+    '📦':'caixa','🚚':'caminhão de entrega','🛍️':'sacola','🛍':'sacola',
+  };
+
+  // Substitui emojis por "[emoji NOME]" (ou só "[emoji]" no fallback).
+  // Captura sequências unicode dos ranges típicos de emoji + variation
+  // selectors (FE0F) + zero-width joiners (200D) pra famílias/multi-cp.
+  function pdfEmojiToText(str) {
+    const s = String(str == null ? '' : str);
+    return s.replace(
+      // Sequências de emoji (incluindo combinados com ZWJ e variation selectors)
+      /(?:[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}](?:️|‍[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}](?:️)?)*)/gu,
+      (m) => {
+        // Tenta achar o emoji exato no map (com variation selector)
+        let name = EMOJI_NAMES[m];
+        // Se não achou, tenta sem FE0F (caso o emoji tenha sido salvo sem)
+        if (!name) name = EMOJI_NAMES[m.replace(/️/g, '')];
+        return name ? `[emoji ${name}]` : '[emoji]';
+      }
+    );
+  }
+
+  // Limpa tipograficamente a string pro PDF, preservando informação:
+  //  · emojis viram [emoji NOME] (antes eram REMOVIDOS — bug de informação)
+  //  · espaços duplicados colapsam
+  //  · separadores soltos no fim são aparados
   function pdfSafe(str) {
-    return String(str == null ? '' : str)
-      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{2300}-\u{23FF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+    return pdfEmojiToText(str)
       .replace(/\s{2,}/g, ' ')          // colapsa espaços
       .replace(/\s+([—/:])\s*$/, '')    // remove separador solto no fim
       .trim();
